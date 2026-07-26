@@ -1,0 +1,37 @@
+# TwinRAG simulation experiment configuration.
+#
+# Consumed by scripts/run_fault_simulation.py, which runs one baseline
+# ("normal") simulation plus one simulation per fault below. Each run writes:
+#   data/processed/<scenario>.csv   -- the long-format hydraulic dataset
+#   data/metadata/<scenario>.json   -- ground-truth label for the injected fault
+#
+# Paths are resolved relative to the project root.
+
+network_file: data/networks/Net3.inp
+
+simulation:
+  duration_hours: 24
+  hydraulic_timestep_seconds: 3600
+  report_timestep_seconds: 3600
+
+# severity is in (0.0, 1.0]; 1.0 is the most severe form of each fault.
+faults:
+  # Emitter-based leak on a demand junction.
+  - type: leak
+    target_id: "101"
+    severity: 0.6
+    # params:
+    #   max_emitter_coefficient: 100.0   # units follow the network's flow units
+
+  # Full pump outage (severity 1.0 => pump closed). Net3 pumps: "10", "335".
+  - type: pump_failure
+    target_id: "10"
+    severity: 1.0
+
+  # Partial blockage via added minor-loss. Net3 has no valves, so this targets
+  # a pipe; on a network with valves, target a valve ID instead.
+  - type: blockage
+    target_id: "103"
+    severity: 0.8
+    # params:
+    #   max_minor_loss: 1000.0

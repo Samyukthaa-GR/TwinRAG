@@ -23,6 +23,8 @@ data/metadata/*
 # EPANET temporary simulation files
 *.bin
 *.hyd
+/temp.inp
+/temp.rpt
 *.rpt
 
 # Environment variables

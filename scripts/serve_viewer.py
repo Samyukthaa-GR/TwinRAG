@@ -22,6 +22,7 @@ import sys
 import threading
 import webbrowser
 from functools import partial
+from http import HTTPStatus
 from pathlib import Path
 
 
@@ -40,6 +41,14 @@ class ViewerHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self.path = "/" + VIEWER_NAME
+
+        # Browsers request this unprompted. The page carries an inline
+        # icon, so answer "nothing here" rather than raising a 404.
+        if self.path == "/favicon.ico" and not (SERVE_DIR / "favicon.ico").exists():
+            self.send_response(HTTPStatus.NO_CONTENT)
+            self.end_headers()
+            return
+
         return super().do_GET()
 
     def guess_type(self, path):
@@ -62,8 +71,14 @@ class ViewerHandler(http.server.SimpleHTTPRequestHandler):
         return super().end_headers()
 
     def log_message(self, fmt, *args):
-        if "twin_viewer" in (args[0] if args else ""):
-            sys.stderr.write(f"  served {args[0]}\n")
+        # log_error() passes an HTTPStatus enum rather than a string, so
+        # never assume these arguments are formattable text.
+        try:
+            message = fmt % args
+        except (TypeError, ValueError):
+            message = " ".join(str(arg) for arg in args) or str(fmt)
+
+        sys.stderr.write(f"  {message}\n")
 
 
 def _lan_address() -> str:

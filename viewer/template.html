@@ -1,0 +1,924 @@
+<title>TwinRAG — Net3 Digital Twin</title>
+
+<style>
+  :root {
+    --ground: #eef1f3;
+    --surface: #ffffff;
+    --surface-2: #e4e9ec;
+    --ink: #101a20;
+    --ink-2: #40525c;
+    --ink-3: #6d818c;
+    --line: #cbd6dc;
+    --line-2: #aebcc4;
+    --accent: #0e7c86;
+    --accent-soft: #d3e9ec;
+
+    --seq-0: #e9f4f6;
+    --seq-1: #b3dde4;
+    --seq-2: #6dc0cd;
+    --seq-3: #2f97a9;
+    --seq-4: #17707f;
+    --seq-5: #0a4a56;
+
+    --div-neg: #b54a22;
+    --div-mid: #9aa7ae;
+    --div-pos: #2c6fb5;
+
+    /* Status reads as coloured text, so these are set for WCAG AA text
+       contrast on --surface, not for categorical separation. Each chip
+       also carries a written label, so state is never colour-alone. */
+    --ok: #1d6b41;
+    --warn: #8a5a00;
+    --crit: #b3242c;
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    --r: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0c1418;
+      --surface: #121d23;
+      --surface-2: #1a272e;
+      --ink: #e4edf1;
+      --ink-2: #a9bcc6;
+      --ink-3: #7c919d;
+      --line: #24343c;
+      --line-2: #354a54;
+      --accent: #35b8c4;
+      --accent-soft: #13333a;
+
+      --seq-0: #10333b;
+      --seq-1: #175a67;
+      --seq-2: #1f8494;
+      --seq-3: #35b0c0;
+      --seq-4: #6ed2de;
+      --seq-5: #b6ecf3;
+
+      --div-neg: #e8794c;
+      --div-mid: #6b7b84;
+      --div-pos: #5fa3e0;
+
+      --ok: #5fb583;
+      --warn: #d9a12a;
+      --crit: #e06a6a;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0c1418;
+    --surface: #121d23;
+    --surface-2: #1a272e;
+    --ink: #e4edf1;
+    --ink-2: #a9bcc6;
+    --ink-3: #7c919d;
+    --line: #24343c;
+    --line-2: #354a54;
+    --accent: #35b8c4;
+    --accent-soft: #13333a;
+
+    --seq-0: #10333b;
+    --seq-1: #175a67;
+    --seq-2: #1f8494;
+    --seq-3: #35b0c0;
+    --seq-4: #6ed2de;
+    --seq-5: #b6ecf3;
+
+    --div-neg: #e8794c;
+    --div-mid: #6b7b84;
+    --div-pos: #5fa3e0;
+
+    --ok: #5fb583;
+    --warn: #d9a12a;
+    --crit: #e06a6a;
+  }
+
+  :root[data-theme="light"] {
+    --ground: #eef1f3;
+    --surface: #ffffff;
+    --surface-2: #e4e9ec;
+    --ink: #101a20;
+    --ink-2: #40525c;
+    --ink-3: #6d818c;
+    --line: #cbd6dc;
+    --line-2: #aebcc4;
+    --accent: #0e7c86;
+    --accent-soft: #d3e9ec;
+
+    --seq-0: #e9f4f6;
+    --seq-1: #b3dde4;
+    --seq-2: #6dc0cd;
+    --seq-3: #2f97a9;
+    --seq-4: #17707f;
+    --seq-5: #0a4a56;
+
+    --div-neg: #b54a22;
+    --div-mid: #9aa7ae;
+    --div-pos: #2c6fb5;
+
+    /* Status reads as coloured text, so these are set for WCAG AA text
+       contrast on --surface, not for categorical separation. Each chip
+       also carries a written label, so state is never colour-alone. */
+    --ok: #1d6b41;
+    --warn: #8a5a00;
+    --crit: #b3242c;
+  }
+
+  * { box-sizing: border-box; }
+
+  .twin {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: clamp(12px, 2vw, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lede { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+
+  .lede h1 {
+    font-size: clamp(17px, 2.1vw, 22px);
+    font-weight: 620;
+    letter-spacing: -0.015em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede p { margin: 0; color: var(--ink-3); font-size: 13px; max-width: 62ch; }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    padding: 2px 9px;
+  }
+
+  /* ---------- controls ---------- */
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    align-items: flex-end;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 12px 14px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+
+  .field > label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  select {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    border-radius: 5px;
+    padding: 6px 9px;
+    max-width: 100%;
+  }
+
+  .seg { display: flex; border: 1px solid var(--line-2); border-radius: 5px; overflow: hidden; }
+
+  .seg button {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border: 0;
+    padding: 6px 11px;
+    cursor: pointer;
+  }
+
+  .seg button + button { border-left: 1px solid var(--line-2); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+
+  .ghost {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    border-radius: 5px;
+    padding: 6px 11px;
+    cursor: pointer;
+  }
+
+  .ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    padding: 3px 10px;
+    border: 1px solid currentColor;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .chip::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .chip.normal { color: var(--ok); }
+  .chip.fault_active { color: var(--crit); }
+  .chip.recovery { color: var(--warn); }
+
+  /* ---------- stage ---------- */
+
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    min-width: 0;
+  }
+
+  .map { position: relative; overflow: hidden; }
+  .map svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
+
+  .node { cursor: pointer; }
+  .node:hover .hit, .node.sel .hit { stroke: var(--accent); stroke-width: 2.5; }
+
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--ink);
+    color: var(--ground);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.45;
+    padding: 7px 9px;
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity .1s;
+    white-space: pre;
+    z-index: 5;
+    max-width: 240px;
+  }
+
+  .tip.on { opacity: 1; }
+
+  /* ---------- inspector ---------- */
+
+  .insp { padding: 13px 14px; display: flex; flex-direction: column; gap: 12px; }
+
+  .insp h2 {
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .idline { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .idline strong { font-family: var(--mono); font-size: 19px; letter-spacing: -0.01em; }
+  .idline span { font-size: 12px; color: var(--ink-3); }
+
+  .readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .ro {
+    background: var(--surface-2);
+    border-radius: 5px;
+    padding: 7px 9px;
+    min-width: 0;
+  }
+
+  .ro dt {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+  }
+
+  .ro dd {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    margin: 2px 0 0;
+    color: var(--ink);
+  }
+
+  .ro dd small { font-size: 10.5px; color: var(--ink-3); }
+
+  .nbr { display: flex; flex-direction: column; gap: 1px; max-height: 260px; overflow-y: auto; }
+
+  .nbr button {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    background: none;
+    border: 0;
+    border-radius: 4px;
+    padding: 5px 6px;
+    cursor: pointer;
+    text-align: left;
+    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+  }
+
+  .nbr button:hover { background: var(--surface-2); color: var(--ink); }
+  .nbr .h { color: var(--ink-3); font-size: 10px; }
+  .nbr .sw { width: 9px; height: 9px; border-radius: 50%; justify-self: center; }
+
+  .empty { color: var(--ink-3); font-size: 12.5px; margin: 0; }
+
+  /* ---------- scrubber ---------- */
+
+  .time { padding: 11px 14px 13px; display: flex; flex-direction: column; gap: 8px; }
+
+  .trow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .clock {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    min-width: 62px;
+  }
+
+  input[type="range"] { flex: 1; min-width: 180px; accent-color: var(--accent); }
+
+  .track { position: relative; height: 5px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+  .track .win { position: absolute; top: 0; bottom: 0; background: var(--crit); opacity: .3; }
+
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+  }
+
+  /* ---------- legend ---------- */
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    align-items: center;
+    padding: 11px 14px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+
+  .lg { display: flex; align-items: center; gap: 7px; }
+  .lg svg { display: block; overflow: visible; }
+
+  .ramp { display: flex; align-items: center; gap: 7px; }
+  .ramp .bar5 { display: flex; border-radius: 3px; overflow: hidden; border: 1px solid var(--line-2); }
+  .ramp .bar5 i { width: 20px; height: 11px; display: block; }
+  .ramp span { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  table.data { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 11.5px; }
+  table.data th, table.data td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--line); }
+  table.data th { color: var(--ink-3); font-weight: 500; }
+  table.data td { font-variant-numeric: tabular-nums; }
+  details.tablewrap { padding: 0 14px 13px; }
+  details.tablewrap summary { font-size: 12px; color: var(--ink-3); cursor: pointer; padding: 8px 0; }
+  .scrollx { overflow-x: auto; max-height: 300px; overflow-y: auto; }
+
+  .foot { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="twin">
+
+  <header class="lede">
+    <h1>Net3 — water distribution twin</h1>
+    <span class="tag" id="tagCount">97 nodes · 119 links</span>
+    <p>Every tap, tank and pipe in the model, carrying simulated hydraulics. Click any node to see its readings and its nearest neighbours.</p>
+  </header>
+
+  <div class="bar">
+    <div class="field">
+      <label for="scenario">Scenario</label>
+      <select id="scenario"></select>
+    </div>
+
+    <div class="field">
+      <label for="mode">Colour by</label>
+      <div class="seg" id="mode" role="group" aria-label="Colour mode">
+        <button type="button" data-mode="pressure" aria-pressed="true">Pressure</button>
+        <button type="button" data-mode="delta" aria-pressed="false">Change vs normal</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="play">Playback</label>
+      <button type="button" class="ghost" id="play">▶ Play 24 h</button>
+    </div>
+
+    <div class="field">
+      <label>Condition now</label>
+      <span class="chip normal" id="state">normal</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <section class="panel map" aria-label="Network schematic">
+      <div id="svgHost"></div>
+      <div class="tip" id="tip"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <aside class="panel insp" aria-live="polite">
+      <div id="inspBody">
+        <h2>Inspector</h2>
+        <p class="empty">Select a node on the schematic to inspect its readings and trace its connected neighbours.</p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="panel time">
+    <div class="trow">
+      <span class="clock" id="clock">00:00</span>
+      <input type="range" id="slider" min="0" max="24" step="1" value="0" aria-label="Hour of simulation" />
+    </div>
+    <div class="track"><div class="win" id="win" hidden></div></div>
+    <div class="ticks"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+  </section>
+
+  <details class="panel tablewrap">
+    <summary>View the underlying numbers for this timestep</summary>
+    <div class="scrollx">
+      <table class="data" id="tbl">
+        <thead><tr><th>Node</th><th>Type</th><th>Pressure (m)</th><th>Demand (m³/s)</th><th>Δ vs normal (m)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </details>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script type="application/json" id="twinData">__TWIN_DATA__</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var D = JSON.parse(document.getElementById("twinData").textContent);
+  var host = document.getElementById("svgHost");
+  var tip = document.getElementById("tip");
+  var NS = "http://www.w3.org/2000/svg";
+
+  var SEQ = ["--seq-0", "--seq-1", "--seq-2", "--seq-3", "--seq-4", "--seq-5"];
+  var css = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+
+  var scenKeys = Object.keys(D.scenarios);
+  var state = {
+    scenario: scenKeys[0],
+    mode: "pressure",
+    step: 0,
+    selected: null,
+    playing: false
+  };
+
+  /* ---------- geometry ---------- */
+
+  var W = 900, H = 620, PAD = 34;
+  var xs = D.nodes.map(function (n) { return n.x; });
+  var ys = D.nodes.map(function (n) { return n.y; });
+  var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+  var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+  var sx = (W - PAD * 2) / ((x1 - x0) || 1);
+  var sy = (H - PAD * 2) / ((y1 - y0) || 1);
+  var s = Math.min(sx, sy);
+  var ox = (W - (x1 - x0) * s) / 2;
+  var oy = (H - (y1 - y0) * s) / 2;
+
+  function px(n) { return ox + (n.x - x0) * s; }
+  function py(n) { return H - (oy + (n.y - y0) * s); }  // EPANET y grows upward
+
+  var byId = {};
+  D.nodes.forEach(function (n) { byId[n.id] = n; });
+
+  var adj = {};
+  D.nodes.forEach(function (n) { adj[n.id] = []; });
+  D.edges.forEach(function (e) {
+    if (adj[e.source]) adj[e.source].push(e.target);
+    if (adj[e.target]) adj[e.target].push(e.source);
+  });
+
+  /* ---------- data access ---------- */
+
+  function scen() { return D.scenarios[state.scenario]; }
+  function stamp() { return String(scen().timestamps[state.step]); }
+
+  function val(param, id) {
+    var t = scen().series[param][stamp()];
+    return t && t[id] != null ? t[id] : null;
+  }
+
+  function normVal(param, id) {
+    var base = D.scenarios[D.baseline];
+    if (!base) return null;
+    var t = base.series[param][String(base.timestamps[state.step])];
+    return t && t[id] != null ? t[id] : null;
+  }
+
+  function delta(id) {
+    var a = val("pressure", id), b = normVal("pressure", id);
+    if (a == null || b == null) return null;
+    return a - b;
+  }
+
+  /* ---------- colour ---------- */
+
+  function seqColor(v) {
+    if (v == null) return css("--surface-2");
+    var lo = D.domain.pressure[0], hi = D.domain.pressure[1];
+    var t = (v - lo) / ((hi - lo) || 1);
+    t = Math.max(0, Math.min(1, t));
+    return css(SEQ[Math.min(SEQ.length - 1, Math.floor(t * SEQ.length))]);
+  }
+
+  function mix(a, b, t) {
+    function p(h) {
+      h = h.replace("#", "");
+      if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+      return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+    }
+    var A = p(a), B = p(b);
+    return "rgb(" + A.map(function (c, i) { return Math.round(c + (B[i] - c) * t); }).join(",") + ")";
+  }
+
+  function divColor(v) {
+    if (v == null) return css("--surface-2");
+    var m = D.domain.delta || 1;
+    var t = Math.max(-1, Math.min(1, v / m));
+    var mid = css("--div-mid");
+    return t < 0 ? mix(mid, css("--div-neg"), -t) : mix(mid, css("--div-pos"), t);
+  }
+
+  function nodeColor(id) {
+    return state.mode === "pressure" ? seqColor(val("pressure", id)) : divColor(delta(id));
+  }
+
+  /* ---------- svg build ---------- */
+
+  var svg, gEdge, gNode, nodeEls = {}, edgeEls = {};
+
+  function shape(n) {
+    var r = n.type === "junction" ? 4.6 : 8;
+    if (n.type === "tank") {
+      var sq = document.createElementNS(NS, "rect");
+      sq.setAttribute("x", px(n) - r); sq.setAttribute("y", py(n) - r);
+      sq.setAttribute("width", r * 2); sq.setAttribute("height", r * 2);
+      sq.setAttribute("rx", 1.5);
+      return sq;
+    }
+    if (n.type === "reservoir") {
+      var tr = document.createElementNS(NS, "polygon");
+      var X = px(n), Y = py(n);
+      tr.setAttribute("points", [X, Y - r - 1, X + r + 1, Y + r, X - r - 1, Y + r].join(" "));
+      return tr;
+    }
+    var c = document.createElementNS(NS, "circle");
+    c.setAttribute("cx", px(n)); c.setAttribute("cy", py(n)); c.setAttribute("r", r);
+    return c;
+  }
+
+  function build() {
+    svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Schematic of the Net3 water network");
+
+    gEdge = document.createElementNS(NS, "g");
+    gNode = document.createElementNS(NS, "g");
+    svg.appendChild(gEdge); svg.appendChild(gNode);
+
+    D.edges.forEach(function (e) {
+      var a = byId[e.source], b = byId[e.target];
+      if (!a || !b) return;
+      var ln = document.createElementNS(NS, "line");
+      ln.setAttribute("x1", px(a)); ln.setAttribute("y1", py(a));
+      ln.setAttribute("x2", px(b)); ln.setAttribute("y2", py(b));
+      ln.setAttribute("stroke-linecap", "round");
+      gEdge.appendChild(ln);
+
+      var ar = document.createElementNS(NS, "polygon");
+      ar.setAttribute("opacity", "0");
+      gEdge.appendChild(ar);
+
+      edgeEls[e.id] = { line: ln, arrow: ar, e: e, a: a, b: b };
+    });
+
+    D.nodes.forEach(function (n) {
+      var g = document.createElementNS(NS, "g");
+      g.setAttribute("class", "node");
+      g.setAttribute("tabindex", "0");
+      g.setAttribute("role", "button");
+      g.setAttribute("aria-label", n.type + " " + n.id);
+
+      var hit = shape(n);
+      hit.setAttribute("class", "hit");
+      hit.setAttribute("stroke", css("--surface"));
+      hit.setAttribute("stroke-width", "2");
+      g.appendChild(hit);
+
+      g.addEventListener("click", function () { select(n.id); });
+      g.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id); }
+      });
+      g.addEventListener("mouseenter", function (ev) { showTip(ev, n); });
+      g.addEventListener("mousemove", function (ev) { moveTip(ev); });
+      g.addEventListener("mouseleave", hideTip);
+      g.addEventListener("focus", function () { select(n.id); });
+
+      gNode.appendChild(g);
+      nodeEls[n.id] = { g: g, hit: hit, n: n };
+    });
+
+    host.appendChild(svg);
+  }
+
+  /* ---------- paint ---------- */
+
+  function paint() {
+    var sc = scen();
+
+    Object.keys(edgeEls).forEach(function (id) {
+      var E = edgeEls[id];
+      var f = val("flowrate", id);
+      var isPump = E.e.type === "pump";
+
+      E.line.setAttribute("stroke", isPump ? css("--accent") : css("--line-2"));
+      E.line.setAttribute("stroke-width", isPump ? 3.4 : (E.e.diameter > 1 ? 2 : 1.2));
+
+      // Flow direction is a property of the moment, not the pipe: sign of
+      // flowrate decides which way the arrow points, and it does flip.
+      if (f == null || Math.abs(f) < 1e-6) { E.arrow.setAttribute("opacity", "0"); return; }
+
+      var from = f >= 0 ? E.a : E.b, to = f >= 0 ? E.b : E.a;
+      var X1 = px(from), Y1 = py(from), X2 = px(to), Y2 = py(to);
+      var mx = (X1 + X2) / 2, my = (Y1 + Y2) / 2;
+      var dx = X2 - X1, dy = Y2 - Y1, L = Math.hypot(dx, dy) || 1;
+      var ux = dx / L, uy = dy / L, h = 4.2;
+      var pts = [
+        (mx + ux * h) + "," + (my + uy * h),
+        (mx - ux * h - uy * h * 0.72) + "," + (my - uy * h + ux * h * 0.72),
+        (mx - ux * h + uy * h * 0.72) + "," + (my - uy * h - ux * h * 0.72)
+      ].join(" ");
+      E.arrow.setAttribute("points", pts);
+      E.arrow.setAttribute("fill", isPump ? css("--accent") : css("--ink-3"));
+      E.arrow.setAttribute("opacity", L > 26 ? "0.75" : "0");
+    });
+
+    Object.keys(nodeEls).forEach(function (id) {
+      var N = nodeEls[id];
+      N.hit.setAttribute("fill", nodeColor(id));
+      N.hit.setAttribute("stroke", id === sc.target ? css("--crit") : css("--surface"));
+      N.hit.setAttribute("stroke-width", id === sc.target ? 2.6 : 2);
+      N.g.classList.toggle("sel", id === state.selected);
+    });
+
+    var st = sc.states[state.step] || "normal";
+    var chip = document.getElementById("state");
+    chip.className = "chip " + st;
+    chip.textContent = st.replace("_", " ");
+
+    var secs = sc.timestamps[state.step];
+    var hh = Math.floor(secs / 3600);
+    document.getElementById("clock").textContent = String(hh).padStart(2, "0") + ":00";
+
+    document.getElementById("foot").textContent =
+      D.network + " · " + sc.label + " · hour " + hh + " of 24";
+
+    drawLegend();
+    if (state.selected) inspect(state.selected);
+    fillTable();
+  }
+
+  /* ---------- legend ---------- */
+
+  function drawLegend() {
+    var L = document.getElementById("legend");
+    var glyph =
+      '<span class="lg"><svg width="12" height="12"><circle cx="6" cy="6" r="4.6" fill="var(--ink-3)"/></svg>Junction</span>' +
+      '<span class="lg"><svg width="14" height="14"><rect x="1" y="1" width="12" height="12" rx="1.5" fill="var(--ink-3)"/></svg>Tank</span>' +
+      '<span class="lg"><svg width="14" height="14"><polygon points="7,0 14,12 0,12" fill="var(--ink-3)"/></svg>Reservoir</span>' +
+      '<span class="lg"><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--accent)" stroke-width="3.4"/></svg>Pump</span>' +
+      '<span class="lg"><svg width="14" height="10"><polygon points="12,5 3,9 3,1" fill="var(--ink-3)"/></svg>Flow now</span>';
+
+    var ramp;
+    if (state.mode === "pressure") {
+      ramp = '<span class="ramp"><span>' + D.domain.pressure[0].toFixed(0) + ' m</span><span class="bar5">' +
+        SEQ.map(function (v) { return '<i style="background:var(' + v + ')"></i>'; }).join("") +
+        '</span><span>' + D.domain.pressure[1].toFixed(0) + ' m</span></span>';
+    } else {
+      ramp = '<span class="ramp"><span>−' + D.domain.delta.toFixed(1) + ' m</span><span class="bar5">' +
+        '<i style="background:var(--div-neg)"></i><i style="background:var(--div-mid)"></i><i style="background:var(--div-pos)"></i>' +
+        '</span><span>+' + D.domain.delta.toFixed(1) + ' m</span></span>';
+    }
+
+    L.innerHTML = glyph + ramp;
+  }
+
+  /* ---------- inspector ---------- */
+
+  function fmt(v, d) { return v == null ? "—" : Number(v).toFixed(d == null ? 2 : d); }
+
+  function select(id) { state.selected = id; paint(); }
+
+  function inspect(id) {
+    var n = byId[id];
+    if (!n) return;
+
+    var seen = {}, order = [], frontier = [id];
+    seen[id] = 0;
+    for (var h = 1; h <= 2; h++) {
+      var next = [];
+      frontier.forEach(function (u) {
+        (adj[u] || []).forEach(function (v) {
+          if (seen[v] === undefined) { seen[v] = h; order.push({ id: v, hops: h }); next.push(v); }
+        });
+      });
+      frontier = next;
+    }
+
+    var d = delta(id);
+    var rows = order.slice(0, 40).map(function (o) {
+      return '<button type="button" data-go="' + o.id + '">' +
+        '<span class="sw" style="background:' + nodeColor(o.id) + '"></span>' +
+        '<span>' + o.id + ' <span class="h">' + byId[o.id].type.slice(0, 4) + '</span></span>' +
+        '<span>' + fmt(val("pressure", o.id), 1) + ' m</span>' +
+        '</button>';
+    }).join("");
+
+    document.getElementById("inspBody").innerHTML =
+      '<h2>Inspector</h2>' +
+      '<div class="idline"><strong>' + n.id + '</strong><span>' + n.type + ' · ' + n.degree + ' connection' + (n.degree === 1 ? '' : 's') + '</span></div>' +
+      '<div class="readouts">' +
+        '<div class="ro"><dt>Pressure</dt><dd>' + fmt(val("pressure", id), 2) + ' <small>m</small></dd></div>' +
+        '<div class="ro"><dt>Δ vs normal</dt><dd>' + (d == null ? "—" : (d > 0 ? "+" : "") + fmt(d, 2)) + ' <small>m</small></dd></div>' +
+        '<div class="ro"><dt>Demand</dt><dd>' + fmt(val("demand", id), 4) + ' <small>m³/s</small></dd></div>' +
+        '<div class="ro"><dt>Elevation</dt><dd>' + fmt(n.elevation, 1) + ' <small>m</small></dd></div>' +
+      '</div>' +
+      '<h2>Neighbours within 2 hops</h2>' +
+      '<div class="nbr">' + (rows || '<p class="empty">No neighbours.</p>') + '</div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (b) {
+      b.addEventListener("click", function () { select(b.getAttribute("data-go")); });
+    });
+  }
+
+  /* ---------- table ---------- */
+
+  function fillTable() {
+    var body = document.querySelector("#tbl tbody");
+    body.innerHTML = D.nodes.map(function (n) {
+      var d = delta(n.id);
+      return "<tr><td>" + n.id + "</td><td>" + n.type + "</td><td>" +
+        fmt(val("pressure", n.id), 2) + "</td><td>" + fmt(val("demand", n.id), 5) + "</td><td>" +
+        (d == null ? "—" : (d > 0 ? "+" : "") + fmt(d, 2)) + "</td></tr>";
+    }).join("");
+  }
+
+  /* ---------- tooltip ---------- */
+
+  function showTip(ev, n) {
+    var d = delta(n.id);
+    tip.textContent = n.id + "  (" + n.type + ")\n" +
+      "pressure  " + fmt(val("pressure", n.id), 2) + " m\n" +
+      "demand    " + fmt(val("demand", n.id), 4) + " m³/s" +
+      (d == null ? "" : "\nΔ normal  " + (d > 0 ? "+" : "") + fmt(d, 2) + " m");
+    tip.classList.add("on");
+    moveTip(ev);
+  }
+
+  function moveTip(ev) {
+    var r = host.getBoundingClientRect();
+    var x = ev.clientX - r.left + 14, y = ev.clientY - r.top + 14;
+    if (x + 210 > r.width) x = ev.clientX - r.left - 200;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  }
+
+  function hideTip() { tip.classList.remove("on"); }
+
+  /* ---------- window shading ---------- */
+
+  function shadeWindow() {
+    var sc = scen();
+    var win = document.getElementById("win");
+    var first = sc.states.indexOf("fault_active");
+    if (first < 0) { win.hidden = true; return; }
+    var last = sc.states.lastIndexOf("fault_active");
+    var n = sc.states.length - 1;
+    win.hidden = false;
+    win.style.left = (first / n * 100) + "%";
+    win.style.width = ((last - first + 1) / n * 100) + "%";
+  }
+
+  /* ---------- controls ---------- */
+
+  var sel = document.getElementById("scenario");
+  scenKeys.forEach(function (k) {
+    var o = document.createElement("option");
+    o.value = k; o.textContent = D.scenarios[k].label;
+    sel.appendChild(o);
+  });
+
+  sel.addEventListener("change", function () {
+    state.scenario = sel.value;
+    shadeWindow();
+    paint();
+  });
+
+  document.getElementById("mode").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-mode]");
+    if (!b) return;
+    state.mode = b.getAttribute("data-mode");
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) {
+      x.setAttribute("aria-pressed", String(x === b));
+    });
+    paint();
+  });
+
+  var slider = document.getElementById("slider");
+  slider.max = String(scen().timestamps.length - 1);
+  slider.addEventListener("input", function () {
+    state.step = Number(slider.value);
+    paint();
+  });
+
+  var timer = null;
+  document.getElementById("play").addEventListener("click", function () {
+    var btn = this;
+    if (state.playing) {
+      clearInterval(timer); state.playing = false; btn.textContent = "▶ Play 24 h"; return;
+    }
+    state.playing = true; btn.textContent = "❚❚ Pause";
+    timer = setInterval(function () {
+      state.step = (state.step + 1) % scen().timestamps.length;
+      slider.value = String(state.step);
+      paint();
+    }, 420);
+  });
+
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", paint);
+  new MutationObserver(paint).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  document.getElementById("tagCount").textContent =
+    D.nodes.length + " nodes · " + D.edges.length + " links";
+
+  build();
+  shadeWindow();
+  paint();
+})();
+</script>

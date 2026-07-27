@@ -1,5 +1,6 @@
 wntr
 pandas
 numpy
+networkx
 pyyaml
 pytest

@@ -3,74 +3,110 @@ from .base import FaultInjector
 
 class PumpFailureFault(FaultInjector):
     """
-    Models a pump failure / power outage.
+    Simulates a partial or complete pump failure.
 
-    * A **full** failure (``severity == 1.0``) closes the pump so it delivers no
-      flow -- an EPANET-native power-outage representation. Existing ``[CONTROLS]``
-      that operate the pump (Net3 cycles its pumps on/off by time and tank level)
-      are removed first; otherwise they would re-open the pump mid-simulation and
-      the outage would have no effect. This mirrors WNTR's guidance to strip
-      conflicting pump controls when modelling outages.
-    * A **partial** failure reduces the pump's ``base_speed`` to
-      ``(1 - severity)`` of nominal, degrading the head/flow it supplies while
-      still letting its normal controls cycle it (e.g. severity ``0.4`` leaves
-      the pump running at 60% speed when on).
+    Complete failure:
+        The pump is shut down only during the configured
+        start/end time interval.
 
-    Both mechanisms are honoured by the ``EpanetSimulator``.
+    Partial failure:
+        Currently falls back to a constant speed reduction.
+        Timed partial-speed degradation can be added later.
     """
 
     fault_type = "pump_failure"
 
+    def __init__(
+        self,
+        target_id: str,
+        severity: float = 0.5,
+        start_hour: int = 0,
+        end_hour: int | None = None,
+    ):
+        super().__init__(
+            target_id=target_id,
+            severity=severity,
+            start_hour=start_hour,
+            end_hour=end_hour,
+        )
+
     def _validate_target(self, network) -> None:
+        """
+        Ensure that the target exists and is a pump.
+        """
+
         if self.target_id not in network.pump_name_list:
             raise ValueError(
-                f"Pump-failure target '{self.target_id}' is not a pump in the network."
+                f"Pump failure target '{self.target_id}' "
+                "is not a pump in the network."
             )
 
-    def _remove_controls_targeting_pump(self, network) -> int:
-        """
-        Remove every control whose action targets this pump, so a forced
-        outage is not overridden by the network's own on/off logic.
-        Returns the number of controls removed.
-        """
-
-        to_remove = []
-        for control_name in list(network.control_name_list):
-            control = network.get_control(control_name)
-            for action in control.actions():
-                target_obj = action.target()[0]
-                if getattr(target_obj, "name", None) == self.target_id:
-                    to_remove.append(control_name)
-                    break
-
-        for control_name in to_remove:
-            network.remove_control(control_name)
-
-        return len(to_remove)
-
     def _inject(self, network) -> None:
+        """
+        Inject the pump failure.
+
+        For complete failure, WNTR's timed outage mechanism is used.
+
+        For partial failure, pump speed is currently reduced for
+        the whole simulation. Timed partial degradation will be
+        implemented separately if needed.
+        """
+
         pump = network.get_link(self.target_id)
 
+        # --------------------------------------------------
+        # Complete pump failure
+        # --------------------------------------------------
+
         if self.severity >= 1.0:
-            self._removed_controls = self._remove_controls_targeting_pump(network)
-            pump.initial_status = "Closed"
-            self._mode = "closed"
-            self._resulting_speed = 0.0
-        else:
-            pump.base_speed = pump.base_speed * (1.0 - self.severity)
-            self._mode = "degraded_speed"
-            self._resulting_speed = pump.base_speed
-            self._removed_controls = 0
+            start_time_s = self.start_hour * 3600
+
+            end_time_s = (
+                self.end_hour * 3600
+                if self.end_hour is not None
+                else None
+            )
+
+            pump.add_outage(
+                network,
+                start_time=start_time_s,
+                end_time=end_time_s,
+                priority=6,
+                add_after_outage_rule=True,
+            )
+
+            return
+
+        # --------------------------------------------------
+        # Partial pump degradation
+        # --------------------------------------------------
+
+        remaining_speed = 1.0 - self.severity
+
+        pump.base_speed *= remaining_speed
 
     def describe(self) -> dict:
+        """
+        Extend the shared fault metadata with
+        pump-specific details.
+        """
+
         info = super().describe()
+
+        if self.severity >= 1.0:
+            mechanism = "timed_complete_outage"
+            remaining_speed = 0.0
+        else:
+            mechanism = "speed_reduction"
+            remaining_speed = 1.0 - self.severity
+
         info.update(
             {
-                "mechanism": getattr(self, "_mode", "unknown"),
-                "resulting_base_speed": getattr(self, "_resulting_speed", None),
-                "removed_controls": getattr(self, "_removed_controls", 0),
+                "mechanism": mechanism,
+                "remaining_speed_fraction": remaining_speed,
                 "affected_nodes": [],
                 "affected_links": [self.target_id],
             }
         )
+
         return info

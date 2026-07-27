@@ -24,12 +24,13 @@ class SimulationConfig:
 
 @dataclass
 class FaultScenarioConfig:
-    """A single fault to inject: its type, target asset, and severity."""
+    """A single fault to inject."""
 
     type: str
     target_id: str
     severity: float = 0.5
-    #: Optional injector-specific overrides (e.g. max_emitter_coefficient).
+    start_hour: int = 0
+    end_hour: int | None = None
     params: dict = field(default_factory=dict)
 
 
@@ -76,6 +77,12 @@ def load_config(path) -> ExperimentConfig:
                 type=entry["type"],
                 target_id=str(entry["target_id"]),
                 severity=float(entry.get("severity", 0.5)),
+                start_hour=int(entry.get("start_hour", 0)),
+                end_hour=(
+                    int(entry["end_hour"])
+                    if entry.get("end_hour") is not None
+                    else None
+                ),
                 params=entry.get("params") or {},
             )
         )

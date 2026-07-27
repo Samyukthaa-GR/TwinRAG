@@ -25,6 +25,8 @@ def create_fault(
     fault_type: str,
     target_id: str,
     severity: float = 0.5,
+    start_hour: int = 0,
+    end_hour: int | None = None,
     **params,
 ) -> FaultInjector:
     """
@@ -45,8 +47,13 @@ def create_fault(
             f"Unknown fault type '{fault_type}'. Valid types: {valid}."
         )
 
-    return fault_cls(target_id=target_id, severity=severity, **params)
-
+    return fault_cls(
+    target_id=target_id,
+    severity=severity,
+    start_hour=start_hour,
+    end_hour=end_hour,
+    **params,
+)
 
 __all__ = [
     "FaultInjector",

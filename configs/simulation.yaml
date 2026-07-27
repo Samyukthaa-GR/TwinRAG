@@ -16,22 +16,20 @@ simulation:
 
 # severity is in (0.0, 1.0]; 1.0 is the most severe form of each fault.
 faults:
-  # Emitter-based leak on a demand junction.
   - type: leak
     target_id: "101"
     severity: 0.6
-    # params:
-    #   max_emitter_coefficient: 100.0   # units follow the network's flow units
+    start_hour: 8
+    end_hour: 18
 
-  # Full pump outage (severity 1.0 => pump closed). Net3 pumps: "10", "335".
   - type: pump_failure
     target_id: "10"
     severity: 1.0
+    start_hour: 10
+    end_hour: 16
 
-  # Partial blockage via added minor-loss. Net3 has no valves, so this targets
-  # a pipe; on a network with valves, target a valve ID instead.
   - type: blockage
     target_id: "103"
     severity: 0.8
-    # params:
-    #   max_minor_loss: 1000.0
+    start_hour: 12
+    end_hour: 20

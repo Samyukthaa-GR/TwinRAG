@@ -1,6 +1,6 @@
 ; Filename: C:\Users\Samyukthaa\twinrag\data\networks\Net3.inp
 ; WNTR: 1.5.0
-; Created: 2026-07-25 23:43:09
+; Created: 2026-07-27 21:49:55
 [TITLE]
 EPANET Example Network 3
 Example showing how the percent of Lake water in a dual-source
@@ -314,6 +314,18 @@ Pipe 330 Closed IF Tank 1 below 17.1
 Pipe 330 Open IF Tank 1 above 19.1
 
 [RULES]
+RULE blockage_start_107
+ IF SYSTEM TIME >= 12:00:00
+ THEN Pipe 107 status = CLOSED
+ PRIORITY 6
+ ; end of rule
+
+RULE blockage_end_107
+ IF SYSTEM TIME >= 18:00:00
+ THEN Pipe 107 status = OPEN
+ PRIORITY 7
+ ; end of rule
+
 
 [ENERGY]
 GLOBAL EFFICIENCY      75.0000

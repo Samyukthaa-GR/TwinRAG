@@ -69,10 +69,21 @@ class FaultInjector(ABC):
             round(self.severity * 100)
         )
 
+        if self.end_hour is None:
+            time_suffix = (
+                f"t{self.start_hour:02d}_end"
+            )
+        else:
+            time_suffix = (
+                f"t{self.start_hour:02d}_"
+                f"{self.end_hour:02d}"
+            )
+
         return (
             f"{self.fault_type}_"
             f"{self.target_id}_"
-            f"sev{severity_pct}"
+            f"sev{severity_pct}_"
+            f"{time_suffix}"
         )
 
     def describe(self) -> dict:

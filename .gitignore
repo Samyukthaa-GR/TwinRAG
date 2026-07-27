@@ -33,3 +33,11 @@ data/metadata/*
 # OS files
 .DS_Store
 Thumbs.db
+
+# Generated evaluation datasets
+data/generated/processed/*
+data/generated/metadata/*
+data/generated/scenarios_manifest.csv
+
+!data/generated/processed/.gitkeep
+!data/generated/metadata/.gitkeep

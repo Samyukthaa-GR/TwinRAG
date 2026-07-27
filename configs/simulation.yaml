@@ -33,3 +33,24 @@ faults:
     severity: 0.8
     start_hour: 12
     end_hour: 20
+
+scenario_generation:
+  enabled: true
+
+  leak:
+    target_ids: ["101", "105", "109"]
+    severities: [0.3, 0.6, 0.9]
+    start_hours: [6, 10, 14]
+    duration_hours: 6
+
+  pump_failure:
+    target_ids: ["10"]
+    severities: [1.0]
+    start_hours: [8, 12]
+    duration_hours: 6
+
+  blockage:
+    target_ids: ["103", "105", "107"]
+    severities: [1.0]
+    start_hours: [8, 12]
+    duration_hours: 6

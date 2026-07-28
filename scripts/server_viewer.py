@@ -5,9 +5,9 @@ The viewer is a single self-contained HTML file, so this is only needed
 when you want other machines to reach it. On your own machine you can
 just open data/generated/twin_viewer.html directly.
 
-    python scripts/serve_viewer.py
-    python scripts/serve_viewer.py --port 9000
-    python scripts/serve_viewer.py --host 127.0.0.1   # this machine only
+    python scripts/server_viewer.py
+    python scripts/server_viewer.py --port 9000
+    python scripts/server_viewer.py --host 127.0.0.1   # this machine only
 
 By default it binds 0.0.0.0 so anyone on the same network can view it --
 Windows will likely raise a firewall prompt the first time. Pass

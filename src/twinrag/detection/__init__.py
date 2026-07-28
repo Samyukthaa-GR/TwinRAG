@@ -1,0 +1,30 @@
+"""Statistical anomaly detection components for TwinRAG."""
+from twinrag.detection.aligner import align_baseline_and_scenario
+from twinrag.detection.residuals import calculate_residuals
+from twinrag.detection.profiling import (
+    rank_affected_assets,
+    summarize_residuals_by_parameter,
+)
+from twinrag.detection.loader import (
+    ALIGNMENT_COLUMNS,
+    REQUIRED_COLUMNS,
+    SUPPORTED_PARAMETERS,
+    DetectionDataError,
+    load_baseline_dataset,
+    load_scenario_dataset,
+    validate_detection_dataset,
+)
+
+__all__ = [
+    "ALIGNMENT_COLUMNS",
+    "REQUIRED_COLUMNS",
+    "SUPPORTED_PARAMETERS",
+    "DetectionDataError",
+    "load_baseline_dataset",
+    "load_scenario_dataset",
+    "validate_detection_dataset",
+    "align_baseline_and_scenario",
+    "calculate_residuals",
+    "rank_affected_assets",
+    "summarize_residuals_by_parameter",
+]

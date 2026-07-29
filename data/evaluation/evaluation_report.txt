@@ -1,0 +1,62 @@
+TwinRAG Module 2 Evaluation
+===========================
+
+Overall detection performance
+-----------------------------
+Scenarios evaluated          : 35
+Detected scenarios           : 35
+Scenario detection rate      : 100.00%
+Primary fault events         : 35
+Recovery transient events    : 22
+Pre-fault false-positive events: 0
+Total aggregated events      : 57
+Total evidence records       : 15197
+
+Detection delay
+---------------
+Minimum delay               : 0.00 s
+Mean delay                  : 205.71 s
+Median delay                : 0.00 s
+Maximum delay               : 3600.00 s
+
+Primary event duration
+----------------------
+Minimum event span          : 7200.00 s
+Mean event span             : 23451.43 s
+Median event span           : 18000.00 s
+Maximum event span          : 54000.00 s
+
+Performance by fault type
+-------------------------
+Fault type: blockage
+  Scenarios                : 6
+  Detected scenarios       : 6
+  Detection rate           : 100.00%
+  Primary events           : 6
+  Recovery events          : 4
+  Mean detection delay     : 0.00 s
+  Mean primary event span  : 19800.00 s
+
+Fault type: leak
+  Scenarios                : 27
+  Detected scenarios       : 27
+  Detection rate           : 100.00%
+  Primary events           : 27
+  Recovery events          : 18
+  Mean detection delay     : 0.00 s
+  Mean primary event span  : 22533.33 s
+
+Fault type: pump_failure
+  Scenarios                : 2
+  Detected scenarios       : 2
+  Detection rate           : 100.00%
+  Primary events           : 2
+  Recovery events          : 0
+  Mean detection delay     : 3600.00 s
+  Mean primary event span  : 46800.00 s
+
+Interpretation
+--------------
+A primary fault event was detected for every injected fault scenario.
+Recovery transient events were temporally separated from the injected fault periods and were retained as independent hydraulic responses.
+The evaluation labels were derived from simulation ground-truth states and were used only for offline performance analysis.

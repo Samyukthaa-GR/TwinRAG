@@ -3,6 +3,8 @@ from twinrag.detection.aligner import align_baseline_and_scenario
 from twinrag.detection.residuals import calculate_residuals
 from twinrag.detection.batch import profile_all_scenarios
 from twinrag.detection.events import aggregate_anomaly_events
+from .builder import NetworkGraphBuilder
+from .snapshot import GraphSnapshot
 from twinrag.detection.profiling import (
     rank_affected_assets,
     summarize_residuals_by_parameter,

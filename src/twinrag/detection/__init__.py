@@ -31,6 +31,10 @@ from twinrag.detection.events import (
     aggregate_anomaly_events_with_evidence,
     classify_event_phase,
 )
+from .validation import (
+    GraphValidationError,
+    GraphValidator,
+)
 __all__ = [
     "ALIGNMENT_COLUMNS",
     "REQUIRED_COLUMNS",
@@ -51,4 +55,8 @@ __all__ = [
     "aggregate_anomaly_events",
     "aggregate_anomaly_events_with_evidence",
     "classify_event_phase",
+    "GraphSnapshot",
+    "NetworkGraphBuilder",
+    "GraphValidationError",
+    "GraphValidator",
 ]

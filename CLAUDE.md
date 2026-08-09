@@ -9,13 +9,13 @@ TwinRAG is a digital-twin platform for water distribution networks. The end goal
 Six planned phases. **Phases 1–3 are built:**
 
 1. **Simulation** — EPANET/`wntr` runs on `.inp` models, timed fault injection, long-format datasets. Complete.
-2. **Knowledge graph** — `networkx` topology plus per-timestep hydraulic snapshots with flow direction and neighbour lookup. Complete.
-3. **Anomaly detection** — sensor model, twin-residual and statistical detectors, localized incidents, quantitative evaluation against ground truth. Complete.
+2. **Knowledge graph** — `networkx` topology, per-timestep hydraulic snapshots with flow direction and neighbour lookup, plus a schema/validation layer. Complete.
+3. **Anomaly detection** — **two parallel implementations, both kept.** See *Anomaly detection* below; this is the single most important thing to understand before touching the package.
 4. **Topology-aware retrieval** — BFS subgraph around an incident, pruned by hydraulic relevance, serialized as an LLM evidence packet. **Not built.**
 5. **LLM root-cause reasoning** — structured diagnosis from the evidence packet, scored against the metadata answer key. **Not built.** No LLM client in `requirements.txt` yet.
 6. **Operator dashboard** — a static prototype viewer exists (see *Viewer* below); the live backend, anomaly overlay and diagnosis panel do not.
 
-Phase 3's `Incident` (ranked candidate assets + time window) is the hand-off contract Phase 4 consumes. Treat it as stable.
+> **Two Phase 3 pipelines coexist in `src/twinrag/detection/`** — a dataclass/object pipeline and a DataFrame/CSV pipeline, built independently by two contributors and merged deliberately rather than consolidated. They share no types. Pick one per consumer; do not interleave them. **Phase 4 must choose one contract** — `Incident` (dataclass) or the `anomaly_events.csv` rows (DataFrame) — and that decision is still open.
 
 ## Commands
 
@@ -50,7 +50,7 @@ python scripts/run_generated_scenarios.py
 # timestamps, nulls, scenario labels, temporal state labels)
 python scripts/validate_generated_dataset.py
 
-# --- Phase 3: anomaly detection ---
+# --- Phase 3, pipeline A (dataclass): detect -> evaluate ---
 
 # Run a detector over all 35 scenarios + the baseline negative control
 # -> data/generated/detection/<name>/{summary.csv,incidents.json,run.json,events/}
@@ -63,6 +63,15 @@ python scripts/detect_anomalies.py --noise-scale 3 --name residual_noise3x
 # Score a run against ground truth (recall, precision, latency, hit@k, hops)
 # -> adds evaluation.csv + evaluation.json to that run's directory
 python scripts/evaluate_detection.py --name residual
+
+# --- Phase 3, pipeline B (DataFrame): run these four IN ORDER ---
+# They are cwd-sensitive: run from the project root, since they resolve
+# paths like Path("data/processed/baseline.csv") relative to the cwd.
+
+python scripts/run_anomaly_detection.py    # -> data/detection/scenario_detection_summary.csv
+python scripts/run_anomaly_profiling.py    # -> parameter_residual_summary + affected_asset_ranking
+python scripts/run_event_aggregation.py    # -> anomaly_events.csv + event_evidence.csv
+python scripts/run_detection_evaluation.py # -> data/evaluation/*  (reads the CSVs above)
 
 # --- Viewer (static prototype of the Phase 6 dashboard) ---
 
@@ -128,12 +137,37 @@ timestamp_s, asset_id, asset_type, parameter, value, scenario, state
 
 ### Anomaly detection (`src/twinrag/detection/`) — Phase 3
 
-Consumes a long-format dataset, emits localized incidents. `detect(dataset) -> AnomalyReport` is the whole interface.
+**Read this before editing the package.** Two independent implementations live here, merged from two contributors and kept both. They share no types and have separate entry-point scripts. `__init__.py` re-exports both, so `from twinrag.detection import X` works regardless of which file `X` lives in.
+
+| | pipeline A — dataclass | pipeline B — DataFrame |
+|---|---|---|
+| modules | `sensors`, `base`, `residual`, `statistical`, `incidents` | `loader`, `aligner`, `residuals`, `detector`, `events`, `profiling`, `batch`, `config` |
+| interface | `detect(dataset) -> AnomalyReport` | functions returning `pd.DataFrame` |
+| thresholds | σ of sensor noise (`--threshold 4`) | absolute per-parameter values in `config.py` |
+| output unit | `Incident` (window + ranked candidates) | event rows in `anomaly_events.csv` |
+| scripts | `detect_anomalies.py`, `evaluate_detection.py` | the four `run_*.py`, in order |
+| tests | `tests/detection/` (35 tests) | none yet |
+
+**Naming trap:** `events.py` belongs to pipeline B (event *aggregation*, 567 lines). Pipeline A's `AnomalyEvent`/`Incident`/`AnomalyReport` dataclasses are in **`incidents.py`**. Both sides originally shipped an `events.py`; that was the merge conflict, resolved by moving pipeline A's to `incidents.py` and leaving pipeline B's untouched.
+
+Pipeline B's distinctive pieces, worth knowing even if you work in A:
+
+- `config.py` — `ParameterThreshold(anomaly, warning, critical)` severity tiers; pressure `0.50/1.50/5.00` m, flowrate `0.005/0.020/0.100`. Pipeline A has no tiers, only a continuous σ score — Phase 6 will want bands like these.
+- `classify_event_phase(ground_truth_states)` — labels an event `primary_fault_event` / `recovery_transient` / `pre_fault_false_positive` / `mixed_or_unknown`. A cleaner formalisation of the recovery-vs-false-alarm problem than pipeline A's "report recovery separately". **Uses ground truth, so it is offline-evaluation only** — its docstring says so explicitly; never call it from a deployed detector or from Phase 4/5.
+- `loader.py` — defensive dataset validation (`DetectionDataError`, `REQUIRED_COLUMNS`, `SUPPORTED_PARAMETERS`).
+- Pipeline B reports **35/35 scenarios detected, 0 pre-fault anomalies, max detection delay 3600 s, 22 recovery transients**. Its outputs are deterministic — regenerating them reproduces the committed CSVs byte-for-byte.
+- Caveat: pipeline B uses **absolute** thresholds against noise-free residuals. Because EPANET is deterministic, pre-fault residuals are exactly `0.000000`, so its zero-false-positive result is structural rather than earned. Pipeline A's `SensorModel` exists specifically to remove that free pass — see below.
+
+Two fixes were applied to pipeline B during the merge, both pre-existing on its branch:
+1. `detection/__init__.py` imported `.builder`/`.snapshot`/`.validation`, which live in `twinrag.graph`, not here — so `import twinrag.detection` raised `ImportError`. Those four names are now re-exported from their real home for compatibility; `twinrag.graph` is canonical.
+2. `run_anomaly_detection.py`, `run_anomaly_profiling.py` and `run_event_aggregation.py` were missing the `sys.path` bootstrap block, so all three died with `ModuleNotFoundError: No module named 'twinrag'`. `run_detection_evaluation.py` survived only because it imports nothing from `twinrag`.
+
+The rest of this section documents **pipeline A**.
 
 - `SensorModel` (`sensors.py`) — **required for the evaluation to mean anything.** EPANET is deterministic, so a fault run and the baseline agree to the last bit until the fault fires; pre-fault residuals are *exactly* `0.000000`. Without noise, any threshold above zero scores 100% precision while measuring nothing. `observe()` adds seeded Gaussian noise (`absolute + relative × |value|` per parameter, defaults in `DEFAULT_NOISE`: pressure 0.30 m, flowrate 0.001 + 1%) and optionally restricts to instrumented assets. It keeps `truth` alongside the noisy `value` and publishes `noise_std`, which is what detectors divide by. Noise attaches to a reading's identity via a canonically sorted frame, so row order cannot change the data.
 - `ResidualDetector` (`residual.py`) — **the primary method.** `score = |observed − twin_expected| / noise_std`, so the threshold is in standard deviations and one setting works across metres and m³/s. `expected` comes from the baseline dataset (its `truth` column when present, so a baseline that has been through a sensor model still contributes noise-free values). Optional `min_residual` floors the raw deviation, stopping a very precise sensor from turning a hydraulically trivial wobble into an alarm.
 - `StatisticalDetector` (`statistical.py`) — the baseline-free ablation: `score = |value − asset_median| / max(1.4826 × MAD, noise_std)`. Answers "you only found it because you had the answer". Structurally weaker, and it **inverts** on long faults — once the fault covers most of the run it drags the median it is measured against until the *healthy* hours look anomalous. `tests/detection/test_statistical.py` pins that failure mode deliberately.
-- `AnomalyEvent` / `Incident` / `AnomalyReport` (`events.py`) — an event is one deviating (timestamp, asset, parameter) reading; an `Incident` is a contiguous anomalous window plus **ranked candidate assets**, and is the Phase 4 hand-off. `Incident.epicenter` is reporting sugar only — Phase 4 should walk `candidates`.
+- `AnomalyEvent` / `Incident` / `AnomalyReport` (`incidents.py`) — an event is one deviating (timestamp, asset, parameter) reading; an `Incident` is a contiguous anomalous window plus **ranked candidate assets**, and is pipeline A's Phase 4 hand-off. `Incident.epicenter` is reporting sugar only — Phase 4 should walk `candidates`.
 - `AnomalyDetector` (`base.py`) — shared machinery, and where two non-obvious decisions live:
   - **`min_assets` (default 3) controls the false-alarm rate, not the threshold.** A real fault moves 55–95 of Net3's 97 nodes within one timestep, so requiring several assets to disagree simultaneously separates physics from noise without blunting sensitivity to weak faults.
   - **Candidates are interleaved across measurement channels, never sorted by raw score.** Sigma-normalised scores compare *within* a parameter and mislead *across* parameters: flow-meter noise is ~0.001 m³/s against a pressure transducer's 0.30 m, so a trivial flow wobble (23σ) outranks a 3 m pressure collapse (10σ). Sorting on score therefore ranks by *sensor precision* — in a leak scenario the top 20 came back as flow links while the leaking junction, the only asset that can be the answer since a leak is a node fault, sat at rank 21. `_rank_candidates` ranks each channel internally then interleaves, so every channel's best precedes any channel's second. This moved hit@3 from 17% to 71%.
@@ -174,7 +208,8 @@ The two do not interact — `run_fault_simulation.py` ignores `scenario_generati
 - `data/metadata/` — per-scenario ground-truth fault labels as `<scenario>.json` (gitignored), written alongside each fault dataset by `run_fault_simulation.py`.
 - `data/generated/processed/`, `data/generated/metadata/` — the generated evaluation batch, same file naming, written by `run_generated_scenarios.py` (gitignored).
 - `data/generated/scenarios_manifest.csv` — index of the batch, one row per scenario: `scenario_id, scenario, fault_type, target_id, severity, start_hour, end_hour, dataset_file, metadata_file, rows`. `validate_generated_dataset.py` and `detect_anomalies.py` both drive entirely off this file, so it is the entry point for consuming the batch. Note it is written by `csv` on Windows and therefore carries **backslash** path separators — normalise them (`str.replace("\\", "/")`) when resolving, as the Phase 3 scripts do.
-- `data/generated/detection/<run>/` — one directory per detection run (`summary.csv`, `incidents.json`, `run.json`, `evaluation.csv`, `evaluation.json`, and `events/<scenario>.csv`). Gitignored.
+- `data/generated/detection/<run>/` — pipeline A output, one directory per detection run (`summary.csv`, `incidents.json`, `run.json`, `evaluation.csv`, `evaluation.json`, and `events/<scenario>.csv`). Gitignored.
+- `data/detection/` and `data/evaluation/` — pipeline B output. **These are tracked in git**, unlike every other generated artifact in the repo. Left as-is because they arrived that way; untracking them (`git rm --cached`) is a team decision, not a mechanical one.
 - `data/generated/graph_view.json`, `twin_viewer.html`, `twin_viewer.fragment.html` — viewer build artifacts. These are currently **tracked in git**, unlike everything else under `data/generated/`.
 
 Generated simulation artifacts (`*.bin`, `*.hyd`, `*.rpt`, and the contents of `data/processed`, `data/metadata`, `data/generated/{processed,metadata,detection}`) are gitignored — do not commit them.
@@ -187,8 +222,8 @@ It predates Phases 3–5, so it shows no anomalies, no retrieved subgraph and no
 
 ### Tests
 
-`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`. 57 tests, all passing.
+`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`. **105 tests, all passing.** Only detection pipeline A is covered; pipeline B has no tests.
 
 - `tests/simulation/` — `test_network_loader.py` (Net3 loads; exact component counts — 92 junctions / 2 reservoirs / 3 tanks / 117 pipes / 2 pumps; missing file raises), `test_scenario_generator.py` (generated counts, valid time windows, unique scenario names), `test_scenario_labels.py` (the `normal`/`fault_active`/`recovery` boundaries, using a `SimpleNamespace` stub fault and a hand-built dataframe rather than a real simulation). Tests call the runner's private `_add_*_state_labels` helpers directly to stay fast — keep those names stable or update the tests.
-- `tests/graph/` — `test_builder.py` (composition matches the network, one connected component, reservoir head → `elevation`), `test_snapshot.py` (values attach, flow direction follows sign, link 105 genuinely reverses between hour 4 and hour 16, neighbour ordering, upstream reaches a source). These **run a real EPANET load** and read `data/processed/baseline.csv`, skipping if it is absent.
-- `tests/detection/` — fast and simulation-free: synthetic frames only, no EPANET. `test_sensors.py` (seed reproducibility, row-order independence, truth preserved, coverage filtering), `test_residual.py` (identical runs are silent, `min_assets` suppresses an isolated spike, score really is in sigma, separate windows stay separate incidents, node/link ID collision, channel interleaving), `test_statistical.py` (needs no baseline, constant assets are not flagged, and the long-fault inversion), `test_events.py` (the serialization contract Phase 4 consumes).
+- `tests/graph/` — `test_builder.py` (composition matches the network, one connected component, reservoir head → `elevation`), `test_snapshot.py` (values attach, flow direction follows sign, link 105 genuinely reverses between hour 4 and hour 16, neighbour ordering, upstream reaches a source), `test_validation.py` (the `GraphValidator` checks). These **run a real EPANET load** and read `data/processed/baseline.csv`, skipping if it is absent.
+- `tests/detection/` — pipeline A only; fast and simulation-free, synthetic frames with no EPANET. `test_sensors.py` (seed reproducibility, row-order independence, truth preserved, coverage filtering), `test_residual.py` (identical runs are silent, `min_assets` suppresses an isolated spike, score really is in sigma, separate windows stay separate incidents, node/link ID collision, channel interleaving), `test_statistical.py` (needs no baseline, constant assets are not flagged, and the long-fault inversion), `test_incidents.py` (the serialization contract Phase 4 consumes — named to match `incidents.py`, leaving `test_events.py` free for pipeline B).

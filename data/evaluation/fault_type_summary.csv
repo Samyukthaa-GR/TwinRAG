@@ -1,0 +1,4 @@
+fault_type,scenario_count,detected_scenario_count,primary_event_count,recovery_event_count,mean_detection_delay_s,median_detection_delay_s,maximum_detection_delay_s,mean_primary_event_span_s,median_primary_event_span_s,mean_primary_anomaly_records,mean_affected_asset_count,mean_peak_abs_residual,detection_rate,detection_rate_percent,mean_detection_delay_h,median_detection_delay_h,maximum_detection_delay_h,mean_primary_event_span_h,median_primary_event_span_h
+blockage,6,6,6,4,0.0,0.0,0,19800.0,18000.0,228.33333333333334,40.833333333333336,6.296224166666666,1.0,100.0,0.0,0.0,0.0,5.5,5.0
+leak,27,27,27,18,0.0,0.0,0,22533.333333333332,18000.0,269.037037037037,52.851851851851855,7.052123925925925,1.0,100.0,0.0,0.0,0.0,6.259259259259259,5.0
+pump_failure,2,2,2,0,3600.0,3600.0,3600,46800.0,46800.0,2098.0,129.0,29.0746981,1.0,100.0,1.0,1.0,1.0,13.0,13.0

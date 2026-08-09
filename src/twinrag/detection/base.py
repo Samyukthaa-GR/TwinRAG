@@ -16,7 +16,7 @@ and it does so without blunting sensitivity to weak faults.
 
 from abc import ABC, abstractmethod
 
-from .events import AnomalyEvent, AnomalyReport, Incident
+from .incidents import AnomalyEvent, AnomalyReport, Incident
 
 
 class AnomalyDetector(ABC):

@@ -1,155 +1,482 @@
 """
-Static topology graph.
+Static physical topology builder for water distribution networks.
 
-``NetworkGraphBuilder`` turns a WNTR ``WaterNetworkModel`` into a
-``networkx`` graph describing what is physically connected to what:
-junctions, tanks and reservoirs as nodes; pipes, pumps and valves as
-edges.
+``NetworkGraphBuilder`` converts a WNTR ``WaterNetworkModel`` into a
+``networkx.MultiGraph``.
 
-The graph is **undirected**. Flow direction is deliberately not part of
-the structure: in Net3, 56 of 119 links reverse direction over a normal
-24-hour day as tanks switch between filling and draining. Direction is a
-property of a moment in time, not of the network, so it belongs to
-``GraphSnapshot`` instead.
+EPANET nodes are represented as graph nodes:
 
-Edges are keyed by link name so networks containing parallel pipes
-between the same pair of nodes do not silently lose one.
+- junctions
+- tanks
+- reservoirs
+
+EPANET links are represented as keyed graph edges:
+
+- pipes
+- pumps
+- valves
+
+The graph is deliberately undirected. Declared EPANET start and end
+nodes are retained as metadata, but actual hydraulic direction is a
+runtime property derived from flowrate in ``GraphSnapshot``.
+
+A ``MultiGraph`` is required because a valid water network may contain
+multiple links between the same pair of nodes.
 """
+
+from __future__ import annotations
+
+from collections import Counter
+from pathlib import Path
+from typing import Any
 
 import networkx as nx
 
-
-#: WNTR node classes mapped to the node_type recorded on the graph.
-_NODE_TYPES = (
-    ("junction_name_list", "junction"),
-    ("tank_name_list", "tank"),
-    ("reservoir_name_list", "reservoir"),
+from .constants import (
+    JUNCTION,
+    PIPE,
+    PUMP,
+    RESERVOIR,
+    TANK,
+    VALVE,
+)
+from .schema import (
+    make_graph_metadata,
+    make_link_attributes,
+    make_node_attributes,
+    to_serializable,
 )
 
-#: WNTR link classes mapped to the link_type recorded on the graph.
-_LINK_TYPES = (
-    ("pipe_name_list", "pipe"),
-    ("pump_name_list", "pump"),
-    ("valve_name_list", "valve"),
+
+_NODE_TYPES: tuple[tuple[str, str], ...] = (
+    ("junction_name_list", JUNCTION),
+    ("tank_name_list", TANK),
+    ("reservoir_name_list", RESERVOIR),
+)
+
+_LINK_TYPES: tuple[tuple[str, str], ...] = (
+    ("pipe_name_list", PIPE),
+    ("pump_name_list", PUMP),
+    ("valve_name_list", VALVE),
 )
 
 
 class NetworkGraphBuilder:
     """
-    Builds the static connectivity graph for a water network.
+    Build a static, metadata-rich water-network topology graph.
+
+    Args:
+        network: Loaded WNTR ``WaterNetworkModel``.
+        source: Optional path or description of the source EPANET model.
+
+    Raises:
+        TypeError: If ``network`` does not provide the required WNTR
+            interface.
     """
 
-    def __init__(self, network):
+    def __init__(
+        self,
+        network: Any,
+        source: str | Path | None = None,
+    ) -> None:
         self.network = network
+        self.source = source
 
-    def _node_attributes(self, name: str, node_type: str) -> dict:
+        self._validate_network_interface()
+
+    def _validate_network_interface(self) -> None:
         """
-        Collect the attributes worth carrying onto a graph node.
+        Validate the minimum WNTR interface required by the builder.
 
-        Reservoirs carry a fixed head rather than an elevation, so the
-        two are normalised onto a single ``elevation`` field to keep
-        downstream code from special-casing them.
+        Raises:
+            TypeError: If required attributes or methods are absent.
         """
 
-        node = self.network.get_node(name)
+        required = (
+            "get_node",
+            "get_link",
+            "junction_name_list",
+            "tank_name_list",
+            "reservoir_name_list",
+            "pipe_name_list",
+            "pump_name_list",
+            "valve_name_list",
+        )
 
-        coordinates = getattr(node, "coordinates", None) or (0.0, 0.0)
+        missing = [
+            name
+            for name in required
+            if not hasattr(self.network, name)
+        ]
 
-        if node_type == "reservoir":
-            elevation = getattr(node, "base_head", None)
-        else:
-            elevation = getattr(node, "elevation", None)
+        if missing:
+            raise TypeError(
+                "network does not provide the required WNTR interface. "
+                f"Missing: {', '.join(sorted(missing))}."
+            )
 
-        base_demand = None
+    @staticmethod
+    def _coordinates(node: Any) -> dict[str, float]:
+        """
+        Normalize WNTR coordinates into numeric x/y values.
 
-        if node_type == "junction":
-            base_demand = getattr(node, "base_demand", None)
+        Args:
+            node: WNTR network node.
+
+        Returns:
+            Dictionary containing ``x`` and ``y`` floats.
+        """
+
+        coordinates = getattr(node, "coordinates", None)
+
+        if not coordinates:
+            return {"x": 0.0, "y": 0.0}
+
+        if len(coordinates) != 2:
+            raise ValueError(
+                "Node coordinates must contain exactly two values."
+            )
 
         return {
-            "node_type": node_type,
-            "elevation": elevation,
-            "base_demand": base_demand,
             "x": float(coordinates[0]),
             "y": float(coordinates[1]),
         }
 
-    def _edge_attributes(self, name: str, link_type: str) -> dict:
+    @staticmethod
+    def _pattern_name(pattern: Any) -> str | None:
         """
-        Collect the attributes worth carrying onto a graph edge.
+        Convert a WNTR pattern reference into a stable string.
 
-        ``start_node``/``end_node`` are retained because the sign of a
-        link's flowrate is only meaningful relative to them.
+        Args:
+            pattern: Pattern object, name, or ``None``.
+
+        Returns:
+            Pattern name when available.
+        """
+
+        if pattern is None:
+            return None
+
+        name = getattr(pattern, "name", None)
+
+        return str(name if name is not None else pattern)
+
+    def _node_static_attributes(
+        self,
+        name: str,
+        node_type: str,
+    ) -> dict[str, Any]:
+        """
+        Collect type-specific static metadata for a network node.
+
+        Args:
+            name: EPANET node identifier.
+            node_type: Normalized node type.
+
+        Returns:
+            Static metadata dictionary.
+        """
+
+        node = self.network.get_node(name)
+
+        common: dict[str, Any] = {
+            "coordinates": self._coordinates(node),
+        }
+
+        if node_type == JUNCTION:
+            demand_pattern = getattr(
+                node,
+                "demand_pattern_name",
+                None,
+            )
+
+            common.update(
+                {
+                    "elevation": getattr(node, "elevation", None),
+                    "base_demand": getattr(node, "base_demand", None),
+                    "demand_pattern": self._pattern_name(
+                        demand_pattern
+                    ),
+                }
+            )
+
+        elif node_type == TANK:
+            common.update(
+                {
+                    "elevation": getattr(node, "elevation", None),
+                    "initial_level": getattr(
+                        node,
+                        "init_level",
+                        None,
+                    ),
+                    "minimum_level": getattr(
+                        node,
+                        "min_level",
+                        None,
+                    ),
+                    "maximum_level": getattr(
+                        node,
+                        "max_level",
+                        None,
+                    ),
+                    "diameter": getattr(node, "diameter", None),
+                    "minimum_volume": getattr(
+                        node,
+                        "min_vol",
+                        None,
+                    ),
+                    "volume_curve": self._pattern_name(
+                        getattr(node, "vol_curve_name", None)
+                    ),
+                }
+            )
+
+        elif node_type == RESERVOIR:
+            common.update(
+                {
+                    "base_head": getattr(node, "base_head", None),
+                    "head_pattern": self._pattern_name(
+                        getattr(node, "head_pattern_name", None)
+                    ),
+                }
+            )
+
+        else:
+            raise ValueError(
+                f"Unsupported node type '{node_type}'."
+            )
+
+        return to_serializable(common)
+
+    def _link_static_attributes(
+        self,
+        name: str,
+        link_type: str,
+    ) -> dict[str, Any]:
+        """
+        Collect type-specific static metadata for a network link.
+
+        Args:
+            name: EPANET link identifier.
+            link_type: Normalized link type.
+
+        Returns:
+            Static metadata dictionary.
         """
 
         link = self.network.get_link(name)
-
         status = getattr(link, "initial_status", None)
 
-        return {
-            "link_name": name,
-            "link_type": link_type,
-            "start_node": link.start_node_name,
-            "end_node": link.end_node_name,
+        common: dict[str, Any] = {
+            "initial_status": (
+                to_serializable(status)
+                if status is not None
+                else None
+            ),
             "diameter": getattr(link, "diameter", None),
-            "length": getattr(link, "length", None),
-            "roughness": getattr(link, "roughness", None),
             "minor_loss": getattr(link, "minor_loss", None),
-            "initial_status": str(status) if status is not None else None,
         }
 
-    def build(self) -> nx.Graph:
+        if link_type == PIPE:
+            common.update(
+                {
+                    "length": getattr(link, "length", None),
+                    "roughness": getattr(link, "roughness", None),
+                    "check_valve": bool(
+                        getattr(link, "check_valve", False)
+                    ),
+                }
+            )
+
+        elif link_type == PUMP:
+            common.update(
+                {
+                    "pump_type": to_serializable(
+                        getattr(link, "pump_type", None)
+                    ),
+                    "pump_parameter": to_serializable(
+                        getattr(link, "pump_parameter", None)
+                    ),
+                    "base_speed": getattr(link, "base_speed", None),
+                    "speed_pattern": self._pattern_name(
+                        getattr(link, "speed_pattern_name", None)
+                    ),
+                }
+            )
+
+        elif link_type == VALVE:
+            common.update(
+                {
+                    "valve_type": to_serializable(
+                        getattr(link, "valve_type", None)
+                    ),
+                    "initial_setting": to_serializable(
+                        getattr(link, "initial_setting", None)
+                    ),
+                }
+            )
+
+        else:
+            raise ValueError(
+                f"Unsupported link type '{link_type}'."
+            )
+
+        return to_serializable(common)
+
+    def _graph_name(self) -> str:
         """
-        Build the static topology graph.
+        Derive a stable graph name from the source or network object.
 
-        Returns
-        -------
-        networkx.Graph
-            Nodes keyed by asset ID, edges keyed by link name.
+        Returns:
+            Human-readable graph name.
         """
 
-        graph = nx.Graph()
+        if self.source is not None:
+            source_path = Path(str(self.source))
+            return source_path.stem or "water_network"
 
-        for list_attr, node_type in _NODE_TYPES:
-            for name in getattr(self.network, list_attr):
+        network_name = getattr(self.network, "name", None)
+
+        if network_name:
+            return str(network_name)
+
+        return "water_network"
+
+    def build(self) -> nx.MultiGraph:
+        """
+        Build the static physical topology graph.
+
+        Returns:
+            A metadata-rich ``networkx.MultiGraph``.
+
+        Raises:
+            ValueError: If link endpoints are missing from the graph or a
+                duplicate link identifier is encountered.
+        """
+
+        graph = nx.MultiGraph()
+
+        graph.graph.update(
+            make_graph_metadata(
+                graph_name=self._graph_name(),
+                source=self.source,
+            )
+        )
+
+        for list_attribute, node_type in _NODE_TYPES:
+            names = getattr(self.network, list_attribute)
+
+            for name in names:
+                normalized_name = str(name)
+
+                if normalized_name in graph:
+                    raise ValueError(
+                        f"Duplicate node identifier '{normalized_name}'."
+                    )
+
                 graph.add_node(
-                    name,
-                    **self._node_attributes(name, node_type),
+                    normalized_name,
+                    **make_node_attributes(
+                        asset_id=normalized_name,
+                        asset_type=node_type,
+                        static=self._node_static_attributes(
+                            normalized_name,
+                            node_type,
+                        ),
+                    ),
                 )
 
-        for list_attr, link_type in _LINK_TYPES:
-            for name in getattr(self.network, list_attr):
-                link = self.network.get_link(name)
+        known_link_ids: set[str] = set()
+
+        for list_attribute, link_type in _LINK_TYPES:
+            names = getattr(self.network, list_attribute)
+
+            for name in names:
+                normalized_name = str(name)
+
+                if normalized_name in known_link_ids:
+                    raise ValueError(
+                        f"Duplicate link identifier '{normalized_name}'."
+                    )
+
+                known_link_ids.add(normalized_name)
+
+                link = self.network.get_link(normalized_name)
+                start_node = str(link.start_node_name)
+                end_node = str(link.end_node_name)
+
+                missing_endpoints = [
+                    endpoint
+                    for endpoint in (start_node, end_node)
+                    if endpoint not in graph
+                ]
+
+                if missing_endpoints:
+                    raise ValueError(
+                        f"Link '{normalized_name}' references missing "
+                        f"endpoint(s): {', '.join(missing_endpoints)}."
+                    )
 
                 graph.add_edge(
-                    link.start_node_name,
-                    link.end_node_name,
-                    key=name,
-                    **self._edge_attributes(name, link_type),
+                    start_node,
+                    end_node,
+                    key=normalized_name,
+                    **make_link_attributes(
+                        asset_id=normalized_name,
+                        asset_type=link_type,
+                        start_node=start_node,
+                        end_node=end_node,
+                        static=self._link_static_attributes(
+                            normalized_name,
+                            link_type,
+                        ),
+                    ),
                 )
 
         return graph
 
-    def summary(self, graph: nx.Graph) -> dict:
+    def summary(self, graph: nx.Graph) -> dict[str, Any]:
         """
-        Composition of a built graph, for sanity checks.
+        Return the composition and connectivity of a graph.
+
+        Args:
+            graph: Graph produced by this builder.
+
+        Returns:
+            Dictionary containing node counts, link counts, component
+            count, and graph implementation details.
+
+        Raises:
+            TypeError: If ``graph`` is directed.
         """
 
-        node_types = {}
-        link_types = {}
+        if graph.is_directed():
+            raise TypeError(
+                "Static graph summary expects an undirected graph."
+            )
 
-        for _, data in graph.nodes(data=True):
-            node_type = data["node_type"]
-            node_types[node_type] = node_types.get(node_type, 0) + 1
+        node_types = Counter(
+            data["asset_type"]
+            for _, data in graph.nodes(data=True)
+        )
 
-        for _, _, data in graph.edges(data=True):
-            link_type = data["link_type"]
-            link_types[link_type] = link_types.get(link_type, 0) + 1
+        link_types = Counter(
+            data["asset_type"]
+            for _, _, data in graph.edges(data=True)
+        )
 
         return {
             "nodes_total": graph.number_of_nodes(),
             "edges_total": graph.number_of_edges(),
-            "node_types": node_types,
-            "link_types": link_types,
-            "connected": nx.is_connected(graph) if graph.number_of_nodes() else False,
+            "node_types": dict(node_types),
+            "link_types": dict(link_types),
+            "connected": (
+                nx.is_connected(graph)
+                if graph.number_of_nodes()
+                else False
+            ),
             "components": nx.number_connected_components(graph),
+            "multigraph": graph.is_multigraph(),
+            "directed": graph.is_directed(),
+            "schema_version": graph.graph.get("schema_version"),
         }

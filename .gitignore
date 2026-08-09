@@ -41,3 +41,6 @@ data/generated/scenarios_manifest.csv
 
 !data/generated/processed/.gitkeep
 !data/generated/metadata/.gitkeep
+
+# Anomaly-detection runs (one directory per detector configuration)
+data/generated/detection/

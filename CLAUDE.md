@@ -4,9 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-TwinRAG is a digital-twin platform for water distribution networks. The current codebase covers the **simulation layer** (Module 1 of a planned 6): it drives EPANET hydraulic simulations (via the `wntr` library) on `.inp` network models, injects faults to produce labelled fault-condition data, and formats results into standardized long-format datasets. The name implies an eventual RAG layer (anomaly detection → knowledge graph → topology-aware retrieval → LLM root-cause → dashboard) on top of the twin; those modules are not yet present.
+TwinRAG is a digital-twin platform for water distribution networks. The end goal: an anomaly fires somewhere in the network, a subgraph around that point is extracted from the knowledge graph, and that local physical context is handed to an LLM which reasons out the root cause with no manual pipe-tracing. The simulator exists to manufacture ground truth for that pipeline.
 
-Module 1 is complete: baseline simulation, **timed** leak / pump-failure / blockage fault injection, systematic scenario generation (a 35-scenario evaluation batch), temporal state labelling, and dataset validation. The remaining modules (2–6) are unbuilt — no `networkx`, LLM client, or Streamlit in `requirements.txt` yet.
+Six planned phases. **Phases 1–3 are built:**
+
+1. **Simulation** — EPANET/`wntr` runs on `.inp` models, timed fault injection, long-format datasets. Complete.
+2. **Knowledge graph** — `networkx` topology plus per-timestep hydraulic snapshots with flow direction and neighbour lookup. Complete.
+3. **Anomaly detection** — sensor model, twin-residual and statistical detectors, localized incidents, quantitative evaluation against ground truth. Complete.
+4. **Topology-aware retrieval** — BFS subgraph around an incident, pruned by hydraulic relevance, serialized as an LLM evidence packet. **Not built.**
+5. **LLM root-cause reasoning** — structured diagnosis from the evidence packet, scored against the metadata answer key. **Not built.** No LLM client in `requirements.txt` yet.
+6. **Operator dashboard** — a static prototype viewer exists (see *Viewer* below); the live backend, anomaly overlay and diagnosis panel do not.
+
+Phase 3's `Incident` (ranked candidate assets + time window) is the hand-off contract Phase 4 consumes. Treat it as stable.
 
 ## Commands
 
@@ -41,14 +50,35 @@ python scripts/run_generated_scenarios.py
 # timestamps, nulls, scenario labels, temporal state labels)
 python scripts/validate_generated_dataset.py
 
+# --- Phase 3: anomaly detection ---
+
+# Run a detector over all 35 scenarios + the baseline negative control
+# -> data/generated/detection/<name>/{summary.csv,incidents.json,run.json,events/}
+python scripts/detect_anomalies.py
+python scripts/detect_anomalies.py --detector statistical
+python scripts/detect_anomalies.py --threshold 6 --min-assets 5
+python scripts/detect_anomalies.py --no-noise    --name residual_noisefree
+python scripts/detect_anomalies.py --noise-scale 3 --name residual_noise3x
+
+# Score a run against ground truth (recall, precision, latency, hit@k, hops)
+# -> adds evaluation.csv + evaluation.json to that run's directory
+python scripts/evaluate_detection.py --name residual
+
+# --- Viewer (static prototype of the Phase 6 dashboard) ---
+
+python scripts/export_graph_view.py   # topology + 4 scenarios -> graph_view.json
+python scripts/build_viewer.py        # -> data/generated/twin_viewer.html
+python scripts/server_viewer.py       # optional; serves it over HTTP
+
 # Tests (pytest.ini sets pythonpath=src and testpaths=tests — no sys.path juggling needed)
 pytest
+pytest tests/detection                                                             # one package
 pytest tests/simulation/test_scenario_generator.py::test_generated_scenario_count   # single test
 ```
 
-On Windows use the `py` launcher and the venv interpreter explicitly: `py -m venv .venv`, then `.\.venv\Scripts\python.exe ...`. The bare `py`/`python` on PATH does *not* have the dependencies installed. The full suite (9 tests) and real EPANET simulations both run in this environment.
+On Windows use the `py` launcher and the venv interpreter explicitly: `py -m venv .venv`, then `.\.venv\Scripts\python.exe ...`. The bare `py`/`python` on PATH does *not* have the dependencies installed. The full suite (57 tests) and real EPANET simulations both run in this environment; the simulation-dependent graph tests skip if `data/processed/baseline.csv` has not been generated.
 
-Note: the machine's Application Control policy intermittently blocks pandas' compiled DLLs on first touch — `ImportError: DLL load failed while importing <ext>: An Application Control policy has blocked this file`. It has cleared as of the latest check (pandas 3.0.5 imports, `pytest` is 9/9 green, `run_baseline_simulation.py` completes). If it reappears, retrying the same command usually succeeds; it is an OS-level policy quirk, not a code or dependency problem.
+Note: the machine's Application Control policy intermittently blocks pandas' compiled DLLs on first touch — `ImportError: DLL load failed while importing <ext>: An Application Control policy has blocked this file`. It has cleared as of the latest check (pandas 3.0.5 imports, the suite is green, `run_baseline_simulation.py` completes). If it reappears, retrying the same command usually succeeds; it is an OS-level policy quirk, not a code or dependency problem.
 
 There is no `pyproject.toml`/`setup.py`. The package is **not installed** — scripts add `src/` to `sys.path` manually (see the path-setup block at the top of each script) before importing `twinrag.*`. New entry-point scripts must replicate that block, and the `twinrag` imports must come *after* it. Tests don't need it: `pytest.ini` sets `pythonpath = src`.
 
@@ -89,6 +119,45 @@ timestamp_s, asset_id, asset_type, parameter, value, scenario, state
 - **Gotcha:** `state` is added by `FaultScenarioRunner`, not the formatter. `scripts/run_baseline_simulation.py` calls the loader/simulator/formatter directly and therefore writes a `data/processed/baseline.csv` *without* the `state` column, unlike the baseline written by `run_fault_simulation.py`. Anything consuming the schema uniformly should prefer the runner.
 - For Net3 at the default 24h/3600s settings each scenario dataset is **7825 rows** = 25 timestamps × (97 nodes × 2 params + 119 links); `validate_generated_dataset.py` hard-codes that number and the expected 35-scenario count.
 
+### The graph layer (`src/twinrag/graph/`) — Phase 2
+
+- `NetworkGraphBuilder` (`builder.py`) — turns a `WaterNetworkModel` into a `networkx` graph. Junctions/tanks/reservoirs become nodes (reservoir `base_head` is normalised onto the same `elevation` field as junction elevation); pipes/pumps/valves become edges carrying `link_name`, `start_node`, `end_node`, diameter, length. `summary(graph)` gives composition + connectivity for sanity checks.
+- The graph is deliberately **undirected**: 56 of Net3's 119 links reverse over a normal 24h day as tanks fill and drain, so direction is a property of a moment, not of the network.
+- **Known limitation:** `add_edge(..., key=name)` on an `nx.Graph` stores `key` as an ordinary attribute — it is *not* a MultiGraph key. Parallel links between the same node pair would silently overwrite each other. Net3 has none (119 links → 119 edges), so this is latent, but the docstring's promise is not currently kept. Switch to `nx.MultiGraph` before trusting it on another network.
+- `GraphSnapshot` (`snapshot.py`) — lays one timestep over the topology: pressure/demand onto nodes, flowrate onto links, and `flow_from`/`flow_to` derived from the **sign** of each flowrate. `directed()` returns the flow-oriented `DiGraph` (zero-flow links omitted); `neighbors(asset_id, hops)` is the BFS retrieval primitive Phase 4 builds on; `upstream()`/`downstream()` give causal ancestry and blast radius at that instant.
+
+### Anomaly detection (`src/twinrag/detection/`) — Phase 3
+
+Consumes a long-format dataset, emits localized incidents. `detect(dataset) -> AnomalyReport` is the whole interface.
+
+- `SensorModel` (`sensors.py`) — **required for the evaluation to mean anything.** EPANET is deterministic, so a fault run and the baseline agree to the last bit until the fault fires; pre-fault residuals are *exactly* `0.000000`. Without noise, any threshold above zero scores 100% precision while measuring nothing. `observe()` adds seeded Gaussian noise (`absolute + relative × |value|` per parameter, defaults in `DEFAULT_NOISE`: pressure 0.30 m, flowrate 0.001 + 1%) and optionally restricts to instrumented assets. It keeps `truth` alongside the noisy `value` and publishes `noise_std`, which is what detectors divide by. Noise attaches to a reading's identity via a canonically sorted frame, so row order cannot change the data.
+- `ResidualDetector` (`residual.py`) — **the primary method.** `score = |observed − twin_expected| / noise_std`, so the threshold is in standard deviations and one setting works across metres and m³/s. `expected` comes from the baseline dataset (its `truth` column when present, so a baseline that has been through a sensor model still contributes noise-free values). Optional `min_residual` floors the raw deviation, stopping a very precise sensor from turning a hydraulically trivial wobble into an alarm.
+- `StatisticalDetector` (`statistical.py`) — the baseline-free ablation: `score = |value − asset_median| / max(1.4826 × MAD, noise_std)`. Answers "you only found it because you had the answer". Structurally weaker, and it **inverts** on long faults — once the fault covers most of the run it drags the median it is measured against until the *healthy* hours look anomalous. `tests/detection/test_statistical.py` pins that failure mode deliberately.
+- `AnomalyEvent` / `Incident` / `AnomalyReport` (`events.py`) — an event is one deviating (timestamp, asset, parameter) reading; an `Incident` is a contiguous anomalous window plus **ranked candidate assets**, and is the Phase 4 hand-off. `Incident.epicenter` is reporting sugar only — Phase 4 should walk `candidates`.
+- `AnomalyDetector` (`base.py`) — shared machinery, and where two non-obvious decisions live:
+  - **`min_assets` (default 3) controls the false-alarm rate, not the threshold.** A real fault moves 55–95 of Net3's 97 nodes within one timestep, so requiring several assets to disagree simultaneously separates physics from noise without blunting sensitivity to weak faults.
+  - **Candidates are interleaved across measurement channels, never sorted by raw score.** Sigma-normalised scores compare *within* a parameter and mislead *across* parameters: flow-meter noise is ~0.001 m³/s against a pressure transducer's 0.30 m, so a trivial flow wobble (23σ) outranks a 3 m pressure collapse (10σ). Sorting on score therefore ranks by *sensor precision* — in a leak scenario the top 20 came back as flow links while the leaking junction, the only asset that can be the answer since a leak is a node fault, sat at rank 21. `_rank_candidates` ranks each channel internally then interleaves, so every channel's best precedes any channel's second. This moved hit@3 from 17% to 71%.
+  - Candidates are keyed by **`(parameter, asset_id)`**. EPANET namespaces nodes and links separately, so Net3 has both a junction `101` and a pipe `101`; keying on `asset_id` alone let the louder channel delete the quieter one and could drop the faulted asset from the list entirely.
+- `DETECTOR_REGISTRY` maps CLI names (`residual`, `statistical`) to classes, mirroring `FAULT_REGISTRY`.
+
+**Measured results** (`--threshold 4 --min-assets 3`, default noise, 35 scenarios; regenerate with the two Phase 3 commands above):
+
+| run | detected | fault-active recall | precision | false alarms | latency | hit@1 | hit@3 | control |
+|---|---|---|---|---|---|---|---|---|
+| residual, noise off | 35/35 | 97.6% | 100% | 0% | 0.0h | 17.1% | 57.1% | clean |
+| **residual, 1× noise** | **35/35** | **97.6%** | **100%** | **0%** | **0.0h** | **14.3%** | **71.4%** | **clean** |
+| residual, 3× noise | 32/35 | 61.4% | 100% | 0% | 0.0h | 14.3% | 28.6% | clean |
+| statistical (no twin) | 35/35 | 33.3% | 26.9% | 50.7% | 2.0h | 0.0% | 2.9% | FALSE ALARM |
+
+Reading these:
+
+- **Detection is solved; localization is not.** Every fault is caught, same-hour in 33/35 cases, with zero false alarms — but the faulted asset is top-1 only 14% of the time and median 4 hops away. hit@3 = 71% means Phase 3's honest output is a *shortlist*, and using topology to arbitrate within it is exactly Phase 4's job.
+- **Detection skill is not a determinism artifact** — noise-off and 1× noise perform identically. At 3× noise recall degrades gracefully to 61% with precision still 100%; the three that vanish are all 30%-severity leaks, whose signature at the leaking junction (~0.87 m) is comparable to the median per-asset daily pressure swing (~0.88 m).
+- **Localization splits by fault type**, because each channel can only name its own kind of asset: blockage hit@1 83% / 0 median hops (a closed pipe's own flow residual is unmistakable), leaks hit@1 0% but hit@5 63% (a leak is a node, so only pressure can name it), pump failure hit@5 100% (the pump's own flow drops, but the downstream links that carried its flow outrank it — a physically sensible confusion the graph can resolve).
+- **`demand` is excluded from detection by default.** `LeakFault` *is* an added demand at the target, so the demand residual there equals `severity × max_leak_demand` exactly — detecting a leak that way is circular, and no real network meters demand at every junction.
+- **Firing during `recovery` is not scored as a false alarm.** After a fault clears, tank levels and pump schedules have genuinely drifted; baseline deviations in recovery reach 29 m, *larger* than during some faults. The network really is off-nominal, so an alarm is correct — it is simply not the fault window. `evaluate_detection.py` counts false positives on pre-fault hours and the baseline control only, and reports recovery firing (25.4%) separately.
+- The **baseline negative control** is the measurement that matters for precision: residuals there are pure sensor noise, so anything that fires is false by construction. `detect_anomalies.py` always runs it.
+
 ### Configuration (`configs/simulation.yaml`)
 
 Two independent ways to define scenarios, both read from the same file:
@@ -104,10 +173,22 @@ The two do not interact — `run_fault_simulation.py` ignores `scenario_generati
 - `data/processed/` — datasets from the baseline/explicit-fault runs (gitignored except `.gitkeep`).
 - `data/metadata/` — per-scenario ground-truth fault labels as `<scenario>.json` (gitignored), written alongside each fault dataset by `run_fault_simulation.py`.
 - `data/generated/processed/`, `data/generated/metadata/` — the generated evaluation batch, same file naming, written by `run_generated_scenarios.py` (gitignored).
-- `data/generated/scenarios_manifest.csv` — index of the batch, one row per scenario: `scenario_id, scenario, fault_type, target_id, severity, start_hour, end_hour, dataset_file, metadata_file, rows`. `validate_generated_dataset.py` drives entirely off this file, so it is the entry point for consuming the batch.
+- `data/generated/scenarios_manifest.csv` — index of the batch, one row per scenario: `scenario_id, scenario, fault_type, target_id, severity, start_hour, end_hour, dataset_file, metadata_file, rows`. `validate_generated_dataset.py` and `detect_anomalies.py` both drive entirely off this file, so it is the entry point for consuming the batch. Note it is written by `csv` on Windows and therefore carries **backslash** path separators — normalise them (`str.replace("\\", "/")`) when resolving, as the Phase 3 scripts do.
+- `data/generated/detection/<run>/` — one directory per detection run (`summary.csv`, `incidents.json`, `run.json`, `evaluation.csv`, `evaluation.json`, and `events/<scenario>.csv`). Gitignored.
+- `data/generated/graph_view.json`, `twin_viewer.html`, `twin_viewer.fragment.html` — viewer build artifacts. These are currently **tracked in git**, unlike everything else under `data/generated/`.
 
-Generated simulation artifacts (`*.bin`, `*.hyd`, `*.rpt`, and the contents of `data/processed`, `data/metadata`, `data/generated`) are gitignored — do not commit them.
+Generated simulation artifacts (`*.bin`, `*.hyd`, `*.rpt`, and the contents of `data/processed`, `data/metadata`, `data/generated/{processed,metadata,detection}`) are gitignored — do not commit them.
+
+### Viewer (`viewer/template.html`) — static Phase 6 prototype
+
+A hand-rolled SVG network map with a time scrubber, colour-by-pressure or colour-by-deviation-vs-normal, and a node inspector. No CDN, no framework, no backend: `export_graph_view.py` bakes the topology plus **4 hardcoded scenarios** (baseline + one of each fault type, listed in that script's `SCENARIOS`) into a JSON payload, and `build_viewer.py` inlines it into both a standalone document and an embeddable fragment. Theme-aware, percentile-clamped colour domains.
+
+It predates Phases 3–5, so it shows no anomalies, no retrieved subgraph and no diagnosis. Treat it as a rendering layer worth reusing rather than a finished dashboard. `server_viewer.py`'s docstring still calls itself `serve_viewer.py` from before the rename.
 
 ### Tests
 
-`tests/simulation/` mirrors the package layout. Existing coverage: `test_network_loader.py` (Net3 loads; exact component counts — 92 junctions / 2 reservoirs / 3 tanks / 117 pipes / 2 pumps; missing file raises), `test_scenario_generator.py` (generated counts, valid time windows, unique scenario names), `test_scenario_labels.py` (the `normal`/`fault_active`/`recovery` boundaries, using a `SimpleNamespace` stub fault and a hand-built dataframe rather than a real simulation). Tests call the runner's private `_add_*_state_labels` helpers directly to stay fast — keep those names stable or update the tests.
+`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`. 57 tests, all passing.
+
+- `tests/simulation/` — `test_network_loader.py` (Net3 loads; exact component counts — 92 junctions / 2 reservoirs / 3 tanks / 117 pipes / 2 pumps; missing file raises), `test_scenario_generator.py` (generated counts, valid time windows, unique scenario names), `test_scenario_labels.py` (the `normal`/`fault_active`/`recovery` boundaries, using a `SimpleNamespace` stub fault and a hand-built dataframe rather than a real simulation). Tests call the runner's private `_add_*_state_labels` helpers directly to stay fast — keep those names stable or update the tests.
+- `tests/graph/` — `test_builder.py` (composition matches the network, one connected component, reservoir head → `elevation`), `test_snapshot.py` (values attach, flow direction follows sign, link 105 genuinely reverses between hour 4 and hour 16, neighbour ordering, upstream reaches a source). These **run a real EPANET load** and read `data/processed/baseline.csv`, skipping if it is absent.
+- `tests/detection/` — fast and simulation-free: synthetic frames only, no EPANET. `test_sensors.py` (seed reproducibility, row-order independence, truth preserved, coverage filtering), `test_residual.py` (identical runs are silent, `min_assets` suppresses an isolated spike, score really is in sigma, separate windows stay separate incidents, node/link ID collision, channel interleaving), `test_statistical.py` (needs no baseline, constant assets are not flagged, and the long-fault inversion), `test_events.py` (the serialization contract Phase 4 consumes).

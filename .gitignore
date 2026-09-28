@@ -51,3 +51,4 @@ data/building/metadata/
 data/building/scenarios_manifest.csv
 data/building/building_view.json
 data/building/evidence/
+data/building/diagnosis/

@@ -29,6 +29,13 @@ class SimulationConfig:
     #: ``None`` (the default) leaves results untouched.
     pressure_floor_m: float | None = None
 
+    #: Report each period's *mean* instead of an instantaneous snapshot:
+    #: simulate at the hydraulic step, then fold into report-period means
+    #: over (t - period, t], as a logging meter would. Without it, an
+    #: event shorter than the report period -- a 40-minute pump run --
+    #: can fall between two snapshots and never appear in the data.
+    report_average: bool = False
+
 
 @dataclass
 class FaultScenarioConfig:
@@ -146,6 +153,7 @@ def load_config(path) -> ExperimentConfig:
             if sim_raw.get("pressure_floor_m") is not None
             else None
         ),
+        report_average=bool(sim_raw.get("report_average", False)),
     )
 
     # --------------------------------------------------

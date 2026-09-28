@@ -110,7 +110,7 @@ def main() -> None:
 
         if report.incidents:
             incident = report.incidents[0]
-            packet = retriever.retrieve(incident, incident_id=f"INC-{index + 1:03d}")
+            packet = retriever.retrieve(incident, incident_id=f"INC-{index + 1:03d}", events=report.events)
             packet.assert_no_leakage(forbidden=[name])
 
             (OUTPUT_DIR / f"{name}.json").write_text(packet.to_json(), encoding="utf-8")
@@ -132,6 +132,7 @@ def main() -> None:
             result.update(
                 detected_at=f"{incident.detected_at_s // 3600:02d}:00",
                 start=f"{int(row['start_hour']):02d}:00",
+                detector_top1=incident.epicenter,
                 target_in_packet=target in ids,
                 target_at_focus=target in focus,
                 focus=" ".join(sorted(focus)),

@@ -119,3 +119,44 @@ def test_packet_carries_no_ground_truth(retriever):
     packet.incident["note"] = scenario
     with pytest.raises(ValueError, match="leaks ground truth"):
         packet.assert_no_leakage(forbidden=[scenario])
+
+
+def test_timelines_keep_the_order_the_peak_would_hide(retriever):
+    from twinrag.detection import AnomalyEvent
+
+    def event(hour, asset, parameter, residual):
+        return AnomalyEvent(timestamp_s=hour * 3600, asset_id=asset, asset_type="link",
+                            parameter=parameter, observed=0.0, expected=0.0,
+                            residual=residual, score=abs(residual) / 2e-6)
+
+    # The pump delivers nothing at 11:00, then over-runs at 16:00 to refill;
+    # its *peak* is the over-run. The roof tank goes low in between.
+    pump = _flow("PUMP1", 2.8e-3)
+    pump.update(first_seen_s=11 * 3600, peak_at_s=16 * 3600)
+    tank = _pressure("OHT", -1.4)
+    tank.update(first_seen_s=14 * 3600, peak_at_s=15 * 3600)
+    incident = Incident(scenario="x", detected_at_s=11 * 3600, last_seen_s=16 * 3600,
+                        candidates=[pump, tank], detector="residual")
+    events = [event(11, "PUMP1", "flowrate", -2.5e-3), event(16, "PUMP1", "flowrate", 2.8e-3),
+              event(14, "OHT", "pressure", -0.9), event(15, "OHT", "pressure", -1.4)]
+
+    packet = retriever.retrieve(incident, events=events)
+
+    assert packet.incident["sequence_of_first_alarms"] == [
+        "11:00: PUMP1 flowrate down", "14:00: OHT level down",
+    ]
+    pump_obs = next(o for o in packet.observations if o.get("asset") == "PUMP1")
+    assert pump_obs["first_seen"] == "11:00"
+    assert "at 16:00" in pump_obs["reading"]
+    assert pump_obs["hourly_deviation"].startswith("11:00 -2.500; 16:00 +2.800")
+
+
+def test_a_small_knock_on_loss_does_not_drag_the_focus(retriever):
+    # Flat 1B is dry (-20 m); flat 0A wobbles by -1.2 m because the pump
+    # schedule shifted. Only the dry flat may locate the fault.
+    packet = retriever.retrieve(_incident([_pressure("F1B-IN", -20.0), _pressure("F0A-IN", -1.2)]))
+
+    loss = packet.topology_facts["pressure_loss"]
+    assert loss["assets_with_pressure_loss"] == ["F1B-IN"]
+    assert loss["suspect_span_upward"] == ["F1B-IN", "F1B-SUPPLY"]
+    assert loss["minor_pressure_loss_not_used_for_localisation"] == ["F0A-IN"]

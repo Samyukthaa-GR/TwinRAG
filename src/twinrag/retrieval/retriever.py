@@ -53,6 +53,13 @@ class RetrievalConfig:
     hops: int = 2
     max_normal_sensors: int = 30
     local_sigma: float = 4.0
+    #: Hours before the incident opened in which lone readings (too few
+    #: assets at once to open an incident) are kept as early evidence.
+    lookback_hours: int = 3
+    #: A pressure loss smaller than this fraction of the largest one is
+    #: reported but not used to locate the fault -- a dry flat (-20 m) and
+    #: a knock-on wobble elsewhere (-1.2 m) must not be averaged together.
+    minor_fraction: float = 0.25
 
 
 def _clock(seconds) -> str:
@@ -171,13 +178,48 @@ class SubgraphRetriever:
 
     # ------------------------------------------------------------------
 
-    def retrieve(self, incident, incident_id: str = "INC-1") -> EvidencePacket:
+    def retrieve(self, incident, incident_id: str = "INC-1", events=None) -> EvidencePacket:
+        """
+        Args:
+            incident: A detector ``Incident``.
+            incident_id: Neutral label for the packet (never the scenario).
+            events: The detector's point events (``AnomalyReport.events``).
+                Optional; with them every alarm carries its hourly
+                deviation and the true time it first went off-twin.
+        """
+
         kg = self.kg
         cfg = self.config
 
         alarmed = self._alarms(incident)
         if not alarmed:
             raise ValueError("Incident has no candidates located in the building.")
+
+        # Early readings: an asset can go off-twin alone, before enough
+        # others agree to open an incident -- often the first sign of the
+        # cause (a pump that should have run and did not).
+        window_start = incident.detected_at_s - cfg.lookback_hours * 3600
+        early_only = set()
+        for event in events or []:
+            if not (window_start <= event.timestamp_s < incident.detected_at_s):
+                continue
+            if event.asset_id not in kg or event.asset_id in alarmed and event.asset_id not in early_only:
+                continue
+            best = alarmed.get(event.asset_id)
+            if best is None or event.score > best["score"]:
+                first = best["first_seen_s"] if best else event.timestamp_s
+                alarmed[event.asset_id] = {
+                    "asset_id": event.asset_id,
+                    "asset_type": event.asset_type,
+                    "parameter": event.parameter,
+                    "score": event.score,
+                    "residual": event.residual,
+                    "peak_at_s": event.timestamp_s,
+                    "first_seen_s": min(first, event.timestamp_s),
+                }
+                early_only.add(event.asset_id)
+            else:
+                best["first_seen_s"] = min(best["first_seen_s"], event.timestamp_s)
 
         shift, common_mode = self._common_shift(alarmed)
         local = {a: c for a, c in alarmed.items() if a not in common_mode}
@@ -191,10 +233,13 @@ class SubgraphRetriever:
             a: c for a, c in local.items()
             if c["parameter"] == "pressure" and kg.asset(a)["role"] in ("roof_tank", "sump")
         }
-        pressure_loss = [
+        all_loss = [
             a for a, c in local.items()
             if c["parameter"] == "pressure" and c["residual"] < 0 and a not in tanks
         ]
+        largest = max((abs(local[a]["residual"]) for a in all_loss), default=0.0)
+        pressure_loss = [a for a in all_loss if abs(local[a]["residual"]) >= cfg.minor_fraction * largest]
+        minor_loss = sorted(set(all_loss) - set(pressure_loss))
 
         anchors = []
         facts = {}
@@ -236,6 +281,7 @@ class SubgraphRetriever:
                 "common_supply_point": point,
                 "suspect_span_upward": span,
                 "nearest_upstream_point_still_feeding_a_healthy_sensor": bound,
+                "minor_pressure_loss_not_used_for_localisation": minor_loss,
                 "meaning": (
                     "every asset with lost pressure is supplied through the "
                     "common point; a restriction there or in the suspect span "
@@ -265,8 +311,9 @@ class SubgraphRetriever:
 
         context = set(local) | set(supply_path) | set(span)
         for anchor in anchors:
-            context |= set(kg.upstream(anchor)[: kg.upstream(anchor).index(root_anchor) + 1]) \
-                if root_anchor in kg.upstream(anchor) else {anchor}
+            # root_anchor supplies every anchor, so it is on each path.
+            path = kg.upstream(anchor)
+            context |= set(path[: path.index(root_anchor) + 1])
             context |= kg.neighbourhood(anchor, cfg.hops)
 
         # The rest of an anchor's flat: "the other rooms of 3A are fine"
@@ -277,7 +324,23 @@ class SubgraphRetriever:
 
         context |= set(common_mode)
 
-        observations = [self._alarm(a, c) for a, c in local.items()]
+        timelines = self._timelines(incident, events, alarmed, window_start)
+        observations = [
+            self._alarm(a, c, timelines.get(a), early=a in early_only)
+            for a, c in local.items()
+        ]
+
+        # When each alarmed asset first went off-twin, earliest first. The
+        # earliest anomaly is usually nearest the cause; later ones are
+        # often its consequences (a tank running dry, pressures collapsing).
+        first = {}
+        for asset_id, candidate in alarmed.items():
+            series = timelines.get(asset_id) or [(candidate["first_seen_s"], candidate["residual"])]
+            when, residual = series[0]
+            direction = "up" if residual > 0 else "down"
+            quantity = "level" if kg.asset(asset_id)["role"] in ("roof_tank", "sump") else candidate["parameter"]
+            first.setdefault(when, []).append(f"{asset_id} {quantity} {direction}")
+        sequence = [f"{_clock(t)}: {', '.join(sorted(items))}" for t, items in sorted(first.items())]
 
         if common_mode:
             observations.append(
@@ -324,6 +387,7 @@ class SubgraphRetriever:
                 "first_alarm": _clock(incident.detected_at_s),
                 "last_alarm": _clock(incident.last_seen_s),
                 "alarmed_sensor_count": len(alarmed),
+                "sequence_of_first_alarms": sequence,
                 "method": (
                     "Each sensor reading is compared with the digital twin's "
                     "prediction for the same hour; score is the deviation in "
@@ -351,24 +415,62 @@ class SubgraphRetriever:
 
     # ------------------------------------------------------------------
 
-    def _alarm(self, asset_id: str, candidate: dict) -> dict:
+    @staticmethod
+    def _timelines(incident, events, alarmed, window_start) -> dict:
+        """
+        ``{asset_id: [(timestamp_s, residual), ...]}`` inside the incident
+        window, from the detector's point events. Empty without events.
+        """
+
+        if not events:
+            return {}
+
+        wanted = {a: c["parameter"] for a, c in alarmed.items()}
+        series = {}
+
+        for event in events:
+            if (
+                wanted.get(event.asset_id) == event.parameter
+                and window_start <= event.timestamp_s <= incident.last_seen_s
+            ):
+                series.setdefault(event.asset_id, []).append((event.timestamp_s, event.residual))
+
+        return {asset: sorted(points) for asset, points in series.items()}
+
+    @staticmethod
+    def _signed(parameter: str, residual: float) -> str:
+        if parameter == "flowrate":
+            return f"{residual * 1000:+.3f}"
+        return f"{residual:+.2f}"
+
+    def _alarm(self, asset_id: str, candidate: dict, timeline=None, early: bool = False) -> dict:
         sensors = self.kg.sensors_on(asset_id)
+        parameter = candidate["parameter"]
         residual = candidate["residual"]
+        unit = "L/s" if parameter == "flowrate" else "m"
+        peak_at = candidate.get("peak_at_s", candidate["first_seen_s"])
+        amount = f"{abs(residual) * (1000 if parameter == 'flowrate' else 1):.{3 if parameter == 'flowrate' else 2}f} {unit}"
 
-        if candidate["parameter"] == "flowrate":
-            amount = f"{abs(residual) * 1000:.3f} L/s"
-        else:
-            amount = f"{abs(residual):.2f} m"
-
-        return {
+        record = {
             "sensor": f"sensor:{sensors[0]['id']}" if sensors else None,
             "asset": asset_id,
-            "parameter": candidate["parameter"],
-            "status": "alarm",
-            "reading": f"{amount} {'above' if residual > 0 else 'below'} the twin",
+            "parameter": parameter,
+            "status": "early alarm (before the incident opened)" if early else "alarm",
+            "reading": f"peak {amount} {'above' if residual > 0 else 'below'} the twin at {_clock(peak_at)}",
             "score": round(float(candidate["score"]), 1),
             "first_seen": _clock(candidate["first_seen_s"]),
         }
+
+        if timeline:
+            # Hourly signed deviation from the twin. The sign can flip
+            # (a pump that delivered nothing, then over-ran to refill), and
+            # the peak alone would hide which came first.
+            points = [f"{_clock(t)} {self._signed(parameter, r)}" for t, r in timeline]
+            if len(points) > 8:
+                points = points[:5] + ["..."] + points[-2:]
+            record["hourly_deviation"] = f"{'; '.join(points)} ({unit} vs twin, alarmed hours only)"
+
+        return record
 
     def _asset(self, asset_id: str) -> dict:
         kg = self.kg

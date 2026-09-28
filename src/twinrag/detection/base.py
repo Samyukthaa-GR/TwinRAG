@@ -212,10 +212,19 @@ class AnomalyDetector(ABC):
         # Keyed by (parameter, asset_id): a node and a link can share a
         # name in EPANET, and one channel's reading must never overwrite
         # the other's -- that would drop the faulted asset outright.
+        #
+        # ``first_seen_s`` is when the asset first disagreed; ``peak_at_s``
+        # is when the kept (strongest) reading happened. They differ, and
+        # the difference matters: a pump outage first shows as the pump
+        # delivering nothing, while its peak can come hours later when it
+        # restarts and runs *above* normal to refill an empty tank.
         best = {}
+        first_seen = {}
 
         for event in members:
             key = (event.parameter, event.asset_id)
+
+            first_seen[key] = min(first_seen.get(key, event.timestamp_s), event.timestamp_s)
 
             existing = best.get(key)
 
@@ -226,8 +235,11 @@ class AnomalyDetector(ABC):
                     "parameter": event.parameter,
                     "score": event.score,
                     "residual": event.residual,
-                    "first_seen_s": event.timestamp_s,
+                    "peak_at_s": event.timestamp_s,
                 }
+
+        for key, entry in best.items():
+            entry["first_seen_s"] = first_seen[key]
 
         candidates = self._rank_candidates(list(best.values()))
 

@@ -20,10 +20,13 @@ network_file: data/networks/Building_G6.inp
 
 simulation:
   duration_hours: 24
-  # 15-minute hydraulic steps so the roof-tank level switches act on time;
-  # results are still reported hourly.
-  hydraulic_timestep_seconds: 900
+  # 5-minute hydraulic steps; each hourly row is the MEAN of the hour ending
+  # there, the way a logging meter records it. Instantaneous hourly
+  # snapshots missed the ~40-minute pump runs entirely, so a stopped pump
+  # looked like a normal day.
+  hydraulic_timestep_seconds: 300
   report_timestep_seconds: 3600
+  report_average: true
   # A floor cut off by a closed riser drains; its sensors read 0 m, not
   # EPANET's artefact negative heads.
   pressure_floor_m: 0.0

@@ -53,21 +53,48 @@ class FaultScenarioRunner:
             network
         )
 
+        config = self.simulation_config
+
+        # Averaged reporting needs every hydraulic step, which are then
+        # folded into report-period means in _dataset.
+        report_timestep = (
+            config.hydraulic_timestep_seconds
+            if getattr(config, "report_average", False)
+            else config.report_timestep_seconds
+        )
+
         simulator.configure_simulation(
-            duration_hours=(
-                self.simulation_config.duration_hours
-            ),
-            hydraulic_timestep_seconds=(
-                self.simulation_config.hydraulic_timestep_seconds
-            ),
-            report_timestep_seconds=(
-                self.simulation_config.report_timestep_seconds
-            ),
+            duration_hours=config.duration_hours,
+            hydraulic_timestep_seconds=config.hydraulic_timestep_seconds,
+            report_timestep_seconds=report_timestep,
         )
 
         simulator.run()
 
         return simulator
+
+    def _report_means(self, frame):
+        """
+        Fold fine-step results into one row per report period: the value
+        stamped at ``t`` is the mean over ``(t - period, t]`` -- what a
+        meter logging each interval's average (or totalised volume) would
+        record. The first row, ``t = 0``, is the instant itself.
+
+        Instantaneous hourly snapshots miss anything shorter than an hour:
+        the building's transfer pump runs ~40 minutes between two
+        snapshots, so a pump that silently stopped looked exactly like a
+        normal day.
+        """
+
+        if not getattr(self.simulation_config, "report_average", False):
+            return frame
+
+        period = self.simulation_config.report_timestep_seconds
+        index = frame.index.to_numpy()
+        # (t - period, t]  ->  bucket end t = ceil(index / period) * period
+        buckets = -(-index // period) * period
+
+        return frame.groupby(buckets).mean()
 
     def _dataset(
         self,
@@ -94,12 +121,13 @@ class FaultScenarioRunner:
             # Sections cut off from every source come back from EPANET
             # with artefact heads; a transducer on a drained pipe reads
             # atmospheric. See SimulationConfig.pressure_floor_m.
+            # Clipped before averaging so the artefacts never reach a mean.
             pressure = pressure.clip(lower=floor)
 
         return formatter.combine(
-            pressure=pressure,
-            demand=simulator.get_demand(),
-            flowrate=simulator.get_flowrate(),
+            pressure=self._report_means(pressure),
+            demand=self._report_means(simulator.get_demand()),
+            flowrate=self._report_means(simulator.get_flowrate()),
         )
 
     def _add_baseline_state_labels(

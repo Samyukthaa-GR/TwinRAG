@@ -11,16 +11,16 @@ Two networks run through the same pipeline:
 - **The building twin** (`data/networks/Building_G6.inp`) — the project's demo system and current direction. A generated, constructible G+6 residential block: 7 floors x 2 flats, room-level plumbing (70 wet-room plumbing points), sump -> transfer pump -> roof tank -> gravity down-take risers, with a 3D viewer. See *Building digital twin* below.
 - **Net3** (`data/networks/Net3.inp`) — EPANET's example town network. The Phase 3 evaluation numbers below were measured on it, and `configs/simulation.yaml` still targets it.
 
-Six planned phases. **Phases 1–3 are built:**
+Six planned phases. **Phases 1–4 are built** (Phase 4 for the building only):
 
 1. **Simulation** — EPANET/`wntr` runs on `.inp` models, timed fault injection, long-format datasets. Complete.
 2. **Knowledge graph** — `networkx` topology, per-timestep hydraulic snapshots with flow direction and neighbour lookup, plus a schema/validation layer. Complete.
 3. **Anomaly detection** — **two parallel implementations, both kept.** See *Anomaly detection* below; this is the single most important thing to understand before touching the package.
-4. **Topology-aware retrieval** — BFS subgraph around an incident, pruned by hydraulic relevance, serialized as an LLM evidence packet. **Not built.**
-5. **LLM root-cause reasoning** — structured diagnosis from the evidence packet, scored against the metadata answer key. **Not built.** No LLM client in `requirements.txt` yet.
+4. **Knowledge graph + topology-aware retrieval** — typed building knowledge graph (`twinrag.graph.knowledge`) and physics-guided subgraph retrieval around an incident, serialized as a leak-checked LLM evidence packet (`twinrag.retrieval`). Built for the building; Net3 is not supported (it is looped, see below).
+5. **LLM root-cause reasoning** — structured diagnosis from the evidence packet, scored against the metadata answer key. **Not built.** Decided: an OpenAI-compatible chat client, defaulting to Hugging Face Inference Providers (`https://router.huggingface.co/v1`, `HF_TOKEN` fine-grained token with "Make calls to Inference Providers"); the same client covers Groq or a local Ollama by base URL. Free HF accounts get only ~$0.10/month of credit (~one 38-scenario evaluation). Knowledge graph stays in NetworkX; a Neo4j/Cypher export is planned for later.
 6. **Operator dashboard** — a static prototype viewer exists (see *Viewer* below); the live backend, anomaly overlay and diagnosis panel do not.
 
-> **Two Phase 3 pipelines coexist in `src/twinrag/detection/`** — a dataclass/object pipeline and a DataFrame/CSV pipeline, built independently by two contributors and merged deliberately rather than consolidated. They share no types. Pick one per consumer; do not interleave them. **Phase 4 must choose one contract** — `Incident` (dataclass) or the `anomaly_events.csv` rows (DataFrame) — and that decision is still open.
+> **Two Phase 3 pipelines coexist in `src/twinrag/detection/`** — a dataclass/object pipeline and a DataFrame/CSV pipeline, built independently by two contributors and merged deliberately rather than consolidated. They share no types. Pick one per consumer; do not interleave them. **Phase 4 consumes pipeline A's `Incident`** (ranked candidates keyed by asset, tested, sensor-noise aware); pipeline B's event rows join node and link IDs into one string and are not used downstream.
 
 ## Commands
 
@@ -90,6 +90,12 @@ python scripts/build_building_network.py   # -> data/networks/Building_G6.{inp,l
 python scripts/run_generated_scenarios.py --config configs/building.yaml \
     --output-root data/building --with-baseline   # 38 scenarios + baseline -> data/building/
 python scripts/build_building_viewer.py    # -> data/building/building_twin.html (3D, offline)
+
+# --- Phase 4 on the building: detect -> knowledge graph -> retrieval ---
+# (needs the building batch above). Evidence packets + retrieval_summary.csv
+# -> data/building/evidence/ ; prints retrieval hit rates per fault type.
+python scripts/build_evidence_packets.py
+python scripts/build_evidence_packets.py --hops 3 --threshold 5
 
 # Tests (pytest.ini sets pythonpath=src and testpaths=tests — no sys.path juggling needed)
 pytest
@@ -223,6 +229,18 @@ A generated residential water-supply system that runs through the unchanged pipe
 
 **Pipeline A on the building, unchanged code** (building sensors only, noise 0.25 m / 0.002 L/s + 2%, `--threshold 4 --min-assets 2`; measured ad hoc, not yet a script): leaks 30/30 detected, the leaking room's branch **hit@1 53%, hit@3 97%**, 0 pre-fault alarms, clean baseline control. When the room is not top-1, `PUMP1` is — the leak drains the roof tank and restarts the pump early. Pump outages detected 2-5 h late (silent until the tank runs down). The riser blockage is detected but `DTA-5-4` is unmetered, so it never appears as a candidate — flats 0A-4A losing pressure together is the evidence, and inferring their common upstream pipe is Phase 4's job. The single-kitchen blockage is missed (one tap's hourly flow is about the meter's noise). `detect_anomalies.py`/`evaluate_detection.py` still hard-code Net3 paths and noise.
 
+### Knowledge graph and retrieval (`graph/knowledge.py`, `retrieval/`) — Phase 4
+
+- `BuildingKnowledgeGraph` (`graph/knowledge.py`) — built from the building `.inp` + layout. Entities: every asset (node *and* link, keyed by its own ID), places (`building`, `floor:3`, `flat:F3A`, `room:F3A-KIT`) and sensors (`sensor:FM-F3A-KIT-BR`). Typed relations: `FEEDS` (node -> pipe -> node, away from the source), `LOCATED_IN` (asset -> most specific place), `PART_OF` (room -> flat -> floor -> building), `MONITORS` (sensor -> asset). 261 assets, 162 places, 103 sensors, 785 relations. Supply direction is **static** because the building is a tree fed from `CITY`; the constructor **rejects loops**, so Net3 cannot be loaded. Queries: `upstream(asset)` (supply path to source), `downstream`, `common_supply_point(assets)` (deepest shared supplier), `neighbourhood(asset, hops)` (hops = pipes, direction ignored), `triples(entities)`, `places_of`.
+- `SubgraphRetriever` (`retrieval/retriever.py`) — `retrieve(incident) -> EvidencePacket`. Physics, not plain BFS, decides what matters:
+  - **Extra flow** (leak) -> the *deepest* alarmed pipe carrying flow above the twin, plus the tap it feeds. Water escaping is drawn through every pipe above it, so only the deepest is specific.
+  - **Pressure loss** (closure) -> the common supply point of the local pressure-loss alarms, then walk **up** until a node that also feeds a healthy pressure sensor: the fault is in that suspect span (riser blockage -> `[DTA-4, DTA-5-4]`, bounded by `DTA-5` because flat 5A is fine).
+  - **Building-wide shift** -> when most flats' pressure moves together (roof tank low), those alarms are summarised as one fact and removed from localisation; a flat standing out from the median shift by >= `local_sigma` (4) of its noise stays local. Without this, a big leak's packet grew to ~20k tokens and pointed at the roof manifold.
+  - **Tank levels are their own signal** -> a low tank is traced up its supply to the first metered asset (`OHT -> RISING-MAIN -> PUMP-DEL -> PUMP1`); mixing it into line pressure dragged the common point to the roof.
+  - Context = anchors' supply paths to the common anchor and to the source, a `hops`-pipe neighbourhood, **the whole flat of any in-flat anchor** (sibling rooms sit on the other tee, beyond a short BFS, and "the other rooms are fine" is what pins a room), and the sensors in it that did *not* alarm (negative evidence, capped at 30).
+- `EvidencePacket` (`retrieval/evidence.py`) — `incident` (times only), `building`, `observations` (alarms with readings in L/s or m and noise-scaled score; one aggregated row for a building-wide shift; normal sensors), `assets` (id, kind, role, label, location, metered), `relations` (triples), `topology_facts`, `allowed_ids` (Phase 5 must reject any diagnosis citing an ID outside it). `assert_no_leakage(forbidden=[scenario])` fails if the serialised packet contains the scenario name or ground-truth words (`fault_active`, `recovery`, `scenario`, `severity`, `injected`); `build_evidence_packets.py` calls it on every packet.
+- **Results** (`build_evidence_packets.py`, defaults: threshold 4, min-assets 2, hops 2): baseline control 0 incidents; detected 36/38 (both misses are the single-kitchen blockage); **the true faulty asset is in the packet and inside the topology "focus" for 36/36 detected scenarios** (30 leaks, 2 pump outages, 4 blockages); median packet ~40 assets / ~4.2k tokens (range ~2.4k-6.7k). The focus is a shortlist (usually 2 assets, up to ~6 when a big leak also drains the roof tank or a flat's pressure wobbles), so choosing within it is Phase 5's job. Caveat: the retrieval rules were designed while looking at these 38 scenarios — validate on fresh targets/severities before quoting 100% in the paper.
+
 ### Configuration (`configs/simulation.yaml`, `configs/building.yaml`)
 
 Two independent ways to define scenarios, both read from the same file:
@@ -238,6 +256,7 @@ The two do not interact — `run_fault_simulation.py` ignores `scenario_generati
 - `data/building/` — the building batch: `processed/` (incl. `baseline.csv`), `metadata/`, `scenarios_manifest.csv` (all gitignored), and the viewer build: `building_twin.html` is committed (~2.7 MB, three.js inlined) so the twin opens without a Python setup; its intermediate payload `building_view.json` is gitignored.
 - `data/processed/` — datasets from the baseline/explicit-fault runs (gitignored except `.gitkeep`).
 - `data/metadata/` — per-scenario ground-truth fault labels as `<scenario>.json` (gitignored), written alongside each fault dataset by `run_fault_simulation.py`.
+- `data/building/evidence/` — Phase 4 output: one evidence packet per scenario (`<scenario>.json`; the filename is for humans, the content never names the scenario) and `retrieval_summary.csv`. Gitignored.
 - `data/generated/processed/`, `data/generated/metadata/` — the generated evaluation batch, same file naming, written by `run_generated_scenarios.py` (gitignored).
 - `data/generated/scenarios_manifest.csv` — index of the batch, one row per scenario: `scenario_id, scenario, fault_type, target_id, severity, start_hour, end_hour, dataset_file, metadata_file, rows`. `validate_generated_dataset.py` and `detect_anomalies.py` both drive entirely off this file, so it is the entry point for consuming the batch. Note it is written by `csv` on Windows and therefore carries **backslash** path separators — normalise them (`str.replace("\\", "/")`) when resolving, as the Phase 3 scripts do.
 - `data/generated/detection/<run>/` — pipeline A output, one directory per detection run (`summary.csv`, `incidents.json`, `run.json`, `evaluation.csv`, `evaluation.json`, and `events/<scenario>.csv`). Gitignored.
@@ -258,7 +277,9 @@ three.js r147 (UMD build + `OrbitControls`, vendored in `viewer/vendor/` with it
 
 ### Tests
 
-`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`, `tests/building/`. **123 tests, all passing** (19 of them skip until `data/processed/baseline.csv` exists). Only detection pipeline A is covered; pipeline B has no tests.
+`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`, `tests/building/`, `tests/retrieval/`. **136 tests, all passing** (19 of them skip until `data/processed/baseline.csv` exists). Only detection pipeline A is covered; pipeline B has no tests.
+
+- `tests/retrieval/` — simulation-free. `test_knowledge_graph.py` (entity/relation counts, tap-to-street supply path, downstream of a riser segment, common supply point, typed triples, hop counting, loop rejection); `test_retriever.py` (hand-built `Incident`s: extra flow -> deepest branch + tap with sibling rooms as negative evidence, closed riser bracketed to `[DTA-4, DTA-5-4]` by healthy flat 5A, uniform drop -> one building-wide fact + low-tank chain to `PUMP1`, a flat standing out from the shift stays local, every cited ID is in `allowed_ids`, no ground truth in the packet).
 
 - `tests/building/` — composition, ID uniqueness, layout covers every asset, fixtures sit inside their rooms, pipe paths join their endpoints and are orthogonal, the topology is a tree, flat B mirrors flat A, every room branch is metered, `.inp` round-trip keeps rules and PDA; then real EPANET runs (sub-second) for the physics listed under *Building digital twin*. Runs EPANET in a temp cwd so `temp.inp` is not touched.
 

@@ -1,0 +1,91 @@
+# TwinRAG building digital twin -- G+6 residential block, 2 flats per floor.
+#
+# The network is generated, not hand-drawn:
+#   python scripts/build_building_network.py
+# writes data/networks/Building_G6.inp (hydraulics) and
+# data/networks/Building_G6.layout.json (3D positions, floors, flats, rooms,
+# sensors). Asset IDs read as locations:
+#
+#   F3A-KIT      kitchen plumbing point, floor 3, flat A   (F0 = ground floor)
+#   F3A-KIT-BR   the branch pipe feeding it
+#   F3A-SUPPLY   flat 3A's supply pipe from the down-take riser
+#   DTA-5-4      down-take riser A between floors 5 and 4
+#   PUMP1        transfer pump, underground sump -> roof tank (OHT)
+#
+# Simulate the batch into data/building/:
+#   python scripts/run_generated_scenarios.py --config configs/building.yaml \
+#       --output-root data/building --with-baseline
+
+network_file: data/networks/Building_G6.inp
+
+simulation:
+  duration_hours: 24
+  # 5-minute hydraulic steps; each hourly row is the MEAN of the hour ending
+  # there, the way a logging meter records it. Instantaneous hourly
+  # snapshots missed the ~40-minute pump runs entirely, so a stopped pump
+  # looked like a normal day.
+  hydraulic_timestep_seconds: 300
+  report_timestep_seconds: 3600
+  report_average: true
+  # A floor cut off by a closed riser drains; its sensors read 0 m, not
+  # EPANET's artefact negative heads.
+  pressure_floor_m: 0.0
+
+# Hand-picked examples, one per fault class.
+faults:
+  - type: leak
+    target_id: F3A-KIT
+    severity: 1.0
+    start_hour: 6
+    end_hour: 12
+    params:
+      max_leak_demand: 0.0002
+
+  - type: pump_failure
+    target_id: PUMP1
+    severity: 1.0
+    start_hour: 8
+    end_hour: 18
+    params:
+      restore_after_outage: false
+
+  - type: blockage
+    target_id: DTA-5-4
+    severity: 1.0
+    start_hour: 7
+    end_hour: 13
+
+scenario_generation:
+  enabled: true
+
+  # A leak is an extra draw at a room's plumbing point. The maximum is a
+  # burst 15 mm branch (0.2 L/s); severity 0.1 is a running WC cistern
+  # (0.02 L/s, about 1.7 m3/day -- more than a whole flat uses).
+  # Targets span both stacks, low and high floors, and every room type.
+  leak:
+    target_ids: [F0A-KIT, F2B-UTL, F3A-MBATH, F5B-BATH2, F6A-CBATH]
+    severities: [0.1, 0.4, 1.0]
+    start_hours: [6, 14]
+    duration_hours: 6
+    params:
+      max_leak_demand: 0.0002
+
+  # The pump spends most of the day idle with the roof tank full, so a
+  # short outage can pass unnoticed. Ten hours through the morning peak
+  # drains the tank: the top floors lose pressure first.
+  pump_failure:
+    target_ids: [PUMP1]
+    severities: [1.0]
+    start_hours: [6, 9]
+    duration_hours: 10
+    params:
+      restore_after_outage: false
+
+  # A closed or choked link at three scales: a riser segment (floors 0-4
+  # of stack A lose supply), one flat's supply (flat 1B dry), one room
+  # branch (flat 4A's kitchen tap dry).
+  blockage:
+    target_ids: [DTA-5-4, F1B-SUPPLY, F4A-KIT-BR]
+    severities: [1.0]
+    start_hours: [7, 15]
+    duration_hours: 6

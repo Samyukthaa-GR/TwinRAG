@@ -12,6 +12,14 @@ class PumpFailureFault(FaultInjector):
     Partial failure:
         Currently falls back to a constant speed reduction.
         Timed partial-speed degradation can be added later.
+
+    ``restore_after_outage`` controls what happens when a complete
+    outage ends. ``True`` (the default, and Net3's behaviour) adds a rule
+    that reopens the pump at ``end_hour``. That rule outranks the
+    network's own controls and keeps holding the pump open for the rest
+    of the run, so a pump switched by tank-level rules -- the building
+    transfer pump -- must set it ``False`` and let its level switches
+    take over again when the outage ends.
     """
 
     fault_type = "pump_failure"
@@ -22,6 +30,7 @@ class PumpFailureFault(FaultInjector):
         severity: float = 0.5,
         start_hour: int = 0,
         end_hour: int | None = None,
+        restore_after_outage: bool = True,
     ):
         super().__init__(
             target_id=target_id,
@@ -29,6 +38,8 @@ class PumpFailureFault(FaultInjector):
             start_hour=start_hour,
             end_hour=end_hour,
         )
+
+        self.restore_after_outage = bool(restore_after_outage)
 
     def _validate_target(self, network) -> None:
         """
@@ -72,7 +83,7 @@ class PumpFailureFault(FaultInjector):
                 start_time=start_time_s,
                 end_time=end_time_s,
                 priority=6,
-                add_after_outage_rule=True,
+                add_after_outage_rule=self.restore_after_outage,
             )
 
             return
@@ -104,6 +115,7 @@ class PumpFailureFault(FaultInjector):
             {
                 "mechanism": mechanism,
                 "remaining_speed_fraction": remaining_speed,
+                "restore_after_outage": self.restore_after_outage,
                 "affected_nodes": [],
                 "affected_links": [self.target_id],
             }

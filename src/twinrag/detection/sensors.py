@@ -113,6 +113,9 @@ class SensorModel:
         frame = dataset.copy()
 
         frame["asset_id"] = frame["asset_id"].astype(str)
+        # Results straight from the simulator are float32; pandas 3 refuses
+        # to write float64 noise into them. CSV round-trips hid this.
+        frame["value"] = frame["value"].astype("float64")
 
         if self.sensor_assets is not None:
             frame = frame[frame["asset_id"].isin(self.sensor_assets)].copy()

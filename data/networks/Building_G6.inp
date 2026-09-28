@@ -1,0 +1,531 @@
+[TITLE]
+
+[JUNCTIONS]
+;ID                      Elevation       Demand Pattern                 
+ PUMP-DEL                         0.3               0                            ;
+ ROOF-MAN                        21.4               0                            ;
+ F0A-IN                           2.7               0                            ;
+ F0A-TK                           2.7               0                            ;
+ F0A-TB                           2.7               0                            ;
+ F0A-KIT                          0.9      0.00140625 kitchen                    ;
+ F0A-UTL                          0.9    0.0010546875 utility                    ;
+ F0A-MBATH                        0.9    0.0017578125 bath                       ;
+ F0A-CBATH                        0.9      0.00140625 bath                       ;
+ F0A-BATH2                        0.9      0.00140625 bath                       ;
+ F0B-IN                           2.7               0                            ;
+ F0B-TK                           2.7               0                            ;
+ F0B-TB                           2.7               0                            ;
+ F0B-KIT                          0.9      0.00140625 kitchen                    ;
+ F0B-UTL                          0.9    0.0010546875 utility                    ;
+ F0B-MBATH                        0.9    0.0017578125 bath                       ;
+ F0B-CBATH                        0.9      0.00140625 bath                       ;
+ F0B-BATH2                        0.9      0.00140625 bath                       ;
+ F1A-IN                           5.7               0                            ;
+ F1A-TK                           5.7               0                            ;
+ F1A-TB                           5.7               0                            ;
+ F1A-KIT                          3.9      0.00140625 kitchen                    ;
+ F1A-UTL                          3.9    0.0010546875 utility                    ;
+ F1A-MBATH                        3.9    0.0017578125 bath                       ;
+ F1A-CBATH                        3.9      0.00140625 bath                       ;
+ F1A-BATH2                        3.9      0.00140625 bath                       ;
+ F1B-IN                           5.7               0                            ;
+ F1B-TK                           5.7               0                            ;
+ F1B-TB                           5.7               0                            ;
+ F1B-KIT                          3.9      0.00140625 kitchen                    ;
+ F1B-UTL                          3.9    0.0010546875 utility                    ;
+ F1B-MBATH                        3.9    0.0017578125 bath                       ;
+ F1B-CBATH                        3.9      0.00140625 bath                       ;
+ F1B-BATH2                        3.9      0.00140625 bath                       ;
+ F2A-IN                           8.7               0                            ;
+ F2A-TK                           8.7               0                            ;
+ F2A-TB                           8.7               0                            ;
+ F2A-KIT                          6.9      0.00140625 kitchen                    ;
+ F2A-UTL                          6.9    0.0010546875 utility                    ;
+ F2A-MBATH                        6.9    0.0017578125 bath                       ;
+ F2A-CBATH                        6.9      0.00140625 bath                       ;
+ F2A-BATH2                        6.9      0.00140625 bath                       ;
+ F2B-IN                           8.7               0                            ;
+ F2B-TK                           8.7               0                            ;
+ F2B-TB                           8.7               0                            ;
+ F2B-KIT                          6.9      0.00140625 kitchen                    ;
+ F2B-UTL                          6.9    0.0010546875 utility                    ;
+ F2B-MBATH                        6.9    0.0017578125 bath                       ;
+ F2B-CBATH                        6.9      0.00140625 bath                       ;
+ F2B-BATH2                        6.9      0.00140625 bath                       ;
+ F3A-IN                          11.7               0                            ;
+ F3A-TK                          11.7               0                            ;
+ F3A-TB                          11.7               0                            ;
+ F3A-KIT                          9.9      0.00140625 kitchen                    ;
+ F3A-UTL                          9.9    0.0010546875 utility                    ;
+ F3A-MBATH                        9.9    0.0017578125 bath                       ;
+ F3A-CBATH                        9.9      0.00140625 bath                       ;
+ F3A-BATH2                        9.9      0.00140625 bath                       ;
+ F3B-IN                          11.7               0                            ;
+ F3B-TK                          11.7               0                            ;
+ F3B-TB                          11.7               0                            ;
+ F3B-KIT                          9.9      0.00140625 kitchen                    ;
+ F3B-UTL                          9.9    0.0010546875 utility                    ;
+ F3B-MBATH                        9.9    0.0017578125 bath                       ;
+ F3B-CBATH                        9.9      0.00140625 bath                       ;
+ F3B-BATH2                        9.9      0.00140625 bath                       ;
+ F4A-IN                          14.7               0                            ;
+ F4A-TK                          14.7               0                            ;
+ F4A-TB                          14.7               0                            ;
+ F4A-KIT                         12.9      0.00140625 kitchen                    ;
+ F4A-UTL                         12.9    0.0010546875 utility                    ;
+ F4A-MBATH                       12.9    0.0017578125 bath                       ;
+ F4A-CBATH                       12.9      0.00140625 bath                       ;
+ F4A-BATH2                       12.9      0.00140625 bath                       ;
+ F4B-IN                          14.7               0                            ;
+ F4B-TK                          14.7               0                            ;
+ F4B-TB                          14.7               0                            ;
+ F4B-KIT                         12.9      0.00140625 kitchen                    ;
+ F4B-UTL                         12.9    0.0010546875 utility                    ;
+ F4B-MBATH                       12.9    0.0017578125 bath                       ;
+ F4B-CBATH                       12.9      0.00140625 bath                       ;
+ F4B-BATH2                       12.9      0.00140625 bath                       ;
+ F5A-IN                          17.7               0                            ;
+ F5A-TK                          17.7               0                            ;
+ F5A-TB                          17.7               0                            ;
+ F5A-KIT                         15.9      0.00140625 kitchen                    ;
+ F5A-UTL                         15.9    0.0010546875 utility                    ;
+ F5A-MBATH                       15.9    0.0017578125 bath                       ;
+ F5A-CBATH                       15.9      0.00140625 bath                       ;
+ F5A-BATH2                       15.9      0.00140625 bath                       ;
+ F5B-IN                          17.7               0                            ;
+ F5B-TK                          17.7               0                            ;
+ F5B-TB                          17.7               0                            ;
+ F5B-KIT                         15.9      0.00140625 kitchen                    ;
+ F5B-UTL                         15.9    0.0010546875 utility                    ;
+ F5B-MBATH                       15.9    0.0017578125 bath                       ;
+ F5B-CBATH                       15.9      0.00140625 bath                       ;
+ F5B-BATH2                       15.9      0.00140625 bath                       ;
+ F6A-IN                          20.7               0                            ;
+ F6A-TK                          20.7               0                            ;
+ F6A-TB                          20.7               0                            ;
+ F6A-KIT                         18.9      0.00140625 kitchen                    ;
+ F6A-UTL                         18.9    0.0010546875 utility                    ;
+ F6A-MBATH                       18.9    0.0017578125 bath                       ;
+ F6A-CBATH                       18.9      0.00140625 bath                       ;
+ F6A-BATH2                       18.9      0.00140625 bath                       ;
+ F6B-IN                          20.7               0                            ;
+ F6B-TK                          20.7               0                            ;
+ F6B-TB                          20.7               0                            ;
+ F6B-KIT                         18.9      0.00140625 kitchen                    ;
+ F6B-UTL                         18.9    0.0010546875 utility                    ;
+ F6B-MBATH                       18.9    0.0017578125 bath                       ;
+ F6B-CBATH                       18.9      0.00140625 bath                       ;
+ F6B-BATH2                       18.9      0.00140625 bath                       ;
+ DTA-6                           20.7               0                            ;
+ DTA-5                           17.7               0                            ;
+ DTA-4                           14.7               0                            ;
+ DTA-3                           11.7               0                            ;
+ DTA-2                            8.7               0                            ;
+ DTA-1                            5.7               0                            ;
+ DTA-0                            2.7               0                            ;
+ DTB-6                           20.7               0                            ;
+ DTB-5                           17.7               0                            ;
+ DTB-4                           14.7               0                            ;
+ DTB-3                           11.7               0                            ;
+ DTB-2                            8.7               0                            ;
+ DTB-1                            5.7               0                            ;
+ DTB-0                            2.7               0                            ;
+
+[RESERVOIRS]
+;ID                                   Head                  Pattern
+ CITY                               7                            ;
+
+[TANKS]
+;ID                              Elevation           Init Level            Min Level            Max Level             Diameter           Min Volume Volume Curve         Overflow            
+ SUMP                              -3               2             0.2             2.5               3               0                                             ;
+ OHT                               24             1.4            0.15               2               2               0                                             ;
+
+[PIPES]
+;ID                   Node1                Node2                              Length             Diameter            Roughness           Minor Loss               Status
+ CITY-INLET           CITY                 SUMP                            13.8              20             140              12                 Open   ;
+ RISING-MAIN          PUMP-DEL             OHT                             39.5              50             140               2                 Open   ;
+ OHT-OUTLET           OHT                  ROOF-MAN                         5.1              50             140             1.5                 Open   ;
+ F0A-MAIN-K           F0A-IN               F0A-TK                           4.4              20             140               1                 Open   ;
+ F0A-MAIN-B           F0A-IN               F0A-TB                           3.8              20             140               1                 Open   ;
+ F0A-KIT-BR           F0A-TK               F0A-KIT                            5              15             140             1.5                 Open   ;
+ F0A-UTL-BR           F0A-TK               F0A-UTL                          3.9              15             140             1.5                 Open   ;
+ F0A-MBATH-BR         F0A-TB               F0A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F0A-CBATH-BR         F0A-TB               F0A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F0A-BATH2-BR         F0A-TB               F0A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F0B-MAIN-K           F0B-IN               F0B-TK                           4.4              20             140               1                 Open   ;
+ F0B-MAIN-B           F0B-IN               F0B-TB                           3.8              20             140               1                 Open   ;
+ F0B-KIT-BR           F0B-TK               F0B-KIT                            5              15             140             1.5                 Open   ;
+ F0B-UTL-BR           F0B-TK               F0B-UTL                          3.9              15             140             1.5                 Open   ;
+ F0B-MBATH-BR         F0B-TB               F0B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F0B-CBATH-BR         F0B-TB               F0B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F0B-BATH2-BR         F0B-TB               F0B-BATH2                        7.4              15             140             1.5                 Open   ;
+ F1A-MAIN-K           F1A-IN               F1A-TK                           4.4              20             140               1                 Open   ;
+ F1A-MAIN-B           F1A-IN               F1A-TB                           3.8              20             140               1                 Open   ;
+ F1A-KIT-BR           F1A-TK               F1A-KIT                            5              15             140             1.5                 Open   ;
+ F1A-UTL-BR           F1A-TK               F1A-UTL                          3.9              15             140             1.5                 Open   ;
+ F1A-MBATH-BR         F1A-TB               F1A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F1A-CBATH-BR         F1A-TB               F1A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F1A-BATH2-BR         F1A-TB               F1A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F1B-MAIN-K           F1B-IN               F1B-TK                           4.4              20             140               1                 Open   ;
+ F1B-MAIN-B           F1B-IN               F1B-TB                           3.8              20             140               1                 Open   ;
+ F1B-KIT-BR           F1B-TK               F1B-KIT                            5              15             140             1.5                 Open   ;
+ F1B-UTL-BR           F1B-TK               F1B-UTL                          3.9              15             140             1.5                 Open   ;
+ F1B-MBATH-BR         F1B-TB               F1B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F1B-CBATH-BR         F1B-TB               F1B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F1B-BATH2-BR         F1B-TB               F1B-BATH2                        7.4              15             140             1.5                 Open   ;
+ F2A-MAIN-K           F2A-IN               F2A-TK                           4.4              20             140               1                 Open   ;
+ F2A-MAIN-B           F2A-IN               F2A-TB                           3.8              20             140               1                 Open   ;
+ F2A-KIT-BR           F2A-TK               F2A-KIT                            5              15             140             1.5                 Open   ;
+ F2A-UTL-BR           F2A-TK               F2A-UTL                          3.9              15             140             1.5                 Open   ;
+ F2A-MBATH-BR         F2A-TB               F2A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F2A-CBATH-BR         F2A-TB               F2A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F2A-BATH2-BR         F2A-TB               F2A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F2B-MAIN-K           F2B-IN               F2B-TK                           4.4              20             140               1                 Open   ;
+ F2B-MAIN-B           F2B-IN               F2B-TB                           3.8              20             140               1                 Open   ;
+ F2B-KIT-BR           F2B-TK               F2B-KIT                            5              15             140             1.5                 Open   ;
+ F2B-UTL-BR           F2B-TK               F2B-UTL                          3.9              15             140             1.5                 Open   ;
+ F2B-MBATH-BR         F2B-TB               F2B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F2B-CBATH-BR         F2B-TB               F2B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F2B-BATH2-BR         F2B-TB               F2B-BATH2                        7.4              15             140             1.5                 Open   ;
+ F3A-MAIN-K           F3A-IN               F3A-TK                           4.4              20             140               1                 Open   ;
+ F3A-MAIN-B           F3A-IN               F3A-TB                           3.8              20             140               1                 Open   ;
+ F3A-KIT-BR           F3A-TK               F3A-KIT                            5              15             140             1.5                 Open   ;
+ F3A-UTL-BR           F3A-TK               F3A-UTL                          3.9              15             140             1.5                 Open   ;
+ F3A-MBATH-BR         F3A-TB               F3A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F3A-CBATH-BR         F3A-TB               F3A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F3A-BATH2-BR         F3A-TB               F3A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F3B-MAIN-K           F3B-IN               F3B-TK                           4.4              20             140               1                 Open   ;
+ F3B-MAIN-B           F3B-IN               F3B-TB                           3.8              20             140               1                 Open   ;
+ F3B-KIT-BR           F3B-TK               F3B-KIT                            5              15             140             1.5                 Open   ;
+ F3B-UTL-BR           F3B-TK               F3B-UTL                          3.9              15             140             1.5                 Open   ;
+ F3B-MBATH-BR         F3B-TB               F3B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F3B-CBATH-BR         F3B-TB               F3B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F3B-BATH2-BR         F3B-TB               F3B-BATH2                        7.4              15             140             1.5                 Open   ;
+ F4A-MAIN-K           F4A-IN               F4A-TK                           4.4              20             140               1                 Open   ;
+ F4A-MAIN-B           F4A-IN               F4A-TB                           3.8              20             140               1                 Open   ;
+ F4A-KIT-BR           F4A-TK               F4A-KIT                            5              15             140             1.5                 Open   ;
+ F4A-UTL-BR           F4A-TK               F4A-UTL                          3.9              15             140             1.5                 Open   ;
+ F4A-MBATH-BR         F4A-TB               F4A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F4A-CBATH-BR         F4A-TB               F4A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F4A-BATH2-BR         F4A-TB               F4A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F4B-MAIN-K           F4B-IN               F4B-TK                           4.4              20             140               1                 Open   ;
+ F4B-MAIN-B           F4B-IN               F4B-TB                           3.8              20             140               1                 Open   ;
+ F4B-KIT-BR           F4B-TK               F4B-KIT                            5              15             140             1.5                 Open   ;
+ F4B-UTL-BR           F4B-TK               F4B-UTL                          3.9              15             140             1.5                 Open   ;
+ F4B-MBATH-BR         F4B-TB               F4B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F4B-CBATH-BR         F4B-TB               F4B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F4B-BATH2-BR         F4B-TB               F4B-BATH2                        7.4              15             140             1.5                 Open   ;
+ F5A-MAIN-K           F5A-IN               F5A-TK                           4.4              20             140               1                 Open   ;
+ F5A-MAIN-B           F5A-IN               F5A-TB                           3.8              20             140               1                 Open   ;
+ F5A-KIT-BR           F5A-TK               F5A-KIT                            5              15             140             1.5                 Open   ;
+ F5A-UTL-BR           F5A-TK               F5A-UTL                          3.9              15             140             1.5                 Open   ;
+ F5A-MBATH-BR         F5A-TB               F5A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F5A-CBATH-BR         F5A-TB               F5A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F5A-BATH2-BR         F5A-TB               F5A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F5B-MAIN-K           F5B-IN               F5B-TK                           4.4              20             140               1                 Open   ;
+ F5B-MAIN-B           F5B-IN               F5B-TB                           3.8              20             140               1                 Open   ;
+ F5B-KIT-BR           F5B-TK               F5B-KIT                            5              15             140             1.5                 Open   ;
+ F5B-UTL-BR           F5B-TK               F5B-UTL                          3.9              15             140             1.5                 Open   ;
+ F5B-MBATH-BR         F5B-TB               F5B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F5B-CBATH-BR         F5B-TB               F5B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F5B-BATH2-BR         F5B-TB               F5B-BATH2                        7.4              15             140             1.5                 Open   ;
+ F6A-MAIN-K           F6A-IN               F6A-TK                           4.4              20             140               1                 Open   ;
+ F6A-MAIN-B           F6A-IN               F6A-TB                           3.8              20             140               1                 Open   ;
+ F6A-KIT-BR           F6A-TK               F6A-KIT                            5              15             140             1.5                 Open   ;
+ F6A-UTL-BR           F6A-TK               F6A-UTL                          3.9              15             140             1.5                 Open   ;
+ F6A-MBATH-BR         F6A-TB               F6A-MBATH                        7.6              15             140             1.5                 Open   ;
+ F6A-CBATH-BR         F6A-TB               F6A-CBATH                        4.8              15             140             1.5                 Open   ;
+ F6A-BATH2-BR         F6A-TB               F6A-BATH2                        7.4              15             140             1.5                 Open   ;
+ F6B-MAIN-K           F6B-IN               F6B-TK                           4.4              20             140               1                 Open   ;
+ F6B-MAIN-B           F6B-IN               F6B-TB                           3.8              20             140               1                 Open   ;
+ F6B-KIT-BR           F6B-TK               F6B-KIT                            5              15             140             1.5                 Open   ;
+ F6B-UTL-BR           F6B-TK               F6B-UTL                          3.9              15             140             1.5                 Open   ;
+ F6B-MBATH-BR         F6B-TB               F6B-MBATH                        7.6              15             140             1.5                 Open   ;
+ F6B-CBATH-BR         F6B-TB               F6B-CBATH                        4.8              15             140             1.5                 Open   ;
+ F6B-BATH2-BR         F6B-TB               F6B-BATH2                        7.4              15             140             1.5                 Open   ;
+ ROOF-A               ROOF-MAN             DTA-6                            2.3              40             140               1                 Open   ;
+ F6A-SUPPLY           DTA-6                F6A-IN                           0.7              25             140               3                 Open   ;
+ DTA-6-5              DTA-6                DTA-5                              3              40             140             0.5                 Open   ;
+ F5A-SUPPLY           DTA-5                F5A-IN                           0.7              25             140               3                 Open   ;
+ DTA-5-4              DTA-5                DTA-4                              3              40             140             0.5                 Open   ;
+ F4A-SUPPLY           DTA-4                F4A-IN                           0.7              25             140               3                 Open   ;
+ DTA-4-3              DTA-4                DTA-3                              3              40             140             0.5                 Open   ;
+ F3A-SUPPLY           DTA-3                F3A-IN                           0.7              25             140               3                 Open   ;
+ DTA-3-2              DTA-3                DTA-2                              3              40             140             0.5                 Open   ;
+ F2A-SUPPLY           DTA-2                F2A-IN                           0.7              25             140               3                 Open   ;
+ DTA-2-1              DTA-2                DTA-1                              3              40             140             0.5                 Open   ;
+ F1A-SUPPLY           DTA-1                F1A-IN                           0.7              25             140               3                 Open   ;
+ DTA-1-0              DTA-1                DTA-0                              3              40             140             0.5                 Open   ;
+ F0A-SUPPLY           DTA-0                F0A-IN                           0.7              25             140               3                 Open   ;
+ ROOF-B               ROOF-MAN             DTB-6                            2.3              40             140               1                 Open   ;
+ F6B-SUPPLY           DTB-6                F6B-IN                           0.7              25             140               3                 Open   ;
+ DTB-6-5              DTB-6                DTB-5                              3              40             140             0.5                 Open   ;
+ F5B-SUPPLY           DTB-5                F5B-IN                           0.7              25             140               3                 Open   ;
+ DTB-5-4              DTB-5                DTB-4                              3              40             140             0.5                 Open   ;
+ F4B-SUPPLY           DTB-4                F4B-IN                           0.7              25             140               3                 Open   ;
+ DTB-4-3              DTB-4                DTB-3                              3              40             140             0.5                 Open   ;
+ F3B-SUPPLY           DTB-3                F3B-IN                           0.7              25             140               3                 Open   ;
+ DTB-3-2              DTB-3                DTB-2                              3              40             140             0.5                 Open   ;
+ F2B-SUPPLY           DTB-2                F2B-IN                           0.7              25             140               3                 Open   ;
+ DTB-2-1              DTB-2                DTB-1                              3              40             140             0.5                 Open   ;
+ F1B-SUPPLY           DTB-1                F1B-IN                           0.7              25             140               3                 Open   ;
+ DTB-1-0              DTB-1                DTB-0                              3              40             140             0.5                 Open   ;
+ F0B-SUPPLY           DTB-0                F0B-IN                           0.7              25             140               3                 Open   ;
+
+[PUMPS]
+;ID                   Node1                Node2                Properties          
+ PUMP1                SUMP                 PUMP-DEL             HEAD     PUMP1-CURVE            ;
+
+[VALVES]
+;ID                   Node1                Node2                            Diameter Type              Setting           Minor Loss
+
+[TAGS]
+;type      name       tag       
+
+[DEMANDS]
+;ID        Demand     Pattern   
+
+[STATUS]
+;ID        Setting   
+
+[PATTERNS]
+;ID        Multipliers
+
+bath 0.199170 0.099585 0.099585 0.099585 0.298755 1.195021
+bath 2.987552 3.385892 2.589212 1.394191 0.796680 0.597510
+bath 0.497925 0.497925 0.398340 0.497925 0.697095 0.995851
+bath 1.394191 1.593361 1.394191 1.095436 0.796680 0.398340
+
+kitchen 0.092664 0.092664 0.092664 0.092664 0.185328 0.555985
+kitchen 1.482625 2.038610 1.853282 1.111969 0.926641 1.482625
+kitchen 1.853282 1.297297 0.741313 0.555985 0.741313 1.111969
+kitchen 1.667954 2.223938 2.038610 1.111969 0.463320 0.185328
+
+utility 0.105263 0.105263 0.105263 0.105263 0.105263 0.315789
+utility 0.842105 1.684211 2.736842 3.157895 2.736842 1.894737
+utility 1.263158 0.947368 0.842105 0.842105 0.947368 1.052632
+utility 1.052632 1.052632 0.842105 0.631579 0.421053 0.210526
+
+[CURVES]
+;ID         X-Value      Y-Value     
+;PUMP: PUMP1-CURVE
+ PUMP1-CURVE     2.000000    38.000000   ;
+
+
+[CONTROLS]
+
+[RULES]
+RULE PUMP1-START
+ IF Tank OHT level < 0.6
+ THEN Pump PUMP1 status = OPEN
+ PRIORITY 3
+ ; end of rule
+
+RULE PUMP1-STOP
+ IF Tank OHT level > 1.9
+ THEN Pump PUMP1 status = CLOSED
+ PRIORITY 3
+ ; end of rule
+
+
+[ENERGY]
+GLOBAL PRICE           0.0000
+
+[EMITTERS]
+;ID        Flow coefficient
+
+[QUALITY]
+
+[SOURCES]
+;Node      Type       Quality    Pattern   
+
+[REACTIONS]
+;Type           Pipe/Tank               Coefficient
+
+ ORDER BULK 1
+ ORDER TANK 1
+ ORDER WALL 1
+ GLOBAL BULK 0.0000    
+ GLOBAL WALL 0.0000    
+
+[MIXING]
+;Tank ID             Model Fraction
+
+[TIMES]
+DURATION             24:00:00
+HYDRAULIC TIMESTEP   00:15:00
+QUALITY TIMESTEP     00:06:00
+PATTERN TIMESTEP     01:00:00
+PATTERN START        00:00:00
+REPORT TIMESTEP      01:00:00
+REPORT START         00:00:00
+START CLOCKTIME      00:00:00 AM
+RULE TIMESTEP        00:01:00
+STATISTIC            NONE      
+
+[REPORT]
+
+[OPTIONS]
+UNITS                LPS                 
+HEADLOSS             H-W                 
+SPECIFIC GRAVITY     1
+VISCOSITY            1
+TRIALS               200
+ACCURACY             0.001
+CHECKFREQ            2
+MAXCHECK             10
+UNBALANCED           STOP                
+PATTERN              1                   
+DEMAND MULTIPLIER    1
+DEMAND MODEL         PDA
+MINIMUM PRESSURE     0.00
+REQUIRED PRESSURE    3.00
+PRESSURE EXPONENT    0.5
+EMITTER EXPONENT     0.5
+QUALITY              NONE                
+DIFFUSIVITY          1
+TOLERANCE            0.01
+
+[COORDINATES]
+;Node      X-Coord    Y-Coord   
+CITY               25.300000000         -1.800000000
+SUMP               16.650000000         -3.900000000
+OHT                17.500000000         27.000000000
+PUMP-DEL           15.460000000         -0.060000000
+ROOF-MAN           16.375000000         23.650000000
+F0A-IN             14.075000000          4.950000000
+F0A-TK             11.490000000          3.960000000
+F0A-TB             11.000000000          5.100000000
+F0A-KIT            10.050000000          1.200000000
+F0A-UTL            12.820000000          2.580000000
+F0A-MBATH           9.840000000          4.260000000
+F0A-CBATH           8.220000000          3.180000000
+F0A-BATH2          14.950000000          4.200000000
+F0B-IN             18.675000000          4.950000000
+F0B-TK             18.290000000          3.960000000
+F0B-TB             22.200000000          5.100000000
+F0B-KIT            16.850000000          1.200000000
+F0B-UTL            18.220000000          2.580000000
+F0B-MBATH          26.240000000          4.260000000
+F0B-CBATH          24.620000000          3.180000000
+F0B-BATH2          20.950000000          4.200000000
+F1A-IN             14.075000000          7.950000000
+F1A-TK             11.490000000          6.960000000
+F1A-TB             11.000000000          8.100000000
+F1A-KIT            10.050000000          4.200000000
+F1A-UTL            12.820000000          5.580000000
+F1A-MBATH           9.840000000          7.260000000
+F1A-CBATH           8.220000000          6.180000000
+F1A-BATH2          14.950000000          7.200000000
+F1B-IN             18.675000000          7.950000000
+F1B-TK             18.290000000          6.960000000
+F1B-TB             22.200000000          8.100000000
+F1B-KIT            16.850000000          4.200000000
+F1B-UTL            18.220000000          5.580000000
+F1B-MBATH          26.240000000          7.260000000
+F1B-CBATH          24.620000000          6.180000000
+F1B-BATH2          20.950000000          7.200000000
+F2A-IN             14.075000000         10.950000000
+F2A-TK             11.490000000          9.960000000
+F2A-TB             11.000000000         11.100000000
+F2A-KIT            10.050000000          7.200000000
+F2A-UTL            12.820000000          8.580000000
+F2A-MBATH           9.840000000         10.260000000
+F2A-CBATH           8.220000000          9.180000000
+F2A-BATH2          14.950000000         10.200000000
+F2B-IN             18.675000000         10.950000000
+F2B-TK             18.290000000          9.960000000
+F2B-TB             22.200000000         11.100000000
+F2B-KIT            16.850000000          7.200000000
+F2B-UTL            18.220000000          8.580000000
+F2B-MBATH          26.240000000         10.260000000
+F2B-CBATH          24.620000000          9.180000000
+F2B-BATH2          20.950000000         10.200000000
+F3A-IN             14.075000000         13.950000000
+F3A-TK             11.490000000         12.960000000
+F3A-TB             11.000000000         14.100000000
+F3A-KIT            10.050000000         10.200000000
+F3A-UTL            12.820000000         11.580000000
+F3A-MBATH           9.840000000         13.260000000
+F3A-CBATH           8.220000000         12.180000000
+F3A-BATH2          14.950000000         13.200000000
+F3B-IN             18.675000000         13.950000000
+F3B-TK             18.290000000         12.960000000
+F3B-TB             22.200000000         14.100000000
+F3B-KIT            16.850000000         10.200000000
+F3B-UTL            18.220000000         11.580000000
+F3B-MBATH          26.240000000         13.260000000
+F3B-CBATH          24.620000000         12.180000000
+F3B-BATH2          20.950000000         13.200000000
+F4A-IN             14.075000000         16.950000000
+F4A-TK             11.490000000         15.960000000
+F4A-TB             11.000000000         17.100000000
+F4A-KIT            10.050000000         13.200000000
+F4A-UTL            12.820000000         14.580000000
+F4A-MBATH           9.840000000         16.260000000
+F4A-CBATH           8.220000000         15.180000000
+F4A-BATH2          14.950000000         16.200000000
+F4B-IN             18.675000000         16.950000000
+F4B-TK             18.290000000         15.960000000
+F4B-TB             22.200000000         17.100000000
+F4B-KIT            16.850000000         13.200000000
+F4B-UTL            18.220000000         14.580000000
+F4B-MBATH          26.240000000         16.260000000
+F4B-CBATH          24.620000000         15.180000000
+F4B-BATH2          20.950000000         16.200000000
+F5A-IN             14.075000000         19.950000000
+F5A-TK             11.490000000         18.960000000
+F5A-TB             11.000000000         20.100000000
+F5A-KIT            10.050000000         16.200000000
+F5A-UTL            12.820000000         17.580000000
+F5A-MBATH           9.840000000         19.260000000
+F5A-CBATH           8.220000000         18.180000000
+F5A-BATH2          14.950000000         19.200000000
+F5B-IN             18.675000000         19.950000000
+F5B-TK             18.290000000         18.960000000
+F5B-TB             22.200000000         20.100000000
+F5B-KIT            16.850000000         16.200000000
+F5B-UTL            18.220000000         17.580000000
+F5B-MBATH          26.240000000         19.260000000
+F5B-CBATH          24.620000000         18.180000000
+F5B-BATH2          20.950000000         19.200000000
+F6A-IN             14.075000000         22.950000000
+F6A-TK             11.490000000         21.960000000
+F6A-TB             11.000000000         23.100000000
+F6A-KIT            10.050000000         19.200000000
+F6A-UTL            12.820000000         20.580000000
+F6A-MBATH           9.840000000         22.260000000
+F6A-CBATH           8.220000000         21.180000000
+F6A-BATH2          14.950000000         22.200000000
+F6B-IN             18.675000000         22.950000000
+F6B-TK             18.290000000         21.960000000
+F6B-TB             22.200000000         23.100000000
+F6B-KIT            16.850000000         19.200000000
+F6B-UTL            18.220000000         20.580000000
+F6B-MBATH          26.240000000         22.260000000
+F6B-CBATH          24.620000000         21.180000000
+F6B-BATH2          20.950000000         22.200000000
+DTA-6              14.775000000         22.950000000
+DTA-5              14.775000000         19.950000000
+DTA-4              14.775000000         16.950000000
+DTA-3              14.775000000         13.950000000
+DTA-2              14.775000000         10.950000000
+DTA-1              14.775000000          7.950000000
+DTA-0              14.775000000          4.950000000
+DTB-6              17.975000000         22.950000000
+DTB-5              17.975000000         19.950000000
+DTB-4              17.975000000         16.950000000
+DTB-3              17.975000000         13.950000000
+DTB-2              17.975000000         10.950000000
+DTB-1              17.975000000          7.950000000
+DTB-0              17.975000000          4.950000000
+
+[VERTICES]
+;Link      X-Coord    Y-Coord   
+
+[LABELS]
+
+[BACKDROP]
+UNITS    NONE
+
+[END]

@@ -44,3 +44,16 @@ data/generated/scenarios_manifest.csv
 
 # Anomaly-detection runs (one directory per detector configuration)
 data/generated/detection/
+# Building digital-twin simulation batch (regenerate with
+# scripts/run_generated_scenarios.py --config configs/building.yaml ...)
+data/building/processed/
+data/building/metadata/
+data/building/scenarios_manifest.csv
+data/building/building_view.json
+data/building/evidence/
+data/building/diagnosis/
+
+# Held-out building batch (configs/building_holdout.yaml)
+data/building_holdout/
+data/building_holdout2/
+data/building_holdout3/

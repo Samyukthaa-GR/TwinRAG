@@ -1,0 +1,42 @@
+# Second held-out batch for the building twin: fresh rooms, pipes, sizes
+# and times, built only AFTER the diagnosis rules were final, for a clean
+# blind score. Never tune against it.
+#
+#   python scripts/run_generated_scenarios.py --config configs/building_holdout2.yaml \
+#       --output-root data/building_holdout2 --with-baseline
+#   python scripts/build_evidence_packets.py --data-root data/building_holdout2
+#   python scripts/diagnose_incidents.py --evidence data/building_holdout2/evidence
+
+network_file: data/networks/Building_G6.inp
+
+simulation:
+  duration_hours: 24
+  hydraulic_timestep_seconds: 300
+  report_timestep_seconds: 3600
+  report_average: true
+  pressure_floor_m: 0.0
+
+scenario_generation:
+  enabled: true
+
+  leak:
+    target_ids: [F1B-KIT, F3B-UTL, F5A-MBATH, F6B-BATH2, F0A-CBATH, F4A-BATH2]
+    severities: [0.15, 0.6]
+    start_hours: [5, 12]
+    duration_hours: 6
+    params:
+      max_leak_demand: 0.0002
+
+  pump_failure:
+    target_ids: [PUMP1]
+    severities: [1.0]
+    start_hours: [7, 10]
+    duration_hours: 8
+    params:
+      restore_after_outage: false
+
+  blockage:
+    target_ids: [DTB-5-4, F2A-SUPPLY, F6B-SUPPLY, DTA-3-2, ROOF-B, F4B-SUPPLY]
+    severities: [1.0]
+    start_hours: [6, 14]
+    duration_hours: 6

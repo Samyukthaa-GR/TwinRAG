@@ -1,0 +1,42 @@
+# Third held-out batch: the FINAL blind test of the diagnosis rules.
+# Written after the rules were frozen; scored once and reported as-is.
+# Never tune against it.
+#
+#   python scripts/run_generated_scenarios.py --config configs/building_holdout3.yaml \
+#       --output-root data/building_holdout3 --with-baseline
+#   python scripts/build_evidence_packets.py --data-root data/building_holdout3
+#   python scripts/diagnose_incidents.py --evidence data/building_holdout3/evidence
+
+network_file: data/networks/Building_G6.inp
+
+simulation:
+  duration_hours: 24
+  hydraulic_timestep_seconds: 300
+  report_timestep_seconds: 3600
+  report_average: true
+  pressure_floor_m: 0.0
+
+scenario_generation:
+  enabled: true
+
+  leak:
+    target_ids: [F2A-KIT, F4B-UTL, F6A-MBATH, F1B-BATH2, F3A-CBATH, F5B-KIT, F0B-UTL]
+    severities: [0.25, 0.8]
+    start_hours: [4, 15]
+    duration_hours: 4
+    params:
+      max_leak_demand: 0.0002
+
+  pump_failure:
+    target_ids: [PUMP1]
+    severities: [1.0]
+    start_hours: [5, 12, 16]
+    duration_hours: 7
+    params:
+      restore_after_outage: false
+
+  blockage:
+    target_ids: [ROOF-A, DTB-4-3, F0A-SUPPLY, F6A-SUPPLY, DTA-6-5, F3B-SUPPLY, F4A-MAIN-B]
+    severities: [1.0]
+    start_hours: [8, 13]
+    duration_hours: 4

@@ -1,0 +1,1635 @@
+<title>TwinRAG — Building Digital Twin</title>
+
+<style>
+  :root {
+    --ground: #eef1f3;
+    --surface: #ffffff;
+    --surface-2: #e8edf0;
+    --ink: #101a20;
+    --ink-2: #40525c;
+    --ink-3: #6d818c;
+    --line: #d3dde2;
+    --line-2: #aebcc4;
+    --accent: #0e7c86;
+
+    /* pressure ramp */
+    --seq-0: #d7eef2;
+    --seq-1: #a6d9e2;
+    --seq-2: #6dc0cd;
+    --seq-3: #2f97a9;
+    --seq-4: #17707f;
+    --seq-5: #0a4a56;
+
+    /* condition colours: calm assets recede, problems stand out */
+    --pipe: #a9bac3;
+    --point: #5aaebb;
+    --changed: #d99100;
+    --problem: #d23b3b;
+    --dry: #8a3fb5;
+
+    /* text-safe variants for badges on --surface */
+    --changed-ink: #8a5a00;
+    --problem-ink: #b3242c;
+    --dry-ink: #7a2fa5;
+    --ok-ink: #1d6b41;
+
+    --slab: #9fb1ba;
+    --water: #3aa3b5;
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --r: 8px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0c1418;
+      --surface: #121d23;
+      --surface-2: #1a272e;
+      --ink: #e4edf1;
+      --ink-2: #a9bcc6;
+      --ink-3: #7c919d;
+      --line: #24343c;
+      --line-2: #354a54;
+      --accent: #35b8c4;
+
+      --seq-0: #12353d;
+      --seq-1: #175a67;
+      --seq-2: #1f8494;
+      --seq-3: #35b0c0;
+      --seq-4: #6ed2de;
+      --seq-5: #b6ecf3;
+
+      --pipe: #3f5661;
+      --point: #2f8f9e;
+      --changed: #f0b429;
+      --problem: #ef5b5b;
+      --dry: #b57be0;
+
+      --changed-ink: #f0b429;
+      --problem-ink: #ef7070;
+      --dry-ink: #c69be6;
+      --ok-ink: #5fb583;
+
+      --slab: #4d626c;
+      --water: #35b0c0;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0c1418;
+    --surface: #121d23;
+    --surface-2: #1a272e;
+    --ink: #e4edf1;
+    --ink-2: #a9bcc6;
+    --ink-3: #7c919d;
+    --line: #24343c;
+    --line-2: #354a54;
+    --accent: #35b8c4;
+
+    --seq-0: #12353d;
+    --seq-1: #175a67;
+    --seq-2: #1f8494;
+    --seq-3: #35b0c0;
+    --seq-4: #6ed2de;
+    --seq-5: #b6ecf3;
+
+    --pipe: #3f5661;
+    --point: #2f8f9e;
+    --changed: #f0b429;
+    --problem: #ef5b5b;
+    --dry: #b57be0;
+
+    --changed-ink: #f0b429;
+    --problem-ink: #ef7070;
+    --dry-ink: #c69be6;
+    --ok-ink: #5fb583;
+
+    --slab: #4d626c;
+    --water: #35b0c0;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  .twin {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: clamp(12px, 2vw, 22px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lede { padding-right: 80px; }
+  .lede h1 { font-size: clamp(18px, 2.2vw, 23px); font-weight: 650; letter-spacing: -0.015em; margin: 0; }
+  .lede p { margin: 2px 0 0; color: var(--ink-3); font-size: 13.5px; max-width: 80ch; }
+
+  /* ---------- control bar ---------- */
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    align-items: flex-end;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 12px 14px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .field.grow { flex: 1 1 300px; }
+
+  .lbl {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  select, input[type="search"] {
+    font: 14px var(--sans);
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    padding: 7px 10px;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .seg { display: flex; border: 1px solid var(--line-2); border-radius: 6px; overflow: hidden; }
+  .seg button {
+    font: 13.5px var(--sans);
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border: 0;
+    padding: 7px 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .seg button + button { border-left: 1px solid var(--line-2); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+
+  .btn {
+    font: 13.5px var(--sans);
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    padding: 7px 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+
+  button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  details.more { flex-basis: 100%; }
+  details.more summary { font-size: 13px; color: var(--ink-3); cursor: pointer; width: max-content; }
+  .morebody { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: flex-end; padding-top: 10px; }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); padding: 6px 0; }
+  .checks label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  input[type="checkbox"], input[type="range"] { accent-color: var(--accent); }
+
+  /* ---------- stage ---------- */
+
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 12px; align-items: start; }
+  @media (max-width: 980px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
+
+  .viewwrap { position: relative; overflow: hidden; }
+  #view { position: relative; height: min(70vh, 760px); min-height: 400px; cursor: grab; touch-action: none; }
+  #view:active { cursor: grabbing; }
+  #view canvas { display: block; }
+
+  .hint { position: absolute; left: 12px; top: 10px; font-size: 12px; color: var(--ink-3); pointer-events: none; }
+  .viewbtns { position: absolute; right: 10px; top: 10px; }
+
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--ink);
+    color: var(--ground);
+    font-size: 12.5px;
+    line-height: 1.45;
+    padding: 7px 10px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity .1s;
+    white-space: pre;
+    z-index: 5;
+  }
+  .tip.on { opacity: 1; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--ink-2);
+    border-top: 1px solid var(--line);
+  }
+  .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+  .ramp { display: inline-flex; align-items: center; gap: 6px; }
+  .ramp .bar5 { display: flex; border-radius: 3px; overflow: hidden; }
+  .ramp .bar5 i { width: 20px; height: 11px; display: block; }
+  .ramp span { font-size: 12px; color: var(--ink-3); }
+
+  /* ---------- time ---------- */
+
+  .time { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .clock { font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; min-width: 60px; }
+  .slidewrap { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 3px; }
+  .slidewrap input { width: 100%; }
+  .track { position: relative; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+  .track .win { position: absolute; top: 0; bottom: 0; background: var(--problem); opacity: .45; }
+  .ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+
+  /* ---------- side panels ---------- */
+
+  .side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .card { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .card h2 { font-size: 13px; font-weight: 650; color: var(--ink-2); margin: 0; }
+
+  .headline { font-size: 17px; font-weight: 650; margin: 0; }
+  .headline.ok { color: var(--ok-ink); }
+  .headline.bad { color: var(--problem-ink); }
+  .headline.warn { color: var(--changed-ink); }
+  .sub { font-size: 13px; color: var(--ink-2); margin: 0; }
+  .note { font-size: 12px; color: var(--ink-3); margin: 0; }
+
+  .alerts { display: flex; flex-direction: column; gap: 2px; max-height: 330px; overflow-y: auto; }
+  .alerts button {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 9px;
+    align-items: start;
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    padding: 7px 8px;
+    cursor: pointer;
+    text-align: left;
+    color: var(--ink);
+    font: 13px var(--sans);
+    width: 100%;
+  }
+  .alerts button:hover { background: var(--surface-2); }
+  .alerts .dot { margin: 4px 0 0; }
+  .alerts .what { color: var(--ink-3); font-size: 12.5px; display: block; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 650;
+    border-radius: 999px;
+    padding: 1px 9px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .badge.l0 { color: var(--ok-ink); }
+  .badge.l1 { color: var(--changed-ink); }
+  .badge.l2 { color: var(--problem-ink); }
+  .badge.l3 { color: var(--dry-ink); }
+
+  /* ---------- diagnosis ---------- */
+
+  .diag { border-left: 4px solid var(--line-2); }
+  .diag.critical { border-left-color: var(--problem); }
+  .diag.warning { border-left-color: var(--changed); }
+  .diag.review { border-left-color: var(--ink-3); }
+  .sev { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+         border-radius: 999px; padding: 2px 10px; }
+  .sev.critical { background: var(--problem); color: #fff; }
+  .sev.warning { background: var(--changed); color: #1b1300; }
+  .sev.review { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line-2); }
+  .dtitle { font-size: 17px; font-weight: 650; margin: 0; line-height: 1.3; }
+  .when { font-size: 12.5px; color: var(--ink-3); margin: -4px 0 0; }
+  .dsum { font-size: 14px; margin: 0; }
+  .diag h3 { font-size: 12.5px; font-weight: 650; color: var(--ink-2); margin: 2px 0 -2px; }
+  .diag ol, .diag ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2);
+                       display: flex; flex-direction: column; gap: 6px; }
+  .idchip { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line-2); border-radius: 4px;
+            padding: 0 5px; margin: 2px 3px 0 0; background: var(--surface-2); color: var(--ink-2); cursor: pointer; }
+  .idchip:hover { border-color: var(--accent); color: var(--accent); }
+  .action { background: var(--surface-2); border-radius: 6px; padding: 8px 10px; font-size: 13px; margin: 0; }
+  .confrow { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-3); }
+  .confbar { flex: 1; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .confbar i { display: block; height: 100%; background: var(--accent); }
+  .verdict { font-size: 12.5px; margin: 0; padding: 6px 9px; border-radius: 6px; background: var(--surface-2); }
+  .btn.small { font-size: 12px; padding: 4px 10px; }
+  .track .dmark { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1px; background: var(--accent); }
+
+  .dhead { display: flex; justify-content: space-between; align-items: center; }
+  .x { background: none; border: 0; color: var(--ink-3); font-size: 20px; line-height: 1; cursor: pointer; padding: 0 4px; }
+  .name { font-size: 16px; font-weight: 650; margin: 0; }
+  .readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+  .ro { background: var(--surface-2); border-radius: 6px; padding: 8px 10px; margin: 0; }
+  .ro dt { font-size: 11.5px; color: var(--ink-3); margin: 0; }
+  .ro dd { font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; margin: 2px 0 0; }
+  .ro dd small { font-size: 11px; color: var(--ink-3); }
+  .spark { display: block; width: 100%; height: auto; }
+  .sparkkey { display: flex; gap: 14px; font-size: 11.5px; color: var(--ink-3); }
+  .sparkkey i { display: inline-block; width: 14px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 5px; }
+
+  .chip {
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 2px 10px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .chip.normal { color: var(--ok-ink); }
+  .chip.fault_active { color: var(--problem-ink); }
+  .chip.recovery { color: var(--changed-ink); }
+
+  .foot { color: var(--ink-3); font-size: 12px; margin: 0; }
+
+  @media (max-width: 640px) {
+    #view { height: 60vh; min-height: 330px; }
+    .hint { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="twin">
+
+  <header class="lede">
+    <h1 id="title">Building water digital twin</h1>
+    <p id="subtitle"></p>
+  </header>
+
+  <div class="bar">
+    <div class="field grow">
+      <label class="lbl" for="scenario">Scenario</label>
+      <select id="scenario"></select>
+    </div>
+
+    <div class="field">
+      <span class="lbl" id="modeLbl">Colour by</span>
+      <div class="seg" id="mode" role="group" aria-labelledby="modeLbl">
+        <button type="button" data-mode="health" aria-pressed="true">Problems</button>
+        <button type="button" data-mode="pressure" aria-pressed="false">Pressure</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="lbl" for="floor">Floor</label>
+      <select id="floor"></select>
+    </div>
+
+    <details class="more">
+      <summary>More options</summary>
+      <div class="morebody">
+        <div class="field">
+          <label class="lbl" for="spread">Space between floors</label>
+          <input type="range" id="spread" min="1" max="2.6" step="0.1" value="1.35" style="width:140px" />
+        </div>
+        <div class="field">
+          <label class="lbl" for="find">Find an asset by ID</label>
+          <input type="search" id="find" list="assets" placeholder="e.g. F3A-KIT" autocomplete="off" />
+          <datalist id="assets"></datalist>
+        </div>
+        <div class="checks">
+          <label><input type="checkbox" id="showRooms" checked /> Room outlines</label>
+          <label><input type="checkbox" id="showSensors" /> Sensor positions</label>
+          <label><input type="checkbox" id="showTruth" /> Reveal answer (where the fault was injected)</label>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage">
+    <section class="panel viewwrap" aria-label="3D building view">
+      <div id="view"></div>
+      <div class="hint">Drag to rotate · right-drag to move · scroll to zoom · click any pipe or tap</div>
+      <div class="viewbtns"><button type="button" class="btn" id="resetView">Reset view</button></div>
+      <div class="tip" id="tip"></div>
+
+      <div class="time">
+        <button type="button" class="btn primary" id="play">▶ Play</button>
+        <span class="clock" id="clock">00:00</span>
+        <div class="slidewrap">
+          <input type="range" id="slider" min="0" max="24" step="1" value="0" aria-label="Hour of the day" />
+          <div class="track"><div class="win" id="win" hidden></div></div>
+          <div class="ticks"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+        </div>
+        <span class="chip" id="state" hidden></span>
+      </div>
+
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <div class="side">
+      <section class="panel card diag" id="diag" aria-live="polite"></section>
+
+      <section class="panel card" aria-live="polite">
+        <h2>Live sensor readings</h2>
+        <p class="headline" id="headline"></p>
+        <p class="sub" id="affected"></p>
+        <div class="alerts" id="alerts"></div>
+        <p class="note">Based only on the building's sensors, compared with what the digital twin expects at this hour.</p>
+      </section>
+
+      <section class="panel card" id="details" aria-live="polite" hidden></section>
+    </div>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>__THREE_JS__</script>
+<script>__ORBIT_CONTROLS_JS__</script>
+<script type="application/json" id="twinData">__TWIN_DATA__</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var D = JSON.parse(document.getElementById("twinData").textContent);
+  var root = document.documentElement;
+  var host = document.getElementById("view");
+  var tip = document.getElementById("tip");
+  var $ = function (id) { return document.getElementById(id); };
+  var css = function (n) { return getComputedStyle(root).getPropertyValue(n).trim(); };
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function hasWebGL() {
+    try {
+      var c = document.createElement("canvas");
+      return !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl")));
+    } catch (e) { return false; }
+  }
+
+  if (!window.THREE || !hasWebGL()) {
+    host.innerHTML = '<p class="note" style="padding:20px">This view needs WebGL, which this browser has turned off.</p>';
+    return;
+  }
+
+  /* ---------------------------------------------------------------
+     Data
+     --------------------------------------------------------------- */
+
+  var B = D.building;
+  var H = B.floor_height, NF = B.floors;
+  var FP = B.footprint;
+  var CX = (FP[0] + FP[2]) / 2, CY = (FP[1] + FP[3]) / 2;
+  var HOURS = D.hours;
+  var SCN = D.scenarios;
+  var BASE = SCN[0];
+  var NOISE = D.noise;
+
+  var byNode = {}, byLink = {}, sensorsOf = {};
+  D.nodes.forEach(function (n) { byNode[n.id] = n; });
+  D.links.forEach(function (l) { byLink[l.id] = l; });
+  D.sensors.forEach(function (s) { (sensorsOf[s.asset_id] = sensorsOf[s.asset_id] || []).push(s); });
+  var roomName = {};
+  D.rooms.forEach(function (r) { roomName[r.id] = r.name; });
+
+  function assetOf(id) { return byNode[id] || byLink[id]; }
+  function isTank(n) { return n && (n.role === "roof_tank" || n.role === "sump"); }
+
+  function floorLabel(f) { return f === 0 ? "Ground floor" : "Floor " + f; }
+
+  function whereText(a) {
+    var parts = [];
+    if (a.floor !== null && a.floor !== undefined) parts.push(floorLabel(a.floor));
+    if (a.flat) parts.push("Flat " + a.flat.slice(1));
+    if (a.room && roomName[a.room]) parts.push(roomName[a.room]);
+    return parts.length ? parts.join(" · ") : "Building supply (tanks, pump, roof)";
+  }
+
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /* ---------------------------------------------------------------
+     State
+     --------------------------------------------------------------- */
+
+  var state = {
+    scn: 0, step: 8, mode: "health", floor: "all", spread: 1.35,
+    sensors: false, rooms: true, truth: false, sel: null, playing: false,
+    evidence: true
+  };
+
+  /* Open a scenario at the hour the system itself raised its first
+     incident -- derived from detection, never from the hidden answer. */
+  function jumpToFault() {
+    var hours = Object.keys(SCN[state.scn].live || {}).map(Number);
+    state.step = hours.length ? Math.min(24, Math.min.apply(null, hours) + 1) : 8;
+  }
+
+  /* Incidents as the system knew them at the current hour: the pipeline
+     was replayed on the readings up to each hour, so nothing here uses
+     data from later in the day. */
+  function incidentsSoFar() {
+    var refs = (SCN[state.scn].live || {})[String(HOURS[state.step])] || [];
+    return refs.map(function (i) { return D.snapshots[i]; });
+  }
+
+  function currentIncident() {
+    var list = incidentsSoFar();
+    return list.length ? list[list.length - 1] : null;
+  }
+
+  function assetOfCitation(id) {
+    if (byNode[id] || byLink[id]) return id;
+    if (id && id.indexOf("sensor:") === 0) {
+      var s = D.sensors.filter(function (x) { return "sensor:" + x.id === id; })[0];
+      return s ? s.asset_id : null;
+    }
+    return null;
+  }
+
+  (function pickDefault() {
+    for (var i = 1; i < SCN.length; i++) {
+      if (SCN[i].target_id === "F3A-MBATH" && SCN[i].severity === 1 && SCN[i].start_hour === 6) { state.scn = i; break; }
+    }
+    if (!state.scn && SCN.length > 1) state.scn = 1;
+    jumpToFault();
+  })();
+
+  /* Deep links: #scenario=<name>&floor=3&sel=F3A-KIT&t=8&mode=pressure&answer=1 */
+  (function readHash() {
+    var h = {};
+    location.hash.replace(/^#/, "").split("&").forEach(function (kv) {
+      var i = kv.indexOf("=");
+      if (i > 0) h[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1));
+    });
+    if (h.scenario) {
+      for (var i = 0; i < SCN.length; i++) if (SCN[i].name === h.scenario) { state.scn = i; jumpToFault(); }
+    }
+    if (h.t !== undefined && !isNaN(+h.t)) state.step = Math.max(0, Math.min(HOURS.length - 1, +h.t));
+    if (h.floor !== undefined && h.floor !== "all" && !isNaN(+h.floor)) state.floor = String(+h.floor);
+    if (h.mode === "health" || h.mode === "pressure") state.mode = h.mode;
+    if (h.spread && !isNaN(+h.spread)) state.spread = Math.max(1, Math.min(2.6, +h.spread));
+    if (h.answer === "1") state.truth = true;
+    if (h.sel && assetOf(h.sel)) state.sel = h.sel;
+  })();
+
+  function S() { return SCN[state.scn]; }
+  function val(scn, table, id) { var row = scn[table][id]; return row ? row[state.step] : null; }
+
+  /* ---------------------------------------------------------------
+     Condition of every asset: normal / changed / problem / no water
+
+     A change counts once it is bigger than a sensor could mistake for
+     noise: 3x the instrument noise is "changed", 8x is a "problem".
+     --------------------------------------------------------------- */
+
+  var CHANGED = 3, PROBLEM = 8;
+  var LEVEL_NAME = ["Normal", "Changed", "Problem", "No water"];
+
+  function nodeStatus(id, scn) {
+    scn = scn || S();
+    var n = byNode[id];
+    var p = val(scn, "p", id), pb = val(BASE, "p", id);
+    if (p === null || pb === null || n.role === "municipal_supply") return { level: 0, dev: 0 };
+    var dev = p - pb;
+    var z = Math.abs(dev) / NOISE.pressure_abs;
+    var dry = isTank(n) ? (pb > n.min_level + 0.1 && p <= n.min_level + 0.02) : (pb > 1 && p < 0.3);
+    var level = dry ? 3 : z >= PROBLEM ? 2 : z >= CHANGED ? 1 : 0;
+    return { level: level, dev: dev, z: z };
+  }
+
+  function linkStatus(id, scn) {
+    scn = scn || S();
+    var q = val(scn, "q", id), qb = val(BASE, "q", id);
+    if (q === null || qb === null) return { level: 0, dev: 0 };
+    var dev = Math.abs(q) - Math.abs(qb);
+    var z = Math.abs(dev) / (NOISE.flow_abs + NOISE.flow_rel * Math.abs(qb));
+    return { level: z >= PROBLEM ? 2 : z >= CHANGED ? 1 : 0, dev: dev, z: z };
+  }
+
+  function statusOf(id) { return byNode[id] ? nodeStatus(id) : linkStatus(id); }
+
+  /* ---------------------------------------------------------------
+     Colour
+     --------------------------------------------------------------- */
+
+  var C = {};
+
+  function refreshColours() {
+    var c = function (n) { return new THREE.Color(css(n) || "#888888"); };
+    C = {
+      ground: c("--ground"), surface2: c("--surface-2"),
+      ink3: c("--ink-3"), line: c("--line"), slab: c("--slab"), accent: c("--accent"),
+      water: c("--water"), pipe: c("--pipe"), point: c("--point"),
+      changed: c("--changed"), problem: c("--problem"), dry: c("--dry"),
+      seq: ["--seq-0", "--seq-1", "--seq-2", "--seq-3", "--seq-4", "--seq-5"].map(c),
+      inkHex: css("--ink"), ink3Hex: css("--ink-3")
+    };
+  }
+
+  function levelColour(level, calm) {
+    return [calm, C.changed, C.problem, C.dry][level];
+  }
+
+  function seqColour(t) {
+    t = Math.max(0, Math.min(1, t)) * 5;
+    var i = Math.min(4, Math.floor(t));
+    return new THREE.Color().lerpColors(C.seq[i], C.seq[i + 1], t - i);
+  }
+
+  var P_MAX = 26;
+
+  function pressureAt(id) { return val(S(), "p", id); }
+
+  function nodeColour(id) {
+    var n = byNode[id];
+    if (state.mode === "health") return levelColour(nodeStatus(id).level, isTank(n) ? C.water : C.point);
+    if (isTank(n)) return C.water;
+    var p = pressureAt(id);
+    if (p === null) return C.pipe;
+    if (nodeStatus(id).level === 3) return C.dry;
+    return seqColour(p / P_MAX);
+  }
+
+  function linkColour(id) {
+    var l = byLink[id];
+    if (state.mode === "health") {
+      // A pipe feeding a dry tap has no flow to measure; show it dry too.
+      var dry = byNode[l.end] && nodeStatus(l.end).level === 3 && l.kind !== "pump";
+      return dry ? C.dry : levelColour(linkStatus(id).level, C.pipe);
+    }
+    var ends = [l.start, l.end].filter(function (n) { return !isTank(byNode[n]) && byNode[n].role !== "municipal_supply"; });
+    if (!ends.length) return C.water;
+    var sum = 0, k = 0;
+    ends.forEach(function (n) { var v = pressureAt(n); if (v !== null) { sum += v; k++; } });
+    if (!k) return C.pipe;
+    var p = sum / k;
+    if (p < 0.3) return C.dry;
+    return seqColour(p / P_MAX);
+  }
+
+  /* ---------------------------------------------------------------
+     Scene
+     --------------------------------------------------------------- */
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  host.appendChild(renderer.domElement);
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(34, 1, 0.3, 600);
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = !reduceMotion;
+  controls.dampingFactor = 0.09;
+  controls.maxPolarAngle = Math.PI * 0.6;
+  controls.minDistance = 6;
+  controls.maxDistance = 160;
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.0));
+  var sun = new THREE.DirectionalLight(0xffffff, 0.5);
+  sun.position.set(30, 60, 40);
+  scene.add(sun);
+
+  var world = new THREE.Group();
+  scene.add(world);
+
+  // Exploded view: floors move apart, nothing stretches within a floor.
+  function zmap(z) {
+    var fi = Math.max(0, Math.min(NF, Math.floor(z / H + 1e-6)));
+    return z + (state.spread - 1) * H * fi;
+  }
+  function V(p) { return new THREE.Vector3(p[0] - CX, zmap(p[2]), CY - p[1]); }
+  function topZ() { return zmap(B.terrace_level); }
+
+  function resetView() {
+    var top = topZ() + 6, bottom = -4;
+    var height = top - bottom, width = (FP[2] - FP[0]) + 8;
+    var half = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    var dist = Math.max((height / 2) / half, (width / 2) / (half * Math.max(camera.aspect, 0.4))) * 1.08;
+    controls.target.set(0, (top + bottom) / 2 - 1, -1);
+    camera.position.copy(controls.target).add(new THREE.Vector3(0.62, 0.36, 0.7).normalize().multiplyScalar(dist));
+    camera.updateProjectionMatrix();
+    controls.update();
+  }
+
+  var linkMats = {}, linkMeshes = {}, nodeMats = {}, nodeMeshes = {}, tankWater = {}, floorObjs = [], picks = [];
+  var sensorGroup, truthGroup, haloGroup, roomGroup, labelGroup, diagGroup;
+  var diagKey = null;
+
+  function disposeTree(obj) {
+    obj.traverse(function (o) {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) {
+        if (m.map) m.map.dispose();
+        m.dispose();
+      });
+    });
+  }
+
+  function emptyGroup(g) {
+    disposeTree(g);
+    while (g.children.length) g.remove(g.children[0]);
+  }
+
+  function lineMat(colour, opacity) {
+    return new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity: opacity });
+  }
+
+  function cylinder(a, b, r, mat) {
+    var dir = new THREE.Vector3().subVectors(b, a);
+    var m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, Math.max(dir.length(), 1e-3), 10, 1), mat);
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+    m.userData.segment = true;
+    return m;
+  }
+
+  function textSprite(text, opts) {
+    opts = opts || {};
+    var size = opts.size || 0.55, px = 44;
+    var cvs = document.createElement("canvas");
+    var ctx = cvs.getContext("2d");
+    var font = (opts.weight || 600) + " " + px + "px " + css("--sans");
+    ctx.font = font;
+    cvs.width = Math.ceil(ctx.measureText(text).width) + 16;
+    cvs.height = px + 16;
+    ctx.font = font;
+    ctx.fillStyle = opts.colour || C.inkHex;
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 8, cvs.height / 2);
+    var tex = new THREE.CanvasTexture(cvs);
+    tex.minFilter = THREE.LinearFilter;
+    var spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    spr.scale.set(size * cvs.width / cvs.height, size, 1);
+    spr.renderOrder = 10;
+    return spr;
+  }
+
+  function pathOf(link) { return link.path.map(V); }
+
+  function midpoint(link) {
+    var pts = pathOf(link), best = -1, bi = 0;
+    for (var i = 0; i < pts.length - 1; i++) {
+      var d = pts[i].distanceTo(pts[i + 1]);
+      if (d > best) { best = d; bi = i; }
+    }
+    return pts.length > 1 ? pts[bi].clone().add(pts[bi + 1]).multiplyScalar(0.5) : pts[0];
+  }
+
+  function positionOf(id) {
+    var n = byNode[id];
+    if (n) {
+      var p = V([n.x, n.y, n.z]);
+      if (isTank(n)) p.y += n.max_level / 2;
+      return p;
+    }
+    return midpoint(byLink[id]);
+  }
+
+  function track(obj, floor) { floorObjs.push({ obj: obj, floor: floor }); }
+
+  function build() {
+    emptyGroup(world);
+    linkMats = {}; linkMeshes = {}; nodeMats = {}; nodeMeshes = {}; tankWater = {}; floorObjs = []; picks = [];
+    scene.background = C.ground;
+
+    var W = FP[2] - FP[0], Dp = FP[3] - FP[1];
+
+    var ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(W + 30, Dp + 28),
+      new THREE.MeshBasicMaterial({ color: C.surface2, transparent: true, opacity: 0.6, depthWrite: false })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.set(0, -0.01, -2);
+    world.add(ground);
+
+    /* floor slabs and terrace */
+    for (var f = 0; f <= NF; f++) {
+      var y = zmap(f * H);
+      var slab = new THREE.Mesh(
+        new THREE.BoxGeometry(W, 0.12, Dp),
+        new THREE.MeshBasicMaterial({ color: C.slab, transparent: true, opacity: f === 0 ? 0.14 : 0.07, depthWrite: false })
+      );
+      slab.position.set(0, y - 0.07, 0);
+      world.add(slab);
+      var edges = new THREE.LineSegments(new THREE.EdgesGeometry(slab.geometry), lineMat(C.slab, 0.55));
+      edges.position.copy(slab.position);
+      world.add(edges);
+      track(slab, f === NF ? "terrace" : f);
+      track(edges, f === NF ? "terrace" : f);
+
+      var lbl = textSprite(f === NF ? "Roof" : floorLabel(f), { size: 0.62, colour: C.ink3Hex, weight: 500 });
+      lbl.position.set(FP[0] - CX - 2.8, y + 0.45, CY - FP[3]);
+      world.add(lbl);
+    }
+
+    /* columns at the corners and at the core -- the frame, no walls */
+    var colMat = new THREE.MeshBasicMaterial({ color: C.slab, transparent: true, opacity: 0.2, depthWrite: false });
+    [FP[0], B.core[0], B.core[2], FP[2]].forEach(function (x) {
+      [FP[1], FP[3]].forEach(function (yy) {
+        var col = new THREE.Mesh(new THREE.BoxGeometry(0.3, topZ(), 0.3), colMat);
+        col.position.set(x - CX, topZ() / 2, CY - yy);
+        world.add(col);
+      });
+    });
+
+    /* room outlines */
+    roomGroup = new THREE.Group();
+    world.add(roomGroup);
+    D.rooms.forEach(function (r) {
+      var y = zmap(r.z) + 0.02;
+      var x0 = r.rect[0] - CX, x1 = r.rect[2] - CX, z0 = CY - r.rect[1], z1 = CY - r.rect[3];
+      var loop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x0, y, z0), new THREE.Vector3(x1, y, z0),
+        new THREE.Vector3(x1, y, z1), new THREE.Vector3(x0, y, z1)
+      ]), lineMat(C.slab, 0.5));
+      roomGroup.add(loop);
+      track(loop, r.floor);
+    });
+
+    labelGroup = new THREE.Group();
+    world.add(labelGroup);
+
+    /* pipes */
+    D.links.forEach(function (l) {
+      var mat = new THREE.MeshStandardMaterial({ color: C.pipe, roughness: 0.55, metalness: 0.05, transparent: true, opacity: 1 });
+      linkMats[l.id] = mat;
+      var r = Math.max(0.06, Math.min(0.12, l.diameter * 2.2));
+      var pts = pathOf(l);
+      var group = new THREE.Group();
+      for (var i = 0; i < pts.length - 1; i++) group.add(cylinder(pts[i], pts[i + 1], r, mat));
+      for (var j = 1; j < pts.length - 1; j++) {
+        var joint = new THREE.Mesh(new THREE.SphereGeometry(r * 1.05, 10, 8), mat);
+        joint.position.copy(pts[j]);
+        group.add(joint);
+      }
+      if (l.kind === "pump") {
+        var body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.6, 0.6), mat);
+        body.position.copy(pts[pts.length - 1]).add(pts[0]).multiplyScalar(0.5);
+        group.add(body);
+      }
+      world.add(group);
+      linkMeshes[l.id] = group;
+      track(group, l.floor);
+
+      for (var k = 0; k < pts.length - 1; k++) {
+        var n = Math.max(1, Math.ceil(pts[k].distanceTo(pts[k + 1]) / 0.5));
+        for (var s = 0; s <= n; s++) {
+          picks.push({ id: l.id, p: new THREE.Vector3().lerpVectors(pts[k], pts[k + 1], s / n), floor: l.floor, w: 1 });
+        }
+      }
+    });
+
+    /* taps, tees, tanks */
+    D.nodes.forEach(function (n) {
+      var p = V([n.x, n.y, n.z]);
+      var mat = new THREE.MeshStandardMaterial({ color: C.point, roughness: 0.45, metalness: 0.05, transparent: true, opacity: 1 });
+      nodeMats[n.id] = mat;
+
+      if (isTank(n)) {
+        var rad = n.diameter / 2, hgt = n.max_level;
+        var shell = new THREE.Mesh(
+          new THREE.CylinderGeometry(rad, rad, hgt, 32, 1, true),
+          new THREE.MeshBasicMaterial({ color: C.slab, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false })
+        );
+        shell.position.set(p.x, p.y + hgt / 2, p.z);
+        world.add(shell);
+        var rim = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.CylinderGeometry(rad, rad, hgt, 32, 1)), lineMat(C.ink3, 0.6));
+        rim.position.copy(shell.position);
+        world.add(rim);
+        var water = new THREE.Mesh(new THREE.CylinderGeometry(rad * 0.94, rad * 0.94, 1, 32), mat);
+        water.position.set(p.x, p.y, p.z);
+        world.add(water);
+        tankWater[n.id] = { mesh: water, base: p.y };
+        track(shell, "services"); track(rim, "services"); track(water, "services");
+
+        var tl = textSprite(n.role === "roof_tank" ? "Roof tank" : "Sump (underground)", { size: 0.55, colour: C.ink3Hex, weight: 500 });
+        tl.position.set(p.x, p.y + hgt + 0.7, p.z);
+        world.add(tl);
+        for (var t = 0; t <= 6; t++) picks.push({ id: n.id, p: new THREE.Vector3(p.x, p.y + hgt * t / 6, p.z), floor: "services", w: 0.6 });
+        return;
+      }
+
+      // Only taps and the street connection get a visible body; tees stay hidden joints.
+      var visible = n.role === "fixture" || n.role === "municipal_supply";
+      if (visible) {
+        var geo = n.role === "municipal_supply" ? new THREE.BoxGeometry(0.8, 0.8, 0.8) : new THREE.SphereGeometry(0.2, 16, 12);
+        var m = new THREE.Mesh(geo, mat);
+        m.position.copy(p);
+        world.add(m);
+        nodeMeshes[n.id] = m;
+        track(m, n.floor === null ? "services" : n.floor);
+      }
+      picks.push({ id: n.id, p: p, floor: n.floor, w: n.role === "fixture" ? 0.55 : 1.1 });
+
+      if (n.role === "municipal_supply") {
+        var cl = textSprite("Street water main", { size: 0.55, colour: C.ink3Hex, weight: 500 });
+        cl.position.set(p.x, p.y + 1.1, p.z);
+        world.add(cl);
+      }
+    });
+
+    if (byLink.PUMP1) {
+      var pumpLbl = textSprite("Pump", { size: 0.5, colour: C.ink3Hex, weight: 500 });
+      pumpLbl.position.copy(midpoint(byLink.PUMP1)).add(new THREE.Vector3(0, 0.9, 0));
+      world.add(pumpLbl);
+    }
+
+    /* sensor positions (off by default) */
+    sensorGroup = new THREE.Group();
+    world.add(sensorGroup);
+    var sGeo = new THREE.OctahedronGeometry(0.1);
+    D.sensors.forEach(function (s) {
+      var a = assetOf(s.asset_id);
+      if (!a) return;
+      var sm = new THREE.Mesh(sGeo, new THREE.MeshBasicMaterial({ color: C.ink3, transparent: true, opacity: 0.9 }));
+      sm.position.copy(positionOf(s.asset_id)).add(new THREE.Vector3(0, 0.3, 0));
+      sensorGroup.add(sm);
+      track(sm, a.floor === null || a.floor === undefined ? "services" : a.floor);
+    });
+
+    truthGroup = new THREE.Group();
+    world.add(truthGroup);
+    haloGroup = new THREE.Group();
+    world.add(haloGroup);
+    diagGroup = new THREE.Group();
+    world.add(diagGroup);
+
+    buildTruth();
+    buildHalo();
+    buildDiag();
+    buildFloorLabels();
+  }
+
+  /* The system's own answer: a marker on the diagnosed root cause. */
+  var FAULT_WORD = { leak: "leak", blockage: "blockage", pump_failure: "pump failure", other: "supply fault" };
+
+  function buildDiag() {
+    emptyGroup(diagGroup);
+    var inc = currentIncident();
+    diagKey = inc ? SCN[state.scn].name + "/" + inc.id : null;
+    if (!inc || !inc.diagnosis || !assetOf(inc.diagnosis.root)) return;
+
+    var d = inc.diagnosis;
+    var review = d.message.severity === "review";
+    var colour = review ? C.ink3 : C.problem;
+    var p = positionOf(d.root);
+
+    var ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.85, 0.07, 8, 44),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.95, depthTest: false })
+    );
+    ring.position.copy(p);
+    ring.rotation.x = Math.PI / 2;
+    ring.renderOrder = 9;
+    diagGroup.add(ring);
+
+    var stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.03, 1.6, 6),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.9, depthTest: false })
+    );
+    stem.position.copy(p).add(new THREE.Vector3(0, 0.95, 0));
+    stem.renderOrder = 9;
+    diagGroup.add(stem);
+
+    var text = "Diagnosed: " + (FAULT_WORD[d.fault_type] || d.fault_type) + (review ? " (unconfirmed)" : "");
+    var lbl = textSprite(text, { size: 0.5, colour: "#" + colour.getHexString() });
+    lbl.position.copy(p).add(new THREE.Vector3(0, 2.05, 0));
+    diagGroup.add(lbl);
+    diagGroup.userData.ring = ring;
+  }
+
+  /* The answer marker -- only when the user asks to reveal it. */
+  function buildTruth() {
+    emptyGroup(truthGroup);
+    var s = S();
+    if (!s.target_id || !assetOf(s.target_id)) return;
+    var p = positionOf(s.target_id);
+    var ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.62, 0.05, 8, 40),
+      new THREE.MeshBasicMaterial({ color: C.accent, transparent: true, opacity: 0.95, depthTest: false })
+    );
+    ring.position.copy(p);
+    ring.rotation.x = Math.PI / 2;
+    ring.renderOrder = 8;
+    truthGroup.add(ring);
+    var lbl = textSprite("Answer: injected " + s.fault_type.replace("_", " "), { size: 0.46, colour: css("--accent") });
+    lbl.position.copy(p).add(new THREE.Vector3(2.2, -0.6, 0));   // beside, clear of other labels
+    truthGroup.add(lbl);
+    truthGroup.userData.ring = ring;
+  }
+
+  function buildHalo() {
+    emptyGroup(haloGroup);
+    if (!state.sel) return;
+    var mat = new THREE.MeshBasicMaterial({ color: C.accent, transparent: true, opacity: 0.3, depthWrite: false });
+    if (byLink[state.sel]) {
+      var pts = pathOf(byLink[state.sel]);
+      for (var i = 0; i < pts.length - 1; i++) haloGroup.add(cylinder(pts[i], pts[i + 1], 0.22, mat));
+    } else {
+      var n = byNode[state.sel];
+      var sp = new THREE.Mesh(new THREE.SphereGeometry(isTank(n) ? n.diameter / 2 + 0.3 : 0.45, 20, 14), mat);
+      sp.position.copy(positionOf(state.sel));
+      haloGroup.add(sp);
+    }
+  }
+
+  function buildFloorLabels() {
+    emptyGroup(labelGroup);
+    if (state.floor === "all") return;
+    var f = +state.floor;
+    D.rooms.forEach(function (r) {
+      if (r.floor !== f) return;
+      var sp = textSprite(r.name, { size: 0.36, colour: r.wet ? C.inkHex : C.ink3Hex, weight: r.wet ? 600 : 500 });
+      sp.position.set((r.rect[0] + r.rect[2]) / 2 - CX, zmap(r.z) + 0.35, CY - (r.rect[1] + r.rect[3]) / 2);
+      labelGroup.add(sp);
+    });
+    D.flats.forEach(function (fl) {
+      if (fl.floor !== f) return;
+      var sp = textSprite("Flat " + fl.id.slice(1), { size: 0.6 });
+      sp.position.set((fl.rect[0] + fl.rect[2]) / 2 - CX, zmap(fl.z) + 3.3, CY - fl.rect[1] + 1.2);
+      labelGroup.add(sp);
+    });
+  }
+
+  /* ---------------------------------------------------------------
+     Paint -- recolour only, no rebuild
+     --------------------------------------------------------------- */
+
+  function setScale(group, k) {
+    group.children.forEach(function (m) {
+      if (m.userData.segment) m.scale.set(k, 1, k);
+      else if (m.geometry && m.geometry.type === "SphereGeometry") m.scale.setScalar(k);
+    });
+  }
+
+  function paint() {
+    var health = state.mode === "health";
+
+    Object.keys(linkMats).forEach(function (id) {
+      linkMats[id].color.copy(linkColour(id));
+      var lvl = health ? linkStatus(id).level : 0;
+      var dry = health && byNode[byLink[id].end] && nodeStatus(byLink[id].end).level === 3;
+      setScale(linkMeshes[id], dry || lvl === 2 ? 1.6 : lvl === 1 ? 1.3 : 1);
+    });
+
+    Object.keys(nodeMats).forEach(function (id) {
+      nodeMats[id].color.copy(nodeColour(id));
+      if (nodeMeshes[id]) {
+        var lvl = health ? nodeStatus(id).level : 0;
+        nodeMeshes[id].scale.setScalar(lvl >= 2 ? 1.7 : lvl === 1 ? 1.35 : 1);
+      }
+    });
+
+    Object.keys(tankWater).forEach(function (id) {
+      var t = tankWater[id];
+      var lvl = Math.max(0.02, val(S(), "p", id) || 0.02);
+      t.mesh.scale.y = lvl;
+      t.mesh.position.y = t.base + lvl / 2;
+    });
+
+    var iso = state.floor !== "all";
+    floorObjs.forEach(function (o) {
+      var on = !iso || o.floor === +state.floor;
+      o.obj.traverse(function (x) {
+        if (!x.material) return;
+        if (x.userData.baseOpacity === undefined) x.userData.baseOpacity = x.material.opacity;
+        x.material.opacity = on ? x.userData.baseOpacity : Math.min(0.05, x.userData.baseOpacity);
+        x.material.depthWrite = on && x.userData.baseOpacity >= 1;
+      });
+    });
+
+    // Evidence view: everything outside the retrieved subgraph fades, so
+    // the part of the knowledge graph the diagnosis used stands out.
+    var inc = currentIncident();
+    if (state.evidence && inc) {
+      var keep = {};
+      inc.subgraph.concat(inc.alarmed, inc.diagnosis ? [inc.diagnosis.root] : [])
+        .forEach(function (id) { keep[id] = true; });
+      [linkMats, nodeMats].forEach(function (mats) {
+        Object.keys(mats).forEach(function (id) {
+          if (keep[id]) return;
+          mats[id].opacity = Math.min(mats[id].opacity, 0.12);
+          mats[id].depthWrite = false;
+        });
+      });
+    }
+
+    var key = inc ? S().name + "/" + inc.id : null;
+    if (key !== diagKey) buildDiag();
+
+    sensorGroup.visible = state.sensors;
+    roomGroup.visible = state.rooms;
+    truthGroup.visible = state.truth && !!S().target_id;
+
+    paintTime();
+    paintLegend();
+    paintDiagnosis();
+    paintStatus();
+    paintDetails();
+  }
+
+  function esc(text) {
+    return String(text).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function hh(hour) { return String(hour).padStart(2, "0") + ":00"; }
+
+  function chips(ids) {
+    return (ids || []).map(function (id) {
+      var target = assetOfCitation(id);
+      return target
+        ? '<button type="button" class="idchip" data-id="' + esc(target) + '" title="Show in 3D">' + esc(id) + '</button>'
+        : '<span class="idchip">' + esc(id) + '</span>';
+    }).join("");
+  }
+
+  var SEVERITY = { critical: "Critical", warning: "Warning", review: "Needs review" };
+
+  function paintDiagnosis() {
+    var box = $("diag");
+    var inc = currentIncident();
+    var clockNow = hh(HOURS[state.step]);
+
+    if (!inc) {
+      box.className = "panel card diag";
+      box.innerHTML =
+        '<h2>Diagnosis</h2><p class="headline ok">✓ No incident detected</p>' +
+        '<p class="sub">Nothing has disagreed with the digital twin enough to raise an incident up to ' + clockNow +
+        '. Every sensor is checked against the twin each hour.</p>';
+      return;
+    }
+
+    var d = inc.diagnosis;
+    var html = '<div class="dhead"><h2>Diagnosis · ' + esc(inc.id) + '</h2>' +
+      '<button type="button" class="btn small" id="evBtn" aria-pressed="' + state.evidence + '">' +
+      (state.evidence ? "Evidence view: on" : "Evidence view: off") + '</button></div>';
+
+    if (!d) {
+      box.className = "panel card diag review";
+      box.innerHTML = html + '<p class="sub">Raised at ' + hh(inc.first) +
+        ', but no rule matched the evidence. It needs manual review.</p>';
+      $("evBtn").addEventListener("click", toggleEvidence);
+      return;
+    }
+
+    var m = d.message;
+    var ongoing = HOURS[state.step] <= inc.last;
+    box.className = "panel card diag " + m.severity;
+
+    html += '<div><span class="sev ' + m.severity + '">' + (SEVERITY[m.severity] || m.severity) + '</span></div>';
+    html += '<p class="dtitle">' + esc(m.title) + '</p>';
+    html += '<p class="when">Raised at ' + hh(inc.first) +
+      (ongoing ? " · still active at " + clockNow : " · last alarm " + hh(inc.last)) + '</p>';
+    html += '<p class="dsum">' + esc(m.summary) + '</p>';
+
+    html += '<h3>Why (click an ID to see it in 3D)</h3><ol>' + d.reasoning.map(function (step) {
+      return '<li>' + esc(step.step) + '<br>' + chips(step.evidence) + '</li>';
+    }).join("") + '</ol>';
+
+    if (m.consequences && m.consequences.length) {
+      html += '<h3>Knock-on effects (not the cause)</h3><ul>' +
+        m.consequences.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join("") + '</ul>';
+    }
+
+    html += '<h3>What to do</h3><p class="action">' + esc(m.action) + '</p>';
+
+    var pct = Math.round(100 * d.confidence) + "%";
+    html += '<div class="confrow"><span>Confidence ' + pct + '</span><span class="confbar"><i style="width:' + pct + '"></i></span></div>';
+
+    if (state.truth && S().target_id) {
+      var hit = d.root === S().target_id ||
+        (assetOf(d.root) && assetOf(S().target_id) && assetOf(d.root).room && assetOf(d.root).room === assetOf(S().target_id).room);
+      html += '<p class="verdict">Answer check: injected ' + esc(S().fault_type.replace("_", " ")) + ' at ' +
+        chips([S().target_id]) + ' — ' + (hit ? "✓ the diagnosis matches" : "✗ the diagnosis named " + esc(d.root)) + '</p>';
+    }
+
+    var earlier = incidentsSoFar().slice(0, -1);
+    if (earlier.length) {
+      html += '<h3>Earlier incidents today</h3><div class="alerts">' + earlier.map(function (i) {
+        var t = i.diagnosis ? i.diagnosis.message.title : "Unresolved incident";
+        return '<button type="button" data-hour="' + i.first + '"><i class="dot" style="background:' +
+          css("--ink-3") + '"></i><span>' + esc(t) + '<span class="what">raised ' + hh(i.first) + '</span></span></button>';
+      }).join("") + '</div>';
+    }
+
+    box.innerHTML = html;
+    $("evBtn").addEventListener("click", toggleEvidence);
+  }
+
+  function toggleEvidence() {
+    state.evidence = !state.evidence;
+    paint();
+  }
+
+  function paintTime() {
+    var s = S();
+    $("clock").textContent = String(HOURS[state.step]).padStart(2, "0") + ":00";
+    $("slider").value = state.step;
+
+    var chip = $("state"), win = $("win");
+    var reveal = state.truth && s.target_id && s.start_hour !== null;
+    chip.hidden = !reveal;
+    win.hidden = !reveal;
+    if (reveal) {
+      var st = s.state[state.step];
+      chip.className = "chip " + st;
+      chip.textContent = st === "fault_active" ? "fault active" : st === "recovery" ? "after the fault" : "before the fault";
+      var end = s.end_hour === null ? 24 : s.end_hour;
+      win.style.left = (s.start_hour / 24 * 100) + "%";
+      win.style.width = ((end - s.start_hour) / 24 * 100) + "%";
+    }
+
+    // A tick where the system raised each incident so far (its own output).
+    var track = win.parentNode;
+    Array.prototype.slice.call(track.querySelectorAll(".dmark")).forEach(function (el) { el.remove(); });
+    incidentsSoFar().forEach(function (i) {
+      var mark = document.createElement("i");
+      mark.className = "dmark";
+      mark.style.left = (i.first / 24 * 100) + "%";
+      mark.title = "Incident raised " + String(i.first).padStart(2, "0") + ":00";
+      track.appendChild(mark);
+    });
+  }
+
+  function hex(c) { return "#" + c.getHexString(); }
+
+  function paintLegend() {
+    var html;
+    if (state.mode === "health") {
+      html =
+        '<span><i class="dot" style="background:' + hex(C.point) + '"></i>Normal</span>' +
+        '<span><i class="dot" style="background:' + hex(C.changed) + '"></i>Changed</span>' +
+        '<span><i class="dot" style="background:' + hex(C.problem) + '"></i>Problem</span>' +
+        '<span><i class="dot" style="background:' + hex(C.dry) + '"></i>No water</span>' +
+        '<span class="note">compared with the twin\'s normal day at the same hour</span>';
+    } else {
+      html = '<span>Water pressure</span><span class="ramp"><span>low</span><span class="bar5">' +
+        [0, 0.25, 0.5, 0.75, 1].map(function (t) { return '<i style="background:' + hex(seqColour(t)) + '"></i>'; }).join("") +
+        '</span><span>high (' + P_MAX + ' m)</span></span>' +
+        '<span><i class="dot" style="background:' + hex(C.dry) + '"></i>No water</span>';
+    }
+    $("legend").innerHTML = html;
+  }
+
+  function describeChange(s, st) {
+    var a = assetOf(s.asset_id);
+    if (st.level === 3) return isTank(a) ? "tank has run empty" : "no water";
+    if (s.parameter === "flowrate") {
+      return "flow " + (st.dev > 0 ? "up " : "down ") + Math.abs(st.dev).toFixed(3) + " L/s";
+    }
+    if (isTank(a)) return "water level " + (st.dev > 0 ? "up " : "down ") + Math.abs(st.dev).toFixed(2) + " m";
+    return "pressure " + (st.dev > 0 ? "up " : "down ") + Math.abs(st.dev).toFixed(2) + " m";
+  }
+
+  function paintStatus() {
+    var rows = [];
+    D.sensors.forEach(function (s) {
+      var st = s.asset_type === "node" ? nodeStatus(s.asset_id) : linkStatus(s.asset_id);
+      if (st.level > 0) rows.push({ s: s, st: st });
+    });
+    rows.sort(function (a, b) { return (b.st.level - a.st.level) || (b.st.z - a.st.z); });
+
+    var problems = rows.filter(function (r) { return r.st.level >= 2; }).length;
+    var changed = rows.length - problems;
+    var head = $("headline");
+
+    if (!rows.length) {
+      head.className = "headline ok";
+      head.textContent = "✓ Everything normal";
+      $("affected").textContent = "Every sensor matches the twin at " + $("clock").textContent + ".";
+    } else {
+      head.className = "headline " + (problems ? "bad" : "warn");
+      var bits = [];
+      if (problems) bits.push(problems + (problems === 1 ? " problem" : " problems"));
+      if (changed) bits.push(changed + " changed");
+      head.textContent = "⚠ " + bits.join(" · ");
+
+      var flats = [], services = false;
+      rows.forEach(function (r) {
+        if (r.st.level < 2) return;
+        var a = assetOf(r.s.asset_id);
+        if (a.flat) { if (flats.indexOf(a.flat) < 0) flats.push(a.flat); }
+        else services = true;
+      });
+      var parts = [];
+      if (flats.length) {
+        var names = flats.map(function (f) { return f.slice(1); });
+        parts.push((flats.length === 1 ? "Flat " : "Flats ") + (names.length > 5 ? names.slice(0, 5).join(", ") + " +" + (names.length - 5) + " more" : names.join(", ")));
+      }
+      if (services) parts.push("building supply");
+      $("affected").textContent = parts.length ? "Most affected: " + parts.join(" and ") : "Small changes only — nothing past the problem level yet.";
+    }
+
+    $("alerts").innerHTML = rows.slice(0, 10).map(function (r) {
+      var a = assetOf(r.s.asset_id);
+      var colour = hex([C.point, C.changed, C.problem, C.dry][r.st.level]);
+      return '<button type="button" data-id="' + r.s.asset_id + '"><i class="dot" style="background:' + colour + '"></i>' +
+        '<span>' + cap(a.label) + '<span class="what">' + describeChange(r.s, r.st) + (r.st.level < 3 ? ' · ' + LEVEL_NAME[r.st.level].toLowerCase() : '') + '</span></span></button>';
+    }).join("") + (rows.length > 10 ? '<p class="note" style="padding:4px 8px">…and ' + (rows.length - 10) + ' more</p>' : "");
+  }
+
+  function fmt(x, d) { return x === null || x === undefined ? "—" : x.toFixed(d); }
+
+  /* How much of its normal flow a tap can deliver at a given pressure --
+     EPANET's own pressure-driven demand rule: nothing at the minimum
+     pressure, full flow at the required pressure, a square-root curve in
+     between. It depends on pressure only, so it can never exceed 100%,
+     and a leak at the tap does not inflate it. */
+  function supplyFraction(p) {
+    var m = D.demand_model;
+    if (p === null || !m) return null;
+    if (p >= m.required_pressure) return 1;
+    if (p <= m.minimum_pressure) return 0;
+    return Math.pow((p - m.minimum_pressure) / (m.required_pressure - m.minimum_pressure), m.exponent);
+  }
+
+  function sparkline(scnRow, baseRow, unit) {
+    var W = 300, Hh = 80, pad = 6;
+    var all = scnRow.concat(baseRow).filter(function (v) { return v !== null; });
+    var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+    if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+    var x = function (i) { return pad + i / 24 * (W - 2 * pad); };
+    var y = function (v) { return Hh - pad - (v - lo) / (hi - lo) * (Hh - 2 * pad); };
+    var line = function (row) { return row.map(function (v, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1); }).join(""); };
+    var dec = unit === "L/s" ? 3 : 1;
+    return '<svg class="spark" viewBox="0 0 ' + W + ' ' + Hh + '" role="img" aria-label="24-hour ' + unit + ' trace against normal">' +
+      '<path d="' + line(baseRow) + '" fill="none" stroke="' + css("--ink-3") + '" stroke-width="1.5" stroke-dasharray="4 3"/>' +
+      '<path d="' + line(scnRow) + '" fill="none" stroke="' + css("--accent") + '" stroke-width="2.2"/>' +
+      '<line x1="' + x(state.step) + '" x2="' + x(state.step) + '" y1="0" y2="' + Hh + '" stroke="' + css("--ink-2") + '" stroke-width="1"/>' +
+      '<text x="' + (W - pad) + '" y="11" text-anchor="end" font-size="10" fill="' + css("--ink-3") + '">' + hi.toFixed(dec) + ' ' + unit + '</text>' +
+      '<text x="' + (W - pad) + '" y="' + (Hh - 2) + '" text-anchor="end" font-size="10" fill="' + css("--ink-3") + '">' + lo.toFixed(dec) + '</text></svg>' +
+      '<div class="sparkkey"><span><i style="border-color:' + css("--accent") + '"></i>now</span><span><i style="border-color:' + css("--ink-3") + ';border-top-style:dashed"></i>normal day</span></div>';
+  }
+
+  function paintDetails() {
+    var box = $("details");
+    var id = state.sel;
+    if (!id) { box.hidden = true; return; }
+    box.hidden = false;
+
+    var a = assetOf(id), isNode = !!byNode[id], s = S(), st = statusOf(id);
+    if (isNode && byNode[id].role !== "fixture" && !isTank(byNode[id])) st = nodeStatus(id);
+
+    var html = '<div class="dhead"><h2>Details</h2><button type="button" class="x" id="closeDetails" aria-label="Close details">×</button></div>' +
+      '<p class="name">' + cap(a.label) + ' <span class="badge l' + st.level + '">' + LEVEL_NAME[st.level] + '</span></p>' +
+      '<p class="sub">' + whereText(a) + ' <span class="note">· ID ' + id + '</span></p><dl class="readouts">';
+
+    var table, unit;
+    if (isNode) {
+      table = "p"; unit = "m";
+      var tank = isTank(a);
+      var p = val(s, "p", id), pb = val(BASE, "p", id);
+      html += '<div class="ro"><dt>' + (tank ? "Water level now" : "Pressure now") + '</dt><dd>' + fmt(p, 2) + ' <small>m</small></dd></div>';
+      html += '<div class="ro"><dt>Normal at this hour</dt><dd>' + fmt(pb, 2) + ' <small>m</small></dd></div>';
+      if (a.role === "fixture") {
+        var sup = supplyFraction(p);
+        html += '<div class="ro"><dt>Tap can deliver</dt><dd>' + (sup === null ? "—" : Math.round(100 * sup) + '<small> % of full flow</small>') + '</dd></div>';
+      } else if (tank) {
+        html += '<div class="ro"><dt>Tank full</dt><dd>' + (p === null ? "—" : Math.round(100 * p / a.max_level)) + '<small> %</small></dd></div>';
+      }
+    } else {
+      table = "q"; unit = "L/s";
+      var q = val(s, "q", id), qb = val(BASE, "q", id);
+      html += '<div class="ro"><dt>Flow now</dt><dd>' + fmt(q === null ? null : Math.abs(q), 3) + ' <small>L/s</small></dd></div>';
+      html += '<div class="ro"><dt>Normal at this hour</dt><dd>' + fmt(qb === null ? null : Math.abs(qb), 3) + ' <small>L/s</small></dd></div>';
+      if (a.kind === "pump") html += '<div class="ro"><dt>Pump</dt><dd>' + (Math.abs(q) > 1e-5 ? "running" : "stopped") + '</dd></div>';
+      else html += '<div class="ro"><dt>Pipe size</dt><dd>' + Math.round(a.diameter * 1000) + ' <small>mm</small></dd></div>';
+    }
+    html += '</dl>';
+
+    var sRow = s[table][id], bRow = BASE[table][id];
+    if (sRow && bRow) {
+      var fix = function (r) { return r.map(function (v) { return v === null ? null : (table === "q" ? Math.abs(v) : v); }); };
+      html += sparkline(fix(sRow), fix(bRow), unit);
+    }
+
+    html += (sensorsOf[id] || []).length
+      ? '<p class="note">Measured by a real sensor (' + sensorsOf[id][0].label.split(":")[0].toLowerCase() + ').</p>'
+      : '<p class="note">No sensor here — this is the twin\'s estimate.</p>';
+
+    box.innerHTML = html;
+    $("closeDetails").addEventListener("click", function () { select(null); });
+  }
+
+  /* ---------------------------------------------------------------
+     Interaction
+     --------------------------------------------------------------- */
+
+  function select(id, focus) {
+    if (id && !assetOf(id)) return;
+    state.sel = id;
+    buildHalo();
+    paintDetails();
+    if (focus && id) {
+      var a = assetOf(id);
+      if (state.floor !== "all" && a.floor !== null && a.floor !== undefined && +state.floor !== a.floor) {
+        state.floor = String(a.floor);
+        $("floor").value = state.floor;
+        buildFloorLabels();
+        paint();
+      }
+      var p = positionOf(id);
+      var off = camera.position.clone().sub(controls.target);
+      controls.target.copy(p);
+      camera.position.copy(p).add(off.setLength(Math.min(off.length(), 26)));
+      controls.update();
+    }
+  }
+
+  var ndc = new THREE.Vector3();
+  function nearest(clientX, clientY) {
+    var rect = renderer.domElement.getBoundingClientRect();
+    var best = null, bestD = 16;
+    for (var i = 0; i < picks.length; i++) {
+      var pk = picks[i];
+      if (state.floor !== "all" && pk.floor !== +state.floor) continue;
+      ndc.copy(pk.p).project(camera);
+      if (ndc.z > 1) continue;
+      var sx = (ndc.x + 1) / 2 * rect.width, sy = (1 - ndc.y) / 2 * rect.height;
+      var d = Math.hypot(sx - (clientX - rect.left), sy - (clientY - rect.top)) * pk.w;
+      if (d < bestD) { bestD = d; best = pk.id; }
+    }
+    return best;
+  }
+
+  var down = null;
+  renderer.domElement.addEventListener("pointerdown", function (e) { down = { x: e.clientX, y: e.clientY }; });
+  renderer.domElement.addEventListener("pointerup", function (e) {
+    if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
+    select(nearest(e.clientX, e.clientY), false);
+  });
+
+  renderer.domElement.addEventListener("pointermove", function (e) {
+    if (e.buttons) { tip.classList.remove("on"); return; }
+    var id = nearest(e.clientX, e.clientY);
+    if (!id) { tip.classList.remove("on"); return; }
+    var a = assetOf(id), isNode = !!byNode[id], st = statusOf(id);
+    var v = isNode ? val(S(), "p", id) : val(S(), "q", id);
+    var line = isNode
+      ? (isTank(a) ? "Water level " : "Pressure ") + fmt(v, 2) + " m"
+      : "Flow " + fmt(v === null ? null : Math.abs(v), 3) + " L/s";
+    tip.textContent = cap(a.label) + "\n" + line + " · " + LEVEL_NAME[st.level];
+    var rect = host.getBoundingClientRect();
+    tip.style.left = Math.min(e.clientX - rect.left + 14, rect.width - 260) + "px";
+    tip.style.top = Math.min(e.clientY - rect.top + 14, rect.height - 60) + "px";
+    tip.classList.add("on");
+  });
+  renderer.domElement.addEventListener("pointerleave", function () { tip.classList.remove("on"); });
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("button[data-id]");
+    if (b) select(b.getAttribute("data-id"), true);
+    var h = e.target.closest && e.target.closest("button[data-hour]");
+    if (h) { state.step = +h.getAttribute("data-hour"); paint(); }
+  });
+
+  /* Scenario names hide the location until the answer is revealed, so the
+     colours -- not the label -- are what point to the problem. */
+  var TYPE_NAME = { leak: "Leak", pump_failure: "Pump failure", blockage: "Blocked pipe" };
+
+  function fillScenarios() {
+    var sel = $("scenario");
+    sel.innerHTML = "";
+    var groups = {}, counts = {};
+    SCN.forEach(function (s, i) {
+      var key = s.fault_type || "baseline";
+      if (!groups[key]) {
+        groups[key] = document.createElement("optgroup");
+        groups[key].label = { baseline: "No fault", leak: "Leaks", pump_failure: "Pump failures", blockage: "Blocked pipes" }[key] || key;
+        sel.appendChild(groups[key]);
+      }
+      counts[key] = (counts[key] || 0) + 1;
+      var o = document.createElement("option");
+      o.value = i;
+      if (!s.fault_type) o.textContent = "Normal day (no fault)";
+      else if (state.truth) o.textContent = s.label;
+      else {
+        var size = s.fault_type === "leak" ? " · " + (s.label.match(/[\d.]+ L\/s/) || [""])[0] : "";
+        o.textContent = TYPE_NAME[s.fault_type] + " test " + counts[key] + size + " · starts " + String(s.start_hour).padStart(2, "0") + ":00";
+      }
+      groups[key].appendChild(o);
+    });
+    sel.value = state.scn;
+  }
+
+  (function fillControls() {
+    fillScenarios();
+
+    var fsel = $("floor");
+    var all = document.createElement("option");
+    all.value = "all"; all.textContent = "All floors";
+    fsel.appendChild(all);
+    for (var f = NF - 1; f >= 0; f--) {
+      var o2 = document.createElement("option");
+      o2.value = String(f); o2.textContent = floorLabel(f);
+      fsel.appendChild(o2);
+    }
+    fsel.value = state.floor;
+
+    var dl = $("assets");
+    D.nodes.concat(D.links).forEach(function (a) {
+      var o3 = document.createElement("option");
+      o3.value = a.id;
+      o3.label = a.label;
+      dl.appendChild(o3);
+    });
+
+    $("spread").value = state.spread;
+    $("showTruth").checked = state.truth;
+    Array.prototype.forEach.call($("mode").querySelectorAll("button"), function (x) {
+      x.setAttribute("aria-pressed", String(x.getAttribute("data-mode") === state.mode));
+    });
+
+    $("title").textContent = B.name + " — water digital twin";
+    var fixtures = D.nodes.filter(function (n) { return n.role === "fixture"; }).length;
+    $("subtitle").textContent = (NF - 1 ? "Ground + " + (NF - 1) + " floors" : "One floor") + ", " + D.flats.length + " flats, " + fixtures +
+      " taps. Pick a scenario and press Play: pipes and taps change colour where the water behaves differently from a normal day, and when the system detects an incident it writes its diagnosis on the right.";
+    $("foot").textContent = "Simulated with EPANET. " + (SCN.length - 1) + " fault scenarios + the normal day · " + D.sensors.length + " sensors · network " + (B.network_file || "") + ".";
+  })();
+
+  $("scenario").addEventListener("change", function (e) {
+    state.scn = +e.target.value;
+    jumpToFault();
+    buildTruth();
+    paint();
+  });
+
+  $("mode").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-mode]");
+    if (!b) return;
+    state.mode = b.getAttribute("data-mode");
+    Array.prototype.forEach.call($("mode").querySelectorAll("button"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    paint();
+  });
+
+  $("floor").addEventListener("change", function (e) { state.floor = e.target.value; buildFloorLabels(); paint(); });
+  $("spread").addEventListener("input", function (e) { state.spread = +e.target.value; build(); paint(); });
+  $("find").addEventListener("change", function (e) {
+    var id = e.target.value.trim().toUpperCase();
+    if (assetOf(id)) select(id, true);
+  });
+  $("showSensors").addEventListener("change", function (e) { state.sensors = e.target.checked; paint(); });
+  $("showRooms").addEventListener("change", function (e) { state.rooms = e.target.checked; paint(); });
+  $("showTruth").addEventListener("change", function (e) { state.truth = e.target.checked; fillScenarios(); paint(); });
+  $("slider").addEventListener("input", function (e) { state.step = +e.target.value; paint(); });
+
+  var timer = null;
+  $("play").addEventListener("click", function () {
+    state.playing = !state.playing;
+    $("play").textContent = state.playing ? "❚❚ Pause" : "▶ Play";
+    if (timer) { clearInterval(timer); timer = null; }
+    if (state.playing) timer = setInterval(function () { state.step = (state.step + 1) % HOURS.length; paint(); }, 800);
+  });
+
+  $("resetView").addEventListener("click", resetView);
+
+  /* sizing, theme, render loop */
+
+  function resize() {
+    var w = host.clientWidth, h = host.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    renderer.domElement.style.width = w + "px";
+    renderer.domElement.style.height = h + "px";
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(host);
+  window.addEventListener("resize", resize);
+
+  function retheme() { refreshColours(); build(); paint(); }
+  new MutationObserver(retheme).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", retheme);
+
+  var clock = new THREE.Clock();
+  function loop() {
+    requestAnimationFrame(loop);
+    controls.update();
+    var ring = truthGroup && truthGroup.userData.ring;
+    if (ring && !reduceMotion) { var k = 1 + 0.15 * Math.sin(clock.getElapsedTime() * 3); ring.scale.set(k, k, k); }
+    var dring = diagGroup && diagGroup.userData.ring;
+    if (dring && !reduceMotion) { var k2 = 1 + 0.12 * Math.sin(clock.getElapsedTime() * 2.4 + 1); dring.scale.set(k2, k2, k2); }
+    renderer.render(scene, camera);
+  }
+
+  refreshColours();
+  build();
+  resize();
+  resetView();
+  paint();
+  loop();
+  requestAnimationFrame(function () { resize(); resetView(); });
+})();
+</script>

@@ -1,0 +1,46 @@
+# Held-out evaluation batch for the building twin.
+#
+# Different rooms, flats, severities, start times and durations from
+# configs/building.yaml, plus blockage kinds the diagnosis rules were not
+# designed against (a flat-internal main with no pressure sensor below it,
+# a kitchen-side main, the other stack's risers). Used only to test the
+# rules and retrieval honestly -- never to tune them.
+#
+#   python scripts/run_generated_scenarios.py --config configs/building_holdout.yaml \
+#       --output-root data/building_holdout --with-baseline
+#   python scripts/build_evidence_packets.py --data-root data/building_holdout
+#   python scripts/diagnose_incidents.py --evidence data/building_holdout/evidence
+
+network_file: data/networks/Building_G6.inp
+
+simulation:
+  duration_hours: 24
+  hydraulic_timestep_seconds: 300
+  report_timestep_seconds: 3600
+  report_average: true
+  pressure_floor_m: 0.0
+
+scenario_generation:
+  enabled: true
+
+  leak:
+    target_ids: [F1A-BATH2, F4B-KIT, F6B-UTL, F0B-CBATH, F2A-MBATH]
+    severities: [0.2, 0.7]
+    start_hours: [3, 9, 17]
+    duration_hours: 5
+    params:
+      max_leak_demand: 0.0002
+
+  pump_failure:
+    target_ids: [PUMP1]
+    severities: [1.0]
+    start_hours: [2, 13]
+    duration_hours: 9
+    params:
+      restore_after_outage: false
+
+  blockage:
+    target_ids: [DTB-3-2, F5A-SUPPLY, F2B-MAIN-B, DTA-2-1, F3A-MAIN-K]
+    severities: [1.0]
+    start_hours: [5, 16]
+    duration_hours: 5

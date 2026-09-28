@@ -39,6 +39,8 @@ if str(SRC_PATH) not in sys.path:
 import pandas as pd
 
 from twinrag.building import load_layout
+from twinrag.building.pipeline import BuildingDiagnosisPipeline
+from twinrag.graph.knowledge import BuildingKnowledgeGraph
 from twinrag.simulation.network_loader import WaterNetworkLoader
 
 
@@ -197,6 +199,62 @@ def _asset_rows(entries: dict, drop=("path",)) -> list:
     return rows
 
 
+class SnapshotTable:
+    """
+    Deduplicated incident snapshots. The live replay repeats the same
+    diagnosis for many consecutive hours; each distinct one is stored once
+    and referenced by index.
+    """
+
+    def __init__(self):
+        self.rows, self._index = [], {}
+
+    def add(self, snapshot: dict) -> int:
+        key = json.dumps(snapshot, sort_keys=True)
+        if key not in self._index:
+            self._index[key] = len(self.rows)
+            self.rows.append(snapshot)
+        return self._index[key]
+
+
+def _live_payload(live: dict, table: SnapshotTable) -> dict:
+    """``{hour: [snapshot index, ...]}`` -- the incidents known at each hour."""
+    return {str(hour): [table.add(s) for s in _viewer_incidents(incidents)] for hour, incidents in live.items()}
+
+
+def _viewer_incidents(incidents) -> list:
+    """
+    What the dashboard needs from each pipeline incident: when it was
+    raised, which assets the retrieval pulled out, which alarmed, and the
+    rule-based diagnosis with its message and cited evidence.
+    """
+
+    out = []
+    for inc in incidents:
+        packet, d = inc["packet"], inc["diagnosis"]
+        alarmed = []
+        for obs in packet["observations"]:
+            if obs["status"].startswith(("alarm", "early")):
+                alarmed += obs.get("assets") or [obs["asset"]]
+        out.append({
+            "id": inc["id"],
+            "first": inc["first_alarm_hour"],
+            "last": inc["last_alarm_hour"],
+            "subgraph": [a["id"] for a in packet["assets"]],
+            "alarmed": sorted(set(alarmed)),
+            "diagnosis": None if not d else {
+                "root": d["root_cause_asset"],
+                "fault_type": d["fault_type"],
+                "location": d["location"],
+                "confidence": d["confidence"],
+                "affected": d["affected_assets"],
+                "reasoning": d["reasoning"],
+                "message": d["message"],
+            },
+        })
+    return out
+
+
 def main() -> None:
     for path, hint in (
         (LAYOUT_PATH, "python scripts/build_building_network.py"),
@@ -225,6 +283,12 @@ def main() -> None:
     baseline = pd.read_csv(BASELINE_PATH, dtype={"asset_id": str})
     hours = sorted(int(t) // 3600 for t in baseline["timestamp_s"].unique())
 
+    # The same detect -> retrieve -> diagnose pipeline the evaluation
+    # scores, run here so the dashboard shows exactly its output.
+    kg = BuildingKnowledgeGraph.from_files(LAYOUT_PATH.parent / layout["building"]["network_file"], LAYOUT_PATH)
+    pipeline = BuildingDiagnosisPipeline(kg, baseline)
+    table = SnapshotTable()
+
     scenarios = [
         {
             "name": "normal",
@@ -235,11 +299,15 @@ def main() -> None:
             "start_hour": None,
             "end_hour": None,
             **_scenario_payload(baseline, layout, node_ids, link_ids),
+            "live": _live_payload(pipeline.run_live(baseline, seed=10_000), table),
         }
     ]
 
     with MANIFEST_PATH.open("r", encoding="utf-8", newline="") as handle:
         manifest = list(csv.DictReader(handle))
+
+    # Noise seeds follow manifest order, as in build_evidence_packets.py.
+    seed_of = {row["scenario"]: index for index, row in enumerate(manifest)}
 
     manifest.sort(
         key=lambda r: (
@@ -264,10 +332,15 @@ def main() -> None:
                 "start_hour": int(row["start_hour"]),
                 "end_hour": int(row["end_hour"]) if row["end_hour"] not in ("", None) else None,
                 **_scenario_payload(dataset, layout, node_ids, link_ids),
+                "live": _live_payload(pipeline.run_live(dataset, seed=seed_of[row["scenario"]]), table),
             }
         )
 
-        print(f"  packed {row['scenario']}")
+        live = scenarios[-1]["live"]
+        final = [table.rows[i] for i in live[max(live, key=int)]] if live else []
+        first = final[0]["diagnosis"] if final and final[0]["diagnosis"] else None
+        print(f"  packed {row['scenario']:36s} incidents={len(final)}"
+              + (f"  first raised {final[0]['first']:02d}:00 -> {first['root']} ({first['fault_type']}, {first['confidence']})" if first else ""))
 
     payload = {
         "building": layout["building"],
@@ -281,6 +354,8 @@ def main() -> None:
         "noise": SENSOR_NOISE,
         "demand_model": demand_model,
         "scenarios": scenarios,
+        # Incident snapshots referenced by each scenario's "live" replay.
+        "snapshots": table.rows,
     }
 
     PAYLOAD_PATH.parent.mkdir(parents=True, exist_ok=True)

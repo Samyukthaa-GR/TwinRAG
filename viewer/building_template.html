@@ -252,7 +252,7 @@
   .clock { font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; min-width: 60px; }
   .slidewrap { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 3px; }
   .slidewrap input { width: 100%; }
-  .track { position: relative; height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+  .track { position: relative; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
   .track .win { position: absolute; top: 0; bottom: 0; background: var(--problem); opacity: .45; }
   .ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
 
@@ -302,6 +302,34 @@
   .badge.l1 { color: var(--changed-ink); }
   .badge.l2 { color: var(--problem-ink); }
   .badge.l3 { color: var(--dry-ink); }
+
+  /* ---------- diagnosis ---------- */
+
+  .diag { border-left: 4px solid var(--line-2); }
+  .diag.critical { border-left-color: var(--problem); }
+  .diag.warning { border-left-color: var(--changed); }
+  .diag.review { border-left-color: var(--ink-3); }
+  .sev { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+         border-radius: 999px; padding: 2px 10px; }
+  .sev.critical { background: var(--problem); color: #fff; }
+  .sev.warning { background: var(--changed); color: #1b1300; }
+  .sev.review { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line-2); }
+  .dtitle { font-size: 17px; font-weight: 650; margin: 0; line-height: 1.3; }
+  .when { font-size: 12.5px; color: var(--ink-3); margin: -4px 0 0; }
+  .dsum { font-size: 14px; margin: 0; }
+  .diag h3 { font-size: 12.5px; font-weight: 650; color: var(--ink-2); margin: 2px 0 -2px; }
+  .diag ol, .diag ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2);
+                       display: flex; flex-direction: column; gap: 6px; }
+  .idchip { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line-2); border-radius: 4px;
+            padding: 0 5px; margin: 2px 3px 0 0; background: var(--surface-2); color: var(--ink-2); cursor: pointer; }
+  .idchip:hover { border-color: var(--accent); color: var(--accent); }
+  .action { background: var(--surface-2); border-radius: 6px; padding: 8px 10px; font-size: 13px; margin: 0; }
+  .confrow { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-3); }
+  .confbar { flex: 1; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .confbar i { display: block; height: 100%; background: var(--accent); }
+  .verdict { font-size: 12.5px; margin: 0; padding: 6px 9px; border-radius: 6px; background: var(--surface-2); }
+  .btn.small { font-size: 12px; padding: 4px 10px; }
+  .track .dmark { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1px; background: var(--accent); }
 
   .dhead { display: flex; justify-content: space-between; align-items: center; }
   .x { background: none; border: 0; color: var(--ink-3); font-size: 20px; line-height: 1; cursor: pointer; padding: 0 4px; }
@@ -408,8 +436,10 @@
     </section>
 
     <div class="side">
+      <section class="panel card diag" id="diag" aria-live="polite"></section>
+
       <section class="panel card" aria-live="polite">
-        <h2>Building status</h2>
+        <h2>Live sensor readings</h2>
         <p class="headline" id="headline"></p>
         <p class="sub" id="affected"></p>
         <div class="alerts" id="alerts"></div>
@@ -492,12 +522,37 @@
 
   var state = {
     scn: 0, step: 8, mode: "health", floor: "all", spread: 1.35,
-    sensors: false, rooms: true, truth: false, sel: null, playing: false
+    sensors: false, rooms: true, truth: false, sel: null, playing: false,
+    evidence: true
   };
 
+  /* Open a scenario at the hour the system itself raised its first
+     incident -- derived from detection, never from the hidden answer. */
   function jumpToFault() {
-    var s = SCN[state.scn];
-    if (s.start_hour !== null && s.start_hour !== undefined) state.step = Math.min(24, s.start_hour + 2);
+    var hours = Object.keys(SCN[state.scn].live || {}).map(Number);
+    state.step = hours.length ? Math.min(24, Math.min.apply(null, hours) + 1) : 8;
+  }
+
+  /* Incidents as the system knew them at the current hour: the pipeline
+     was replayed on the readings up to each hour, so nothing here uses
+     data from later in the day. */
+  function incidentsSoFar() {
+    var refs = (SCN[state.scn].live || {})[String(HOURS[state.step])] || [];
+    return refs.map(function (i) { return D.snapshots[i]; });
+  }
+
+  function currentIncident() {
+    var list = incidentsSoFar();
+    return list.length ? list[list.length - 1] : null;
+  }
+
+  function assetOfCitation(id) {
+    if (byNode[id] || byLink[id]) return id;
+    if (id && id.indexOf("sensor:") === 0) {
+      var s = D.sensors.filter(function (x) { return "sensor:" + x.id === id; })[0];
+      return s ? s.asset_id : null;
+    }
+    return null;
   }
 
   (function pickDefault() {
@@ -666,7 +721,8 @@
   }
 
   var linkMats = {}, linkMeshes = {}, nodeMats = {}, nodeMeshes = {}, tankWater = {}, floorObjs = [], picks = [];
-  var sensorGroup, truthGroup, haloGroup, roomGroup, labelGroup;
+  var sensorGroup, truthGroup, haloGroup, roomGroup, labelGroup, diagGroup;
+  var diagKey = null;
 
   function disposeTree(obj) {
     obj.traverse(function (o) {
@@ -904,10 +960,51 @@
     world.add(truthGroup);
     haloGroup = new THREE.Group();
     world.add(haloGroup);
+    diagGroup = new THREE.Group();
+    world.add(diagGroup);
 
     buildTruth();
     buildHalo();
+    buildDiag();
     buildFloorLabels();
+  }
+
+  /* The system's own answer: a marker on the diagnosed root cause. */
+  var FAULT_WORD = { leak: "leak", blockage: "blockage", pump_failure: "pump failure", other: "supply fault" };
+
+  function buildDiag() {
+    emptyGroup(diagGroup);
+    var inc = currentIncident();
+    diagKey = inc ? SCN[state.scn].name + "/" + inc.id : null;
+    if (!inc || !inc.diagnosis || !assetOf(inc.diagnosis.root)) return;
+
+    var d = inc.diagnosis;
+    var review = d.message.severity === "review";
+    var colour = review ? C.ink3 : C.problem;
+    var p = positionOf(d.root);
+
+    var ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.85, 0.07, 8, 44),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.95, depthTest: false })
+    );
+    ring.position.copy(p);
+    ring.rotation.x = Math.PI / 2;
+    ring.renderOrder = 9;
+    diagGroup.add(ring);
+
+    var stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.03, 1.6, 6),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.9, depthTest: false })
+    );
+    stem.position.copy(p).add(new THREE.Vector3(0, 0.95, 0));
+    stem.renderOrder = 9;
+    diagGroup.add(stem);
+
+    var text = "Diagnosed: " + (FAULT_WORD[d.fault_type] || d.fault_type) + (review ? " (unconfirmed)" : "");
+    var lbl = textSprite(text, { size: 0.5, colour: "#" + colour.getHexString() });
+    lbl.position.copy(p).add(new THREE.Vector3(0, 2.05, 0));
+    diagGroup.add(lbl);
+    diagGroup.userData.ring = ring;
   }
 
   /* The answer marker -- only when the user asks to reveal it. */
@@ -924,8 +1021,8 @@
     ring.rotation.x = Math.PI / 2;
     ring.renderOrder = 8;
     truthGroup.add(ring);
-    var lbl = textSprite("Injected " + s.fault_type.replace("_", " ") + " (answer)", { size: 0.48, colour: css("--accent") });
-    lbl.position.copy(p).add(new THREE.Vector3(0, 1.2, 0));
+    var lbl = textSprite("Answer: injected " + s.fault_type.replace("_", " "), { size: 0.46, colour: css("--accent") });
+    lbl.position.copy(p).add(new THREE.Vector3(2.2, -0.6, 0));   // beside, clear of other labels
     truthGroup.add(lbl);
     truthGroup.userData.ring = ring;
   }
@@ -1010,14 +1107,129 @@
       });
     });
 
+    // Evidence view: everything outside the retrieved subgraph fades, so
+    // the part of the knowledge graph the diagnosis used stands out.
+    var inc = currentIncident();
+    if (state.evidence && inc) {
+      var keep = {};
+      inc.subgraph.concat(inc.alarmed, inc.diagnosis ? [inc.diagnosis.root] : [])
+        .forEach(function (id) { keep[id] = true; });
+      [linkMats, nodeMats].forEach(function (mats) {
+        Object.keys(mats).forEach(function (id) {
+          if (keep[id]) return;
+          mats[id].opacity = Math.min(mats[id].opacity, 0.12);
+          mats[id].depthWrite = false;
+        });
+      });
+    }
+
+    var key = inc ? S().name + "/" + inc.id : null;
+    if (key !== diagKey) buildDiag();
+
     sensorGroup.visible = state.sensors;
     roomGroup.visible = state.rooms;
     truthGroup.visible = state.truth && !!S().target_id;
 
     paintTime();
     paintLegend();
+    paintDiagnosis();
     paintStatus();
     paintDetails();
+  }
+
+  function esc(text) {
+    return String(text).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function hh(hour) { return String(hour).padStart(2, "0") + ":00"; }
+
+  function chips(ids) {
+    return (ids || []).map(function (id) {
+      var target = assetOfCitation(id);
+      return target
+        ? '<button type="button" class="idchip" data-id="' + esc(target) + '" title="Show in 3D">' + esc(id) + '</button>'
+        : '<span class="idchip">' + esc(id) + '</span>';
+    }).join("");
+  }
+
+  var SEVERITY = { critical: "Critical", warning: "Warning", review: "Needs review" };
+
+  function paintDiagnosis() {
+    var box = $("diag");
+    var inc = currentIncident();
+    var clockNow = hh(HOURS[state.step]);
+
+    if (!inc) {
+      box.className = "panel card diag";
+      box.innerHTML =
+        '<h2>Diagnosis</h2><p class="headline ok">✓ No incident detected</p>' +
+        '<p class="sub">Nothing has disagreed with the digital twin enough to raise an incident up to ' + clockNow +
+        '. Every sensor is checked against the twin each hour.</p>';
+      return;
+    }
+
+    var d = inc.diagnosis;
+    var html = '<div class="dhead"><h2>Diagnosis · ' + esc(inc.id) + '</h2>' +
+      '<button type="button" class="btn small" id="evBtn" aria-pressed="' + state.evidence + '">' +
+      (state.evidence ? "Evidence view: on" : "Evidence view: off") + '</button></div>';
+
+    if (!d) {
+      box.className = "panel card diag review";
+      box.innerHTML = html + '<p class="sub">Raised at ' + hh(inc.first) +
+        ', but no rule matched the evidence. It needs manual review.</p>';
+      $("evBtn").addEventListener("click", toggleEvidence);
+      return;
+    }
+
+    var m = d.message;
+    var ongoing = HOURS[state.step] <= inc.last;
+    box.className = "panel card diag " + m.severity;
+
+    html += '<div><span class="sev ' + m.severity + '">' + (SEVERITY[m.severity] || m.severity) + '</span></div>';
+    html += '<p class="dtitle">' + esc(m.title) + '</p>';
+    html += '<p class="when">Raised at ' + hh(inc.first) +
+      (ongoing ? " · still active at " + clockNow : " · last alarm " + hh(inc.last)) + '</p>';
+    html += '<p class="dsum">' + esc(m.summary) + '</p>';
+
+    html += '<h3>Why (click an ID to see it in 3D)</h3><ol>' + d.reasoning.map(function (step) {
+      return '<li>' + esc(step.step) + '<br>' + chips(step.evidence) + '</li>';
+    }).join("") + '</ol>';
+
+    if (m.consequences && m.consequences.length) {
+      html += '<h3>Knock-on effects (not the cause)</h3><ul>' +
+        m.consequences.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join("") + '</ul>';
+    }
+
+    html += '<h3>What to do</h3><p class="action">' + esc(m.action) + '</p>';
+
+    var pct = Math.round(100 * d.confidence) + "%";
+    html += '<div class="confrow"><span>Confidence ' + pct + '</span><span class="confbar"><i style="width:' + pct + '"></i></span></div>';
+
+    if (state.truth && S().target_id) {
+      var hit = d.root === S().target_id ||
+        (assetOf(d.root) && assetOf(S().target_id) && assetOf(d.root).room && assetOf(d.root).room === assetOf(S().target_id).room);
+      html += '<p class="verdict">Answer check: injected ' + esc(S().fault_type.replace("_", " ")) + ' at ' +
+        chips([S().target_id]) + ' — ' + (hit ? "✓ the diagnosis matches" : "✗ the diagnosis named " + esc(d.root)) + '</p>';
+    }
+
+    var earlier = incidentsSoFar().slice(0, -1);
+    if (earlier.length) {
+      html += '<h3>Earlier incidents today</h3><div class="alerts">' + earlier.map(function (i) {
+        var t = i.diagnosis ? i.diagnosis.message.title : "Unresolved incident";
+        return '<button type="button" data-hour="' + i.first + '"><i class="dot" style="background:' +
+          css("--ink-3") + '"></i><span>' + esc(t) + '<span class="what">raised ' + hh(i.first) + '</span></span></button>';
+      }).join("") + '</div>';
+    }
+
+    box.innerHTML = html;
+    $("evBtn").addEventListener("click", toggleEvidence);
+  }
+
+  function toggleEvidence() {
+    state.evidence = !state.evidence;
+    paint();
   }
 
   function paintTime() {
@@ -1037,6 +1249,17 @@
       win.style.left = (s.start_hour / 24 * 100) + "%";
       win.style.width = ((end - s.start_hour) / 24 * 100) + "%";
     }
+
+    // A tick where the system raised each incident so far (its own output).
+    var track = win.parentNode;
+    Array.prototype.slice.call(track.querySelectorAll(".dmark")).forEach(function (el) { el.remove(); });
+    incidentsSoFar().forEach(function (i) {
+      var mark = document.createElement("i");
+      mark.className = "dmark";
+      mark.style.left = (i.first / 24 * 100) + "%";
+      mark.title = "Incident raised " + String(i.first).padStart(2, "0") + ":00";
+      track.appendChild(mark);
+    });
   }
 
   function hex(c) { return "#" + c.getHexString(); }
@@ -1267,6 +1490,8 @@
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("button[data-id]");
     if (b) select(b.getAttribute("data-id"), true);
+    var h = e.target.closest && e.target.closest("button[data-hour]");
+    if (h) { state.step = +h.getAttribute("data-hour"); paint(); }
   });
 
   /* Scenario names hide the location until the answer is revealed, so the
@@ -1329,7 +1554,7 @@
     $("title").textContent = B.name + " — water digital twin";
     var fixtures = D.nodes.filter(function (n) { return n.role === "fixture"; }).length;
     $("subtitle").textContent = (NF - 1 ? "Ground + " + (NF - 1) + " floors" : "One floor") + ", " + D.flats.length + " flats, " + fixtures +
-      " taps. Pick a scenario and press Play — pipes and taps change colour where the water behaves differently from a normal day.";
+      " taps. Pick a scenario and press Play: pipes and taps change colour where the water behaves differently from a normal day, and when the system detects an incident it writes its diagnosis on the right.";
     $("foot").textContent = "Simulated with EPANET. " + (SCN.length - 1) + " fault scenarios + the normal day · " + D.sensors.length + " sensors · network " + (B.network_file || "") + ".";
   })();
 
@@ -1394,6 +1619,8 @@
     controls.update();
     var ring = truthGroup && truthGroup.userData.ring;
     if (ring && !reduceMotion) { var k = 1 + 0.15 * Math.sin(clock.getElapsedTime() * 3); ring.scale.set(k, k, k); }
+    var dring = diagGroup && diagGroup.userData.ring;
+    if (dring && !reduceMotion) { var k2 = 1 + 0.12 * Math.sin(clock.getElapsedTime() * 2.4 + 1); dring.scale.set(k2, k2, k2); }
     renderer.render(scene, camera);
   }
 

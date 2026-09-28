@@ -9,6 +9,8 @@ room's branch and nowhere else -- are properties of the simulated water,
 not of the file.
 """
 
+import json
+
 import networkx as nx
 import pytest
 
@@ -301,3 +303,28 @@ def test_pump_outage_leaves_level_switches_in_charge(written):
     ).apply(wn)
 
     assert len(set(wn.control_name_list) - before) == 1
+
+
+def test_live_replay_never_cites_the_future(runner, baseline, written):
+    # What the dashboard shows at hour h must come only from readings up to
+    # h: every time a live diagnosis mentions must be <= h.
+    import re
+
+    from twinrag.building import load_layout
+    from twinrag.building.pipeline import BuildingDiagnosisPipeline
+    from twinrag.graph.knowledge import BuildingKnowledgeGraph
+
+    fault = create_fault("leak", "F3A-MBATH", 1.0, 6, 12, max_leak_demand=0.0002)
+    dataset, _ = runner.run_fault(fault)
+
+    kg = BuildingKnowledgeGraph.from_files(*written)
+    live = BuildingDiagnosisPipeline(kg, baseline).run_live(dataset, seed=3)
+
+    assert live, "the leak should be detected"
+    assert live[min(live)][0]["diagnosis"]["root_cause_asset"] == "F3A-MBATH"
+
+    for hour, incidents in live.items():
+        for incident in incidents:
+            text = json.dumps(incident["diagnosis"]["message"]) if incident["diagnosis"] else ""
+            cited = [int(h) for h in re.findall(r"(\d{2}):00", text)]
+            assert all(h <= hour for h in cited), (hour, cited)

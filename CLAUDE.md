@@ -17,7 +17,7 @@ Six planned phases. **Phases 1–4 are built** (Phase 4 for the building only):
 2. **Knowledge graph** — `networkx` topology, per-timestep hydraulic snapshots with flow direction and neighbour lookup, plus a schema/validation layer. Complete.
 3. **Anomaly detection** — **two parallel implementations, both kept.** See *Anomaly detection* below; this is the single most important thing to understand before touching the package.
 4. **Knowledge graph + topology-aware retrieval** — typed building knowledge graph (`twinrag.graph.knowledge`) and physics-guided subgraph retrieval around an incident, serialized as a leak-checked LLM evidence packet (`twinrag.retrieval`). Built for the building; Net3 is not supported (it is looped, see below).
-5. **Root-cause diagnosis** — **Decided (Sept 2026): rule-based diagnosis messages are the primary output**, generated deterministically from the evidence packet's topology facts (not built yet — next task). The LLM path (`twinrag.reasoning`, built) stays as an *optional* comparison, run only via `scripts/diagnose_incidents.py`; nothing else calls it, so it is effectively off. Reason: on a 6-incident sample gpt-oss-120b (Groq free tier) got leaks to the right room and the afternoon riser blockage exactly, but called both pump failures a roof-tank leak even with the time-ordered evidence, and is rate-limited. Knowledge graph stays in NetworkX; a Neo4j/Cypher export is planned for later.
+5. **Root-cause diagnosis** — **rule-based diagnosis + alert messages are the primary output** (`twinrag.reasoning.rules`, built; see *Rule-based diagnosis* below). The LLM path (`twinrag.reasoning`, built) stays as an *optional* comparison, run only via `scripts/diagnose_incidents.py`; nothing else calls it, so it is effectively off. Reason: on a 6-incident sample gpt-oss-120b (Groq free tier) got leaks to the right room and the afternoon riser blockage exactly, but called both pump failures a roof-tank leak even with the time-ordered evidence, and is rate-limited. Knowledge graph stays in NetworkX; a Neo4j/Cypher export is planned for later.
 6. **Operator dashboard** — a static prototype viewer exists (see *Viewer* below); the live backend, anomaly overlay and diagnosis panel do not.
 
 > **Two Phase 3 pipelines coexist in `src/twinrag/detection/`** — a dataclass/object pipeline and a DataFrame/CSV pipeline, built independently by two contributors and merged deliberately rather than consolidated. They share no types. Pick one per consumer; do not interleave them. **Phase 4 consumes pipeline A's `Incident`** (ranked candidates keyed by asset, tested, sensor-noise aware); pipeline B's event rows join node and link IDs into one string and are not used downstream.
@@ -97,11 +97,20 @@ python scripts/build_building_viewer.py    # -> data/building/building_twin.html
 python scripts/build_evidence_packets.py
 python scripts/build_evidence_packets.py --hops 3 --threshold 5
 
-# --- Phase 5: LLM diagnosis of those packets (needs LLM settings in .env) ---
-# -> data/building/diagnosis/<name>/{<scenario>.json,summary.csv,run.json}
-python scripts/diagnose_incidents.py --per-type 2 --delay 45        # cheap sample
-python scripts/diagnose_incidents.py --delay 45 --name gptoss        # all incidents
-python scripts/diagnose_incidents.py --delay 45 --no-graph --name gptoss-nograph
+# --- Phase 5: diagnose those packets -> <data root>/diagnosis/<name>/ ---
+# Default engine is the rule-based one: free, instant, offline.
+python scripts/diagnose_incidents.py                    # rules, all incidents
+python scripts/diagnose_incidents.py --show-messages    # ...and print the alerts
+# Optional LLM comparison (needs LLM settings in .env; costs API quota):
+python scripts/diagnose_incidents.py --engine llm --per-type 2 --delay 45
+python scripts/diagnose_incidents.py --engine llm --delay 45 --no-graph --name nograph
+
+# --- Held-out validation of retrieval + rules (never tune against these) ---
+# holdout (1) and holdout2 informed fixes; holdout3 is the final blind test.
+python scripts/run_generated_scenarios.py --config configs/building_holdout3.yaml \
+    --output-root data/building_holdout3 --with-baseline
+python scripts/build_evidence_packets.py --data-root data/building_holdout3
+python scripts/diagnose_incidents.py --evidence data/building_holdout3/evidence
 
 # Tests (pytest.ini sets pythonpath=src and testpaths=tests — no sys.path juggling needed)
 pytest
@@ -250,7 +259,25 @@ A generated residential water-supply system that runs through the unchanged pipe
 - `EvidencePacket` (`retrieval/evidence.py`) — `incident` (times only), `building`, `observations` (alarms with readings in L/s or m and noise-scaled score; one aggregated row for a building-wide shift; normal sensors), `assets` (id, kind, role, label, location, metered), `relations` (triples), `topology_facts`, `allowed_ids` (Phase 5 must reject any diagnosis citing an ID outside it). `assert_no_leakage(forbidden=[scenario])` fails if the serialised packet contains the scenario name or ground-truth words (`fault_active`, `recovery`, `scenario`, `severity`, `injected`); `build_evidence_packets.py` calls it on every packet.
 - **Results** (`build_evidence_packets.py`, defaults: threshold 4, min-assets 2, hops 2): baseline control 0 incidents; detected 36/38 (both misses are the single-kitchen blockage); **the true faulty asset is in the packet and inside the topology "focus" for 36/36 detected scenarios** (30 leaks, 2 pump outages, 4 blockages); median packet ~40 assets / ~4.2k tokens (range ~2.4k-6.7k). The focus is a shortlist (usually 2 assets, up to ~6 when a big leak also drains the roof tank or a flat's pressure wobbles), so choosing within it is Phase 5's job. Caveat: the retrieval rules were designed while looking at these 38 scenarios — validate on fresh targets/severities before quoting 100% in the paper.
 
-### LLM reasoning (`src/twinrag/reasoning/`) — Phase 5
+### Rule-based diagnosis (`src/twinrag/reasoning/rules.py`) — Phase 5, primary
+
+`RuleBasedDiagnoser().diagnose(packet)` reads exactly the evidence packet an LLM would, returns the same schema as `Diagnoser` (so the same grounding check and scoring apply) plus `diagnosis["message"]` = `{severity: critical|warning|review, title, summary, evidence[], consequences[], action, confidence}`; `format_message` renders it as text. Deterministic, ~20 ms per incident, no network.
+
+- **Hypotheses** (each with a start hour and confidence): *leak* — each extra-flow leaf that is not a pump (a pump carrying extra flow is refilling), corroborated when a pipe above it carries >= 50% of the same extra flow; root = the tap it feeds; severity critical at >= 0.1 L/s. *No water* — the retrieval's pressure-loss span; root = first link in the span; confidence up for a healthy bound and for dry readings (observed <= 1 m), down to 0.3 for a small non-dry loss (a wobble). *No flow* — room branches whose flow fell to <= 20% of expected, root = the link above their common point. *Pump failure* — the pump reading below the twin, supported by a low tank / building-wide loss. *Street supply* — sump low + municipal inlet down.
+- **Choice**: among credible hypotheses (confidence >= 0.5) the **earliest start hour wins**; the rest become "knock-on effects" in the message. A same-hour rival costs 0.1 confidence. Below 0.5 the message is prefixed "Unconfirmed:" with severity `review`.
+- Rules added after held-out failures (each is physics, not a patch): pump failure needs **sustained** evidence (tank low >= 2 h, or building-wide loss over a >= 2 h incident) — one hour of "pump short, tank low" is also what a normal shift in the pump cycle looks like (a day of lower use elsewhere), so it drops to 0.35; a **building-wide** loss (common point at the roof manifold or above, no healthy bound) is only a credible closure if the roof-tank outlet flow dropped at the start — otherwise the tank was running out (0.4); retrieval treats a sensor that went **dry** as a major loss however small its normal pressure (top floors only have ~5 m to lose).
+- **Results** (`diagnose_incidents.py`; "exact" = named the faulted asset; "confirmed" = confidence >= 0.5):
+
+| set | detected | exact | confirmed / exact among confirmed | detector top-1 exact |
+|---|---|---|---|---|
+| design (`building.yaml`) | 36/38 | 36/36 | 36 / 100% | 0% |
+| holdout 1 (informed fixes) | 40/42 | 37/40 | 36 / 100% | 2% |
+| holdout 2 (blind 35/38; informed fixes) | 38/38 | 38/38 | 38 / 100% | 5% |
+| **holdout 3 — final blind** | 41/45 | **37/41 (90%)** | **37 / 97%** | 2% |
+
+  Holdout 3 by type: leaks 27/28, blockages 9/12 (both roof mains, the top-floor riser segment, other-stack risers, most flat supplies), pump 1/1 (flagged: one hour of evidence). Its single confident error is a 0.05 L/s utility leak called a neighbouring flat's branch blockage at exactly 0.5. Known blind spots, all physical: **flat-internal mains** (`F2B-MAIN-B`, `F3A-MAIN-K`, `F4A-MAIN-B`) — the stopped bathroom/kitchen flows (<= 0.006 L/s hourly) are below meter noise, so they are only ever "detected" via a late pump-cycle shift and are flagged for review; **afternoon pump outages** when the pump was never due to run are undetectable (no hydraulic effect).
+
+### LLM reasoning (`src/twinrag/reasoning/`) — Phase 5, optional comparison
 
 - `ChatClient` (`llm.py`) — standard-library HTTP client for any OpenAI-compatible `/chat/completions`; no SDK dependency. Settings from env or the gitignored project `.env`: `TWINRAG_LLM_BASE_URL`, `TWINRAG_LLM_API_KEY` (falls back to `HF_TOKEN`), `TWINRAG_LLM_MODEL`; defaults are the Hugging Face router + Llama-3.3-70B. Temperature 0, `max_tokens` 4000 (reasoning models such as gpt-oss spend output tokens thinking first). Asks for `response_format: json_schema` and retries as plain text only on HTTP 400/422. HTTP 429 waits for the server's `retry-after` (own budget of 8 waits); other 4xx fail immediately. Sends an explicit `User-Agent` — the HF gateway's firewall answered Python's default urllib agent with an HTML 403.
 - Provider notes (Sept 2026): **Hugging Face** free accounts get ~$0.10/month of credit and this account's was already exhausted (HTTP 402) before the first real run. **Groq** free tier (`https://api.groq.com/openai/v1`, keys start `gsk_`) is what runs now: `openai/gpt-oss-120b` (open weights) or `qwen/qwen3.8-27b`; Llama 3.3 70B is enterprise-only there. Limits ~8k tokens/min and ~200k tokens/day per model — one ~5k-token packet a minute, so pass `--delay 45` and expect a full 36-incident run to take ~45-60 min and a large share of a day's budget.
@@ -276,6 +303,7 @@ The two do not interact — `run_fault_simulation.py` ignores `scenario_generati
 - `data/building/` — the building batch: `processed/` (incl. `baseline.csv`), `metadata/`, `scenarios_manifest.csv` (all gitignored), and the viewer build: `building_twin.html` is committed (~2.7 MB, three.js inlined) so the twin opens without a Python setup; its intermediate payload `building_view.json` is gitignored.
 - `data/processed/` — datasets from the baseline/explicit-fault runs (gitignored except `.gitkeep`).
 - `data/metadata/` — per-scenario ground-truth fault labels as `<scenario>.json` (gitignored), written alongside each fault dataset by `run_fault_simulation.py`.
+- `data/building_holdout{,2,3}/` — held-out batches (same layout as `data/building/`, incl. `evidence/` and `diagnosis/`). Gitignored; regenerate from `configs/building_holdout*.yaml`.
 - `data/building/diagnosis/<run>/` — Phase 5 output: per-scenario diagnosis + score JSON, `summary.csv`, `run.json` (model, token usage). Gitignored.
 - `data/building/evidence/` — Phase 4 output: one evidence packet per scenario (`<scenario>.json`; the filename is for humans, the content never names the scenario) and `retrieval_summary.csv`. Gitignored.
 - `data/generated/processed/`, `data/generated/metadata/` — the generated evaluation batch, same file naming, written by `run_generated_scenarios.py` (gitignored).
@@ -298,9 +326,10 @@ three.js r147 (UMD build + `OrbitControls`, vendored in `viewer/vendor/` with it
 
 ### Tests
 
-`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`, `tests/building/`, `tests/retrieval/`, `tests/reasoning/`. **146 tests, all passing** (19 of them skip until `data/processed/baseline.csv` exists). Only detection pipeline A is covered; pipeline B has no tests.
+`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`, `tests/building/`, `tests/retrieval/`, `tests/reasoning/`. **152 tests, all passing** (19 of them skip until `data/processed/baseline.csv` exists). Only detection pipeline A is covered; pipeline B has no tests.
 
-- `tests/reasoning/` — no network: a scripted `FakeClient` stands in for the LLM. Grounded answers pass; invented IDs, bad fault type or confidence are violations; JSON extraction from fences/prose; the repair turn fixes an ungrounded answer and tells the model what was wrong; an unrepaired answer is kept but marked; the no-graph input carries alarms only.
+- `tests/reasoning/test_rules.py` — the rule engine on packets built by the real retriever from hand-made incidents and events: leak named at the tap of the deepest extra flow (critical at 0.2 L/s, warning when small), blocked riser bracketed by the healthy flat above, a dry top-floor flat keeps a roof-main blockage at `ROOF-B`, pump failure confirmed only with sustained evidence (one-hour blip -> "Unconfirmed", severity `review`), every citation grounded and every message renders.
+- `tests/reasoning/test_diagnosis.py` — no network: a scripted `FakeClient` stands in for the LLM. Grounded answers pass; invented IDs, bad fault type or confidence are violations; JSON extraction from fences/prose; the repair turn fixes an ungrounded answer and tells the model what was wrong; an unrepaired answer is kept but marked; the no-graph input carries alarms only.
 - `tests/retrieval/` — simulation-free. `test_knowledge_graph.py` (entity/relation counts, tap-to-street supply path, downstream of a riser segment, common supply point, typed triples, hop counting, loop rejection); `test_retriever.py` (hand-built `Incident`s: extra flow -> deepest branch + tap with sibling rooms as negative evidence, closed riser bracketed to `[DTA-4, DTA-5-4]` by healthy flat 5A, uniform drop -> one building-wide fact + low-tank chain to `PUMP1`, a flat standing out from the shift stays local, every cited ID is in `allowed_ids`, no ground truth in the packet).
 
 - `tests/building/` — composition, ID uniqueness, layout covers every asset, fixtures sit inside their rooms, pipe paths join their endpoints and are orthogonal, the topology is a tree, flat B mirrors flat A, every room branch is metered, `.inp` round-trip keeps rules and PDA; then real EPANET runs (sub-second) for the physics listed under *Building digital twin*. Runs EPANET in a temp cwd so `temp.inp` is not touched.

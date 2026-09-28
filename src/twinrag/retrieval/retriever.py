@@ -167,11 +167,19 @@ class SubgraphRetriever:
         starved = kg.downstream(anchor) | {anchor}
         span = [anchor]
 
-        for asset in kg.upstream(anchor)[1:]:
+        path = kg.upstream(anchor)[1:]
+
+        for i, asset in enumerate(path):
             if not kg.is_link(asset) and self._feeds_healthy_sensor(asset, starved, local_pressure):
                 return span, asset
             span.append(asset)
             if kg.is_metered(asset):
+                # Stop the span at the meter, but still look one node up:
+                # if it feeds a healthy sensor, the fault is bracketed
+                # (flat 1B dry while flat 0B, on the same tap-off, is fine).
+                above = next((a for a in path[i + 1:] if not kg.is_link(a)), None)
+                if above and self._feeds_healthy_sensor(above, starved, local_pressure):
+                    return span, above
                 return span, None
 
         return span, None
@@ -238,7 +246,19 @@ class SubgraphRetriever:
             if c["parameter"] == "pressure" and c["residual"] < 0 and a not in tanks
         ]
         largest = max((abs(local[a]["residual"]) for a in all_loss), default=0.0)
-        pressure_loss = [a for a in all_loss if abs(local[a]["residual"]) >= cfg.minor_fraction * largest]
+
+        # A sensor that went dry is a major loss however small its normal
+        # pressure: a top-floor flat has only ~5 m to lose, and must not be
+        # ranked "minor" next to a ground-floor flat that lost 23 m.
+        dry = {
+            e.asset_id for e in events or []
+            if e.asset_id in all_loss and e.parameter == "pressure"
+            and e.expected > 2.0 and e.observed <= max(1.0, 0.25 * e.expected)
+        }
+        pressure_loss = [
+            a for a in all_loss
+            if a in dry or abs(local[a]["residual"]) >= cfg.minor_fraction * largest
+        ]
         minor_loss = sorted(set(all_loss) - set(pressure_loss))
 
         anchors = []
@@ -336,7 +356,7 @@ class SubgraphRetriever:
         first = {}
         for asset_id, candidate in alarmed.items():
             series = timelines.get(asset_id) or [(candidate["first_seen_s"], candidate["residual"])]
-            when, residual = series[0]
+            when, residual = series[0][0], series[0][1]
             direction = "up" if residual > 0 else "down"
             quantity = "level" if kg.asset(asset_id)["role"] in ("roof_tank", "sump") else candidate["parameter"]
             first.setdefault(when, []).append(f"{asset_id} {quantity} {direction}")
@@ -418,8 +438,9 @@ class SubgraphRetriever:
     @staticmethod
     def _timelines(incident, events, alarmed, window_start) -> dict:
         """
-        ``{asset_id: [(timestamp_s, residual), ...]}`` inside the incident
-        window, from the detector's point events. Empty without events.
+        ``{asset_id: [(timestamp_s, residual, observed, expected), ...]}``
+        inside the incident window (plus look-back), from the detector's
+        point events. Empty without events.
         """
 
         if not events:
@@ -433,7 +454,9 @@ class SubgraphRetriever:
                 wanted.get(event.asset_id) == event.parameter
                 and window_start <= event.timestamp_s <= incident.last_seen_s
             ):
-                series.setdefault(event.asset_id, []).append((event.timestamp_s, event.residual))
+                series.setdefault(event.asset_id, []).append(
+                    (event.timestamp_s, event.residual, event.observed, event.expected)
+                )
 
         return {asset: sorted(points) for asset, points in series.items()}
 
@@ -448,6 +471,7 @@ class SubgraphRetriever:
         parameter = candidate["parameter"]
         residual = candidate["residual"]
         unit = "L/s" if parameter == "flowrate" else "m"
+        scale = 1000.0 if parameter == "flowrate" else 1.0
         peak_at = candidate.get("peak_at_s", candidate["first_seen_s"])
         amount = f"{abs(residual) * (1000 if parameter == 'flowrate' else 1):.{3 if parameter == 'flowrate' else 2}f} {unit}"
 
@@ -459,16 +483,34 @@ class SubgraphRetriever:
             "reading": f"peak {amount} {'above' if residual > 0 else 'below'} the twin at {_clock(peak_at)}",
             "score": round(float(candidate["score"]), 1),
             "first_seen": _clock(candidate["first_seen_s"]),
+            # Numbers for machine consumers (rules, dashboards), in the
+            # display unit: L/s for flow, m for pressure / tank level.
+            "unit": unit,
+            "peak_deviation": round(residual * scale, 4),
+            "peak_at": _clock(peak_at),
         }
 
         if timeline:
             # Hourly signed deviation from the twin. The sign can flip
             # (a pump that delivered nothing, then over-ran to refill), and
             # the peak alone would hide which came first.
-            points = [f"{_clock(t)} {self._signed(parameter, r)}" for t, r in timeline]
+            points = [f"{_clock(t)} {self._signed(parameter, r)}" for t, r, _, _ in timeline]
             if len(points) > 8:
                 points = points[:5] + ["..."] + points[-2:]
             record["hourly_deviation"] = f"{'; '.join(points)} ({unit} vs twin, alarmed hours only)"
+
+            record["hourly"] = [
+                {"at": _clock(t), "deviation": round(r * scale, 4),
+                 "observed": round(o * scale, 4), "expected": round(e * scale, 4)}
+                for t, r, o, e in timeline
+            ]
+
+            peak = next((p for p in timeline if p[0] == peak_at), None)
+            if peak:
+                # What the instrument actually read at the peak -- tells a
+                # dry pipe (pressure ~0) from one merely running low.
+                record["observed_at_peak"] = round(peak[2] * scale, 4)
+                record["expected_at_peak"] = round(peak[3] * scale, 4)
 
         return record
 

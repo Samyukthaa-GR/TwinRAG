@@ -69,6 +69,8 @@ def main() -> None:
     parser.add_argument("--hops", type=int, default=2)
     parser.add_argument("--max-seeds", type=int, default=20)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--data-root", default=None,
+                        help="Batch directory with processed/ and scenarios_manifest.csv (default data/building).")
     args = parser.parse_args()
 
     layout = load_layout(LAYOUT_PATH)
@@ -79,8 +81,13 @@ def main() -> None:
 
     print("Knowledge graph:", kg.summary())
 
-    baseline = _read(DATA_ROOT / "processed" / "baseline.csv")
-    manifest = list(csv.DictReader((DATA_ROOT / "scenarios_manifest.csv").open(encoding="utf-8")))
+    data_root = Path(args.data_root) if args.data_root else DATA_ROOT
+    if not data_root.is_absolute():
+        data_root = PROJECT_ROOT / data_root
+    output_dir = data_root / "evidence"
+
+    baseline = _read(data_root / "processed" / "baseline.csv")
+    manifest = list(csv.DictReader((data_root / "scenarios_manifest.csv").open(encoding="utf-8")))
 
     def detector(seed):
         return ResidualDetector(
@@ -93,7 +100,7 @@ def main() -> None:
     control = detector(args.seed + 10_000).detect(baseline)
     print(f"Baseline control: {len(control.incidents)} incident(s) (expect 0)\n")
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     rows = []
 
     for index, row in enumerate(manifest):
@@ -113,7 +120,7 @@ def main() -> None:
             packet = retriever.retrieve(incident, incident_id=f"INC-{index + 1:03d}", events=report.events)
             packet.assert_no_leakage(forbidden=[name])
 
-            (OUTPUT_DIR / f"{name}.json").write_text(packet.to_json(), encoding="utf-8")
+            (output_dir / f"{name}.json").write_text(packet.to_json(), encoding="utf-8")
 
             ids = {a["id"] for a in packet.assets}
             facts = packet.topology_facts
@@ -152,7 +159,7 @@ def main() -> None:
         print(f"{name:38s} {mark}")
 
     summary = pd.DataFrame(rows)
-    summary.to_csv(OUTPUT_DIR / "retrieval_summary.csv", index=False)
+    summary.to_csv(output_dir / "retrieval_summary.csv", index=False)
 
     detected = summary[summary["detected"]]
     print("\nBy fault type (detected scenarios only):")
@@ -165,7 +172,7 @@ def main() -> None:
             f"median packet {int(group['assets'].median())} assets / ~{int(group['est_tokens'].median())} tokens"
         )
 
-    print(f"\n-> {OUTPUT_DIR.relative_to(PROJECT_ROOT)}")
+    print(f"\n-> {output_dir.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

@@ -1,30 +1,36 @@
 """
-Phase 5: LLM root-cause diagnosis of the building's evidence packets.
+Phase 5: root-cause diagnosis of the building's evidence packets.
 
-Reads the packets written by build_evidence_packets.py, asks an LLM for a
-structured, grounding-checked diagnosis of each, and scores it against
-the answer key (read only here, after the diagnosis). Compares with the
-detector's own top-ranked suspect.
+Reads the packets written by build_evidence_packets.py, diagnoses each,
+and scores it against the answer key (read only here, after the
+diagnosis). Compares with the detector's own top-ranked suspect.
 
-    python scripts/diagnose_incidents.py --per-type 2          # cheap smoke run
-    python scripts/diagnose_incidents.py                        # every packet
-    python scripts/diagnose_incidents.py --no-graph --name nograph
-    python scripts/diagnose_incidents.py --model Qwen/Qwen2.5-72B-Instruct
+Two engines produce the same diagnosis schema:
 
-The endpoint, key and model come from the project's .env (see
-twinrag/reasoning/llm.py). For Groq's free tier:
+    rules  (default) deterministic rule-based diagnosis + alert message;
+           free, instant, offline -- the primary output
+    llm    an LLM over the same packet; optional comparison, costs API quota
+
+    python scripts/diagnose_incidents.py                       # rules, every incident
+    python scripts/diagnose_incidents.py --show-messages       # ...and print the alerts
+    python scripts/diagnose_incidents.py --evidence data/building_holdout/evidence
+    python scripts/diagnose_incidents.py --engine llm --per-type 2 --delay 45
+    python scripts/diagnose_incidents.py --engine llm --no-graph --name nograph
+
+For --engine llm the endpoint, key and model come from the project's .env
+(see twinrag/reasoning/llm.py). For Groq's free tier:
 
     TWINRAG_LLM_BASE_URL=https://api.groq.com/openai/v1
     TWINRAG_LLM_API_KEY=gsk_...
     TWINRAG_LLM_MODEL=openai/gpt-oss-120b
 
 Free tiers are throttled (Groq: ~8k tokens/min, ~200k/day), so start
-with --per-type and use --delay 40 for longer runs.
+with --per-type and use --delay 45 for longer runs.
 
-Outputs, data/building/diagnosis/<name>/ (gitignored):
-    <scenario>.json   diagnosis, grounding result and score
+Outputs, <data root>/diagnosis/<name>/ (gitignored):
+    <scenario>.json   diagnosis (with alert message), grounding result, score
     summary.csv       one row per scenario
-    run.json          model, settings, token usage
+    run.json          engine, model, settings, token usage
 """
 
 import argparse
@@ -51,15 +57,15 @@ if str(SRC_PATH) not in sys.path:
 
 import pandas as pd
 
-from twinrag.building import load_layout
 from twinrag.graph.knowledge import BuildingKnowledgeGraph
 from twinrag.reasoning import ChatClient, Diagnoser, ungrounded_packet
+from twinrag.reasoning.llm import Usage
+from twinrag.reasoning.rules import RuleBasedDiagnoser, format_message
 
 
 NETWORK_PATH = PROJECT_ROOT / "data" / "networks" / "Building_G6.inp"
 LAYOUT_PATH = PROJECT_ROOT / "data" / "networks" / "Building_G6.layout.json"
 EVIDENCE_DIR = PROJECT_ROOT / "data" / "building" / "evidence"
-OUTPUT_ROOT = PROJECT_ROOT / "data" / "building" / "diagnosis"
 
 
 def _score(predicted, target, kg) -> dict:
@@ -71,7 +77,7 @@ def _score(predicted, target, kg) -> dict:
               node just below it)
     """
 
-    if not predicted or predicted not in kg:
+    if not isinstance(predicted, str) or predicted not in kg:
         return {"exact": False, "room": False, "near": False}
 
     exact = predicted == target
@@ -80,8 +86,7 @@ def _score(predicted, target, kg) -> dict:
     same_room = bool(room_p) and room_p == room_t
 
     def touching(a, b):
-        ends = {kg.link_from.get(a), kg.link_to.get(a)}
-        return b in ends
+        return b in {kg.link_from.get(a), kg.link_to.get(a)}
 
     near = exact or same_room or touching(predicted, target) or touching(target, predicted)
     return {"exact": exact, "room": exact or same_room, "near": near}
@@ -89,18 +94,27 @@ def _score(predicted, target, kg) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
-    parser.add_argument("--model", default=None, help="Model ID (default: TWINRAG_LLM_MODEL or Llama-3.3-70B).")
-    parser.add_argument("--name", default=None, help="Run directory name (default: derived from model).")
-    parser.add_argument("--per-type", type=int, default=None, help="Diagnose only the first N scenarios of each fault type.")
+    parser.add_argument("--engine", choices=("rules", "llm"), default="rules",
+                        help="rules (default; deterministic, free) or llm (optional comparison).")
+    parser.add_argument("--evidence", default=None,
+                        help="Evidence directory (default data/building/evidence).")
+    parser.add_argument("--show-messages", action="store_true", help="Print each alert message.")
+    parser.add_argument("--model", default=None, help="LLM model ID (default: TWINRAG_LLM_MODEL).")
+    parser.add_argument("--name", default=None, help="Run directory name.")
+    parser.add_argument("--per-type", type=int, default=None, help="Only the first N scenarios of each fault type.")
     parser.add_argument("--only", default=None, help="Only scenarios whose name contains this text.")
-    parser.add_argument("--no-graph", action="store_true", help="Ablation: alarms only, no knowledge graph.")
+    parser.add_argument("--no-graph", action="store_true", help="LLM ablation: alarms only, no knowledge graph.")
     parser.add_argument("--delay", type=float, default=0.0,
-                        help="Seconds to pause between incidents (free tiers: ~40 keeps under 8k tokens/min).")
+                        help="LLM only: seconds between incidents (free tiers: ~45 stays under 8k tokens/min).")
     args = parser.parse_args()
 
-    summary_path = EVIDENCE_DIR / "retrieval_summary.csv"
+    evidence_dir = Path(args.evidence) if args.evidence else EVIDENCE_DIR
+    if not evidence_dir.is_absolute():
+        evidence_dir = PROJECT_ROOT / evidence_dir
+
+    summary_path = evidence_dir / "retrieval_summary.csv"
     if not summary_path.exists():
-        raise SystemExit("No evidence packets. Run: python scripts/build_evidence_packets.py")
+        raise SystemExit(f"No evidence packets in {evidence_dir}. Run scripts/build_evidence_packets.py first.")
 
     kg = BuildingKnowledgeGraph.from_files(NETWORK_PATH, LAYOUT_PATH)
     retrieval = pd.read_csv(summary_path)
@@ -111,26 +125,35 @@ def main() -> None:
     if args.per_type:
         retrieval = retrieval.groupby("fault_type", group_keys=False).head(args.per_type)
 
-    client = ChatClient.from_env(model=args.model)
-    # The no-graph run gets no repair turn: citing an ID it was never shown
-    # is exactly the hallucination the comparison is meant to count.
-    diagnoser = Diagnoser(client, repair_attempts=0 if args.no_graph else 1)
+    if args.engine == "rules":
+        if args.no_graph:
+            raise SystemExit("--no-graph applies to --engine llm; the rules need the graph.")
+        client, diagnoser = None, RuleBasedDiagnoser()
+        usage, label = Usage(), "rule-based"
+        name = args.name or "rules"
+    else:
+        client = ChatClient.from_env(model=args.model)
+        # The no-graph run gets no repair turn: citing an ID it was never
+        # shown is exactly the hallucination the comparison should count.
+        diagnoser = Diagnoser(client, repair_attempts=0 if args.no_graph else 1)
+        usage, label = client.usage, f"{client.model} via {client.base_url}"
+        name = args.name or (client.model.split("/")[-1] + ("-nograph" if args.no_graph else ""))
 
-    name = args.name or (client.model.split("/")[-1] + ("-nograph" if args.no_graph else ""))
-    out_dir = OUTPUT_ROOT / name
+    out_dir = evidence_dir.parent / "diagnosis" / name
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Model {client.model} via {client.base_url}  |  {len(retrieval)} incident(s)  |  "
+    print(f"{label}  |  {len(retrieval)} incident(s)  |  "
           f"{'NO GRAPH (alarms only)' if args.no_graph else 'graph-constrained'}\n")
 
     rows = []
     started = time.time()
 
     for i, (_, row) in enumerate(retrieval.iterrows()):
-        if i and args.delay:
+        if i and args.delay and args.engine == "llm":
             time.sleep(args.delay)
+
         scenario, target = row["scenario"], row["target_id"]
-        packet = json.loads((EVIDENCE_DIR / f"{scenario}.json").read_text(encoding="utf-8"))
+        packet = json.loads((evidence_dir / f"{scenario}.json").read_text(encoding="utf-8"))
         if args.no_graph:
             packet = ungrounded_packet(packet)
 
@@ -154,6 +177,8 @@ def main() -> None:
             "violations": "; ".join(result.violations),
             "attempts": result.attempts,
             "confidence": d.get("confidence"),
+            # "Confirmed" = confident enough to act on (rules: >= 0.5).
+            "confirmed": (d.get("confidence") or 0) >= 0.5,
             "detector_top1": row.get("detector_top1"),
             "detector_exact": baseline["exact"],
             "detector_near": baseline["near"],
@@ -169,21 +194,30 @@ def main() -> None:
         print(f"{tick}{scenario:38s} -> {str(predicted):14s} {str(d.get('fault_type')):12s} "
               f"conf={d.get('confidence')}  grounded={result.grounded}"
               + (f"  ERROR {result.error[:80]}" if result.error else ""))
+        if args.show_messages and d.get("message"):
+            print("    " + format_message(d["message"]).replace("\n", "\n    ") + "\n")
 
     summary = pd.DataFrame(rows)
     summary.to_csv(out_dir / "summary.csv", index=False)
 
     print("\n                 exact  room   near   type   grounded | detector top-1 exact  near")
-    for label, group in [("all", summary)] + list(summary.groupby("fault_type")):
-        print(f"  {label:13s} {group['exact'].mean():5.0%}  {group['room'].mean():5.0%}  {group['near'].mean():5.0%}  "
-              f"{group['type_correct'].mean():5.0%}  {group['grounded'].mean():6.0%}   | "
+    for group_label, group in [("all", summary)] + list(summary.groupby("fault_type")):
+        print(f"  {group_label:13s} {group['exact'].mean():5.0%}  {group['room'].mean():5.0%}  "
+              f"{group['near'].mean():5.0%}  {group['type_correct'].mean():5.0%}  "
+              f"{group['grounded'].mean():6.0%}   | "
               f"{group['detector_exact'].mean():18.0%}  {group['detector_near'].mean():5.0%}   (n={len(group)})")
 
-    usage = client.usage
+    confirmed = summary[summary["confirmed"]]
+    print(f"\n  confirmed diagnoses: {len(confirmed)}/{len(summary)}; exact among confirmed: "
+          f"{confirmed['exact'].mean() if len(confirmed) else 0:.0%}; "
+          f"unconfirmed flagged for review: {len(summary) - len(confirmed)}")
+
     run = {
-        "model": client.model,
-        "base_url": client.base_url,
+        "engine": args.engine,
+        "model": client.model if client else None,
+        "base_url": client.base_url if client else None,
         "graph": not args.no_graph,
+        "evidence": str(evidence_dir.relative_to(PROJECT_ROOT)),
         "incidents": len(summary),
         "calls": usage.calls,
         "prompt_tokens": usage.prompt_tokens,
@@ -192,8 +226,9 @@ def main() -> None:
     }
     (out_dir / "run.json").write_text(json.dumps(run, indent=1), encoding="utf-8")
 
-    print(f"\n{usage.calls} calls, {usage.prompt_tokens} prompt + {usage.completion_tokens} completion tokens, "
-          f"{run['seconds']} s  ->  {out_dir.relative_to(PROJECT_ROOT)}")
+    cost = (f"{usage.calls} calls, {usage.prompt_tokens} prompt + {usage.completion_tokens} completion tokens, "
+            if client else "no API calls, ")
+    print(f"\n{cost}{run['seconds']} s  ->  {out_dir.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

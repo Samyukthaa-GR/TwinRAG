@@ -52,3 +52,8 @@ data/building/scenarios_manifest.csv
 data/building/building_view.json
 data/building/evidence/
 data/building/diagnosis/
+
+# Held-out building batch (configs/building_holdout.yaml)
+data/building_holdout/
+data/building_holdout2/
+data/building_holdout3/

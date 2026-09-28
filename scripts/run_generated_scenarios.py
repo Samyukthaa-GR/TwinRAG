@@ -1,3 +1,4 @@
+import argparse
 import csv
 import json
 import sys
@@ -28,29 +29,11 @@ from twinrag.simulation.scenario_generator import (
 
 
 # --------------------------------------------------
-# Generated dataset directories
+# Defaults (the Net3 evaluation batch)
 # --------------------------------------------------
 
-GENERATED_ROOT = (
-    PROJECT_ROOT
-    / "data"
-    / "generated"
-)
-
-PROCESSED_DIR = (
-    GENERATED_ROOT
-    / "processed"
-)
-
-METADATA_DIR = (
-    GENERATED_ROOT
-    / "metadata"
-)
-
-MANIFEST_PATH = (
-    GENERATED_ROOT
-    / "scenarios_manifest.csv"
-)
+DEFAULT_CONFIG = "configs/simulation.yaml"
+DEFAULT_OUTPUT_ROOT = "data/generated"
 
 
 def _resolve(path_str: str) -> Path:
@@ -66,17 +49,20 @@ def _resolve(path_str: str) -> Path:
     return PROJECT_ROOT / path
 
 
-def _prepare_directories() -> None:
+def _prepare_directories(
+    processed_dir: Path,
+    metadata_dir: Path,
+) -> None:
     """
     Create generated-data directories if needed.
     """
 
-    PROCESSED_DIR.mkdir(
+    processed_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    METADATA_DIR.mkdir(
+    metadata_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
@@ -86,18 +72,20 @@ def _save_scenario(
     dataset,
     metadata: dict,
     scenario_name: str,
+    processed_dir: Path,
+    metadata_dir: Path,
 ):
     """
     Save one generated scenario's CSV and metadata JSON.
     """
 
     csv_path = (
-        PROCESSED_DIR
+        processed_dir
         / f"{scenario_name}.csv"
     )
 
     metadata_path = (
-        METADATA_DIR
+        metadata_dir
         / f"{scenario_name}.json"
     )
 
@@ -119,16 +107,59 @@ def _save_scenario(
     return csv_path, metadata_path
 
 
+def _parse_args():
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate and simulate the evaluation scenario batch "
+            "defined by a config's scenario_generation block."
+        )
+    )
+
+    parser.add_argument(
+        "--config",
+        default=DEFAULT_CONFIG,
+        help=f"Experiment config (default: {DEFAULT_CONFIG}).",
+    )
+
+    parser.add_argument(
+        "--output-root",
+        default=DEFAULT_OUTPUT_ROOT,
+        help=(
+            "Directory receiving processed/, metadata/ and "
+            f"scenarios_manifest.csv (default: {DEFAULT_OUTPUT_ROOT})."
+        ),
+    )
+
+    parser.add_argument(
+        "--with-baseline",
+        action="store_true",
+        help=(
+            "Also simulate the unfaulted network and write "
+            "processed/baseline.csv under the output root."
+        ),
+    )
+
+    return parser.parse_args()
+
+
 def main() -> None:
     """
     Generate and simulate the complete evaluation scenario set.
     """
 
-    config_path = (
-        PROJECT_ROOT
-        / "configs"
-        / "simulation.yaml"
+    args = _parse_args()
+
+    config_path = _resolve(
+        args.config
     )
+
+    output_root = _resolve(
+        args.output_root
+    )
+
+    processed_dir = output_root / "processed"
+    metadata_dir = output_root / "metadata"
+    manifest_path = output_root / "scenarios_manifest.csv"
 
     config = load_config(
         config_path
@@ -156,11 +187,33 @@ def main() -> None:
         config.simulation,
     )
 
-    _prepare_directories()
+    _prepare_directories(
+        processed_dir,
+        metadata_dir,
+    )
 
     print(
         f"Network: {network_path}"
     )
+
+    if args.with_baseline:
+        baseline, baseline_metadata = (
+            runner.run_baseline()
+        )
+
+        csv_path, _ = _save_scenario(
+            baseline,
+            baseline_metadata,
+            "baseline",
+            processed_dir,
+            metadata_dir,
+        )
+
+        print(
+            f"Baseline -> "
+            f"{csv_path.relative_to(PROJECT_ROOT)} "
+            f"(rows={len(baseline)})"
+        )
 
     print(
         f"Generated scenarios: "
@@ -204,6 +257,8 @@ def main() -> None:
                 dataset,
                 metadata,
                 scenario_name,
+                processed_dir,
+                metadata_dir,
             )
         )
 
@@ -238,7 +293,7 @@ def main() -> None:
     # Write manifest
     # --------------------------------------------------
 
-    with MANIFEST_PATH.open(
+    with manifest_path.open(
         "w",
         newline="",
         encoding="utf-8",
@@ -274,7 +329,7 @@ def main() -> None:
 
     print(
         f"Manifest -> "
-        f"{MANIFEST_PATH.relative_to(PROJECT_ROOT)}"
+        f"{manifest_path.relative_to(PROJECT_ROOT)}"
     )
 
 

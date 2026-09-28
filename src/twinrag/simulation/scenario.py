@@ -82,8 +82,22 @@ class FaultScenarioRunner:
             scenario_name=scenario_name
         )
 
+        pressure = simulator.get_pressure()
+
+        floor = getattr(
+            self.simulation_config,
+            "pressure_floor_m",
+            None,
+        )
+
+        if floor is not None:
+            # Sections cut off from every source come back from EPANET
+            # with artefact heads; a transducer on a drained pipe reads
+            # atmospheric. See SimulationConfig.pressure_floor_m.
+            pressure = pressure.clip(lower=floor)
+
         return formatter.combine(
-            pressure=simulator.get_pressure(),
+            pressure=pressure,
             demand=simulator.get_demand(),
             flowrate=simulator.get_flowrate(),
         )

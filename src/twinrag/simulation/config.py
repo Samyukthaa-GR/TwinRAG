@@ -21,6 +21,14 @@ class SimulationConfig:
     hydraulic_timestep_seconds: int = 3600
     report_timestep_seconds: int = 3600
 
+    #: Optional lower bound on reported pressure, in metres of head.
+    #: EPANET reports meaningless heads for any section cut off from
+    #: every source -- a building floor below a closed riser comes back
+    #: at -9 to -12 m. A real transducer on a drained pipe reads
+    #: atmospheric, i.e. 0 m gauge, so the building sets this to 0.0.
+    #: ``None`` (the default) leaves results untouched.
+    pressure_floor_m: float | None = None
+
 
 @dataclass
 class FaultScenarioConfig:
@@ -41,6 +49,7 @@ class FaultGenerationConfig:
     severities: list[float] = field(default_factory=list)
     start_hours: list[int] = field(default_factory=list)
     duration_hours: int = 6
+    params: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -131,6 +140,11 @@ def load_config(path) -> ExperimentConfig:
                 "report_timestep_seconds",
                 3600,
             )
+        ),
+        pressure_floor_m=(
+            float(sim_raw["pressure_floor_m"])
+            if sim_raw.get("pressure_floor_m") is not None
+            else None
         ),
     )
 
@@ -232,6 +246,7 @@ def load_config(path) -> ExperimentConfig:
                 severities: [...]
                 start_hours: [...]
                 duration_hours: 6
+                params: {...}   # optional, forwarded to the injector
         """
 
         block = generation_raw.get(
@@ -315,6 +330,7 @@ def load_config(path) -> ExperimentConfig:
             severities=severities,
             start_hours=start_hours,
             duration_hours=duration_hours,
+            params=dict(block.get("params") or {}),
         )
 
     scenario_generation = (

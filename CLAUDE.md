@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 TwinRAG is a digital-twin platform for water distribution networks. The end goal: an anomaly fires somewhere in the network, a subgraph around that point is extracted from the knowledge graph, and that local physical context is handed to an LLM which reasons out the root cause with no manual pipe-tracing. The simulator exists to manufacture ground truth for that pipeline.
 
+Two networks run through the same pipeline:
+
+- **The building twin** (`data/networks/Building_G6.inp`) — the project's demo system and current direction. A generated, constructible G+6 residential block: 7 floors x 2 flats, room-level plumbing (70 wet-room plumbing points), sump -> transfer pump -> roof tank -> gravity down-take risers, with a 3D viewer. See *Building digital twin* below.
+- **Net3** (`data/networks/Net3.inp`) — EPANET's example town network. The Phase 3 evaluation numbers below were measured on it, and `configs/simulation.yaml` still targets it.
+
 Six planned phases. **Phases 1–3 are built:**
 
 1. **Simulation** — EPANET/`wntr` runs on `.inp` models, timed fault injection, long-format datasets. Complete.
@@ -79,13 +84,24 @@ python scripts/export_graph_view.py   # topology + 4 scenarios -> graph_view.jso
 python scripts/build_viewer.py        # -> data/generated/twin_viewer.html
 python scripts/server_viewer.py       # optional; serves it over HTTP
 
+# --- Building digital twin ---
+
+python scripts/build_building_network.py   # -> data/networks/Building_G6.{inp,layout.json}
+python scripts/run_generated_scenarios.py --config configs/building.yaml \
+    --output-root data/building --with-baseline   # 38 scenarios + baseline -> data/building/
+python scripts/build_building_viewer.py    # -> data/building/building_twin.html (3D, offline)
+
 # Tests (pytest.ini sets pythonpath=src and testpaths=tests — no sys.path juggling needed)
 pytest
 pytest tests/detection                                                             # one package
 pytest tests/simulation/test_scenario_generator.py::test_generated_scenario_count   # single test
 ```
 
-On Windows use the `py` launcher and the venv interpreter explicitly: `py -m venv .venv`, then `.\.venv\Scripts\python.exe ...`. The bare `py`/`python` on PATH does *not* have the dependencies installed. The full suite (57 tests) and real EPANET simulations both run in this environment; the simulation-dependent graph tests skip if `data/processed/baseline.csv` has not been generated.
+**Python 3.13, not 3.14.** `wntr` 1.5 ships no wheel for 3.14 and its source build needs MSVC, so on a machine whose only Python is 3.14 the install fails. The `.venv` here was built with `uv` (which downloads a self-contained 3.13): `python -m pip install uv`, `python -m uv venv .venv --python 3.13`, `python -m uv pip install --python .venv/Scripts/python.exe -r requirements.txt`. Then always call `.\.venv\Scripts\python.exe ...`; the bare `py`/`python` on PATH has no dependencies. The full suite runs here; the simulation-dependent Net3 graph tests skip if `data/processed/baseline.csv` has not been generated (`run_baseline_simulation.py`).
+
+**Simulations dirty the working tree.** WNTR's `EpanetSimulator` writes its scratch `temp.inp` into the current directory, and `temp.inp` plus three `__pycache__/*.pyc` files are (unfortunately) tracked. After running any simulation from the project root, `git checkout -- temp.inp src/twinrag/__pycache__ src/twinrag/simulation/__pycache__` before committing. The building tests `chdir` into a temp directory to avoid this.
+
+On Windows the console is cp1252, so scripts that print a check mark (`validate_generated_dataset.py`) crash with `UnicodeEncodeError` — prefix `PYTHONIOENCODING=utf-8`.
 
 Note: the machine's Application Control policy intermittently blocks pandas' compiled DLLs on first touch — `ImportError: DLL load failed while importing <ext>: An Application Control policy has blocked this file`. It has cleared as of the latest check (pandas 3.0.5 imports, the suite is green, `run_baseline_simulation.py` completes). If it reappears, retrying the same command usually succeeds; it is an OS-level policy quirk, not a code or dependency problem.
 
@@ -99,7 +115,7 @@ Pipeline: **load → configure → simulate → format → persist**, orchestrat
 - `HydraulicSimulator` (`simulator.py`) — wraps `wntr.sim.EpanetSimulator`. `configure_simulation()` sets duration/timesteps (defaults: 24h, 3600s steps), `run()` executes, and `get_pressure()`/`get_demand()`/`get_flowrate()` return copies of the result time-series. Result accessors raise if `run()` hasn't been called.
 - `SimulationResultFormatter` (`result_formatter.py`) — melts WNTR's wide dataframes (rows = timestamps, cols = asset IDs) into a long format and `combine()`s pressure/demand/flowrate into one dataset. This long schema is the contract downstream code depends on.
 - `FaultScenarioRunner` (`scenario.py`) — orchestrates one scenario end-to-end: load → (inject fault) → simulate → format → **label temporal state** → return `(dataset, metadata)`. **Loads a fresh network per scenario** so in-place fault mutations never leak between runs.
-- `config.py` — YAML-backed dataclasses (`load_config`): `ExperimentConfig` (network + `SimulationConfig` + explicit `faults` + `scenario_generation`), plus `FaultScenarioConfig`, `FaultGenerationConfig`, `ScenarioGenerationConfig`. Validation lives here: severity in `(0.0, 1.0]`, `start_hour >= 0`, `end_hour > start_hour`, and — for generated blocks — `start_hour + duration_hours <= simulation.duration_hours`.
+- `config.py` — YAML-backed dataclasses (`load_config`): `ExperimentConfig` (network + `SimulationConfig` + explicit `faults` + `scenario_generation`), plus `FaultScenarioConfig`, `FaultGenerationConfig`, `ScenarioGenerationConfig`. Validation lives here: severity in `(0.0, 1.0]`, `start_hour >= 0`, `end_hour > start_hour`, and — for generated blocks — `start_hour + duration_hours <= simulation.duration_hours`. Both explicit faults and generation blocks accept `params:`, forwarded to the injector. `SimulationConfig.pressure_floor_m` (default `None`) clips reported pressure: EPANET returns meaningless negative heads (-9 to -12 m) for sections cut off from every source, which a tree-shaped building produces whenever a riser closes; the building config sets it to `0.0` (a drained pipe reads atmospheric).
 - `scenario_generator.py` — `generate_fault_scenarios(generation_config)` expands each fault block into the Cartesian product `target_ids × severities × start_hours`, deriving `end_hour = start_hour + duration_hours`. Returns `[]` when `scenario_generation.enabled` is false. Deterministic (no RNG), so the batch is reproducible. The current `configs/simulation.yaml` yields **35 scenarios** (27 leak, 2 pump_failure, 6 blockage) — `tests/simulation/test_scenario_generator.py` asserts those counts, so changing the YAML matrix means updating those tests.
 
 ### Fault injection (`simulation/faults/`)
@@ -109,7 +125,7 @@ Pipeline: **load → configure → simulate → format → persist**, orchestrat
 Faults are **timed**: the injected condition switches on at `start_hour` and off at `end_hour` *within the hydraulics*, via EPANET-compatible patterns and rules — not by mutating a static property for the whole run. All three are **EpanetSimulator-compatible** (important: WNTR's `Junction.add_leak` only works under `WNTRSimulator`, which this project does *not* use):
 
 - `LeakFault` (`leak.py`) — adds a **second demand** to the junction (`add_demand(..., category="Leak")`) driven by a 0/1 pattern that is `1.0` only inside the fault window. Leak magnitude is `severity × max_leak_demand` (default `max_leak_demand=0.05`). The junction's original demand is left untouched.
-- `PumpFailureFault` (`pump_failure.py`) — at `severity >= 1.0` uses WNTR's `pump.add_outage(network, start_time, end_time, priority=6, add_after_outage_rule=True)` for a genuine timed outage. **Partial severity is still untimed** — it just scales `base_speed` by `(1 − severity)` for the entire run; the start/end hours are recorded in metadata but not honoured hydraulically.
+- `PumpFailureFault` (`pump_failure.py`) — at `severity >= 1.0` uses WNTR's `pump.add_outage(network, start_time, end_time, priority=6, add_after_outage_rule=restore_after_outage)` for a genuine timed outage. `restore_after_outage` defaults to `True` (Net3's behaviour), but WNTR's after-outage rule holds the pump **open for the rest of the run** at priority 6, outranking any level control — so a tank-switched pump (the building's `PUMP1`) must pass `restore_after_outage: false`. **Partial severity is still untimed** — it just scales `base_speed` by `(1 − severity)` for the entire run; the start/end hours are recorded in metadata but not honoured hydraulically.
 - `BlockageFault` (`valve_blockage.py`) — targets any link (Net3 has **no valves**, so a pipe). Adds two WNTR `Rule`s on `SimTimeCondition`: close the link at `start_hour` (priority 6), reopen at `end_hour` (priority 7). **Requires `end_hour`** — raises `ValueError` without it. Note `severity` does not affect the injection at all; the link is fully closed regardless, so severity only varies the scenario label.
 
 Build faults via `create_fault(fault_type, target_id, severity, start_hour, end_hour, **params)` from `faults/__init__.py` (backed by `FAULT_REGISTRY`); extra params forward to the injector (e.g. `max_leak_demand`).
@@ -130,10 +146,9 @@ timestamp_s, asset_id, asset_type, parameter, value, scenario, state
 
 ### The graph layer (`src/twinrag/graph/`) — Phase 2
 
-- `NetworkGraphBuilder` (`builder.py`) — turns a `WaterNetworkModel` into a `networkx` graph. Junctions/tanks/reservoirs become nodes (reservoir `base_head` is normalised onto the same `elevation` field as junction elevation); pipes/pumps/valves become edges carrying `link_name`, `start_node`, `end_node`, diameter, length. `summary(graph)` gives composition + connectivity for sanity checks.
+- `NetworkGraphBuilder` (`builder.py`) — turns a `WaterNetworkModel` into an undirected, keyed `nx.MultiGraph` (edge key = link ID, so parallel links are safe). Junctions/tanks/reservoirs become nodes (reservoir `base_head` is normalised onto the same `elevation` field as junction elevation); pipes/pumps/valves become edges. Every node and edge carries three attribute sections from `schema.py` — `static` (from EPANET), `runtime` (filled by a snapshot) and `anomaly` (empty; reserved for Phase 4) — plus flat compatibility fields. `summary(graph)` gives composition + connectivity.
 - The graph is deliberately **undirected**: 56 of Net3's 119 links reverse over a normal 24h day as tanks fill and drain, so direction is a property of a moment, not of the network.
-- **Known limitation:** `add_edge(..., key=name)` on an `nx.Graph` stores `key` as an ordinary attribute — it is *not* a MultiGraph key. Parallel links between the same node pair would silently overwrite each other. Net3 has none (119 links → 119 edges), so this is latent, but the docstring's promise is not currently kept. Switch to `nx.MultiGraph` before trusting it on another network.
-- `GraphSnapshot` (`snapshot.py`) — lays one timestep over the topology: pressure/demand onto nodes, flowrate onto links, and `flow_from`/`flow_to` derived from the **sign** of each flowrate. `directed()` returns the flow-oriented `DiGraph` (zero-flow links omitted); `neighbors(asset_id, hops)` is the BFS retrieval primitive Phase 4 builds on; `upstream()`/`downstream()` give causal ancestry and blast radius at that instant.
+- `GraphSnapshot` (`snapshot.py`) — lays one timestep over the topology: pressure/demand onto nodes, flowrate onto links, and `flow_from`/`flow_to` derived from the **sign** of each flowrate. `directed()` returns the flow-oriented `MultiDiGraph` (links with *missing* flow are omitted; zero-flow links keep their declared orientation); `neighbors(asset_id, hops)` is the BFS retrieval primitive Phase 4 builds on; `upstream()`/`downstream()` give causal ancestry and blast radius at that instant. **Leakage hazard for Phase 4/5:** the snapshot copies `runtime_scenario` and `runtime_state` into `graph.graph`, and scenario names encode the answer (`leak_F3A-KIT_sev100_...`) — strip both before anything reaches an LLM.
 
 ### Anomaly detection (`src/twinrag/detection/`) — Phase 3
 
@@ -192,18 +207,35 @@ Reading these:
 - **Firing during `recovery` is not scored as a false alarm.** After a fault clears, tank levels and pump schedules have genuinely drifted; baseline deviations in recovery reach 29 m, *larger* than during some faults. The network really is off-nominal, so an alarm is correct — it is simply not the fault window. `evaluate_detection.py` counts false positives on pre-fault hours and the baseline control only, and reports recovery firing (25.4%) separately.
 - The **baseline negative control** is the measurement that matters for precision: residuals there are pure sensor noise, so anything that fires is false by construction. `detect_anomalies.py` always runs it.
 
-### Configuration (`configs/simulation.yaml`)
+### Building digital twin (`src/twinrag/building/`)
+
+A generated residential water-supply system that runs through the unchanged pipeline — simulator, faults, graph builder and detectors all consume `Building_G6.inp` exactly as they consume Net3.
+
+- `BuildingSpec` (`spec.py`) — the whole design as data: G+6 massing (3 m storeys, two mirrored 11 x 12 m flats either side of a 4 m service core), the flat floor plan (`DEFAULT_ROOMS`: 10 rooms, 5 wet — kitchen, utility, master bath, common bath, bath 2 — each with a fixture point, demand share and feeding tee), hourly demand patterns (bath/kitchen/utility, normalised to mean 1), 135 L/person/day x 4.5 persons, tank sizes, pump point (2 L/s @ 38 m), level switches (start < 0.6 m, stop > 1.9 m), pipe diameters and minor losses by role, Hazen-Williams C = 140, and **pressure-driven demand** (`PDA`, full flow at >= 3 m).
+- `BuildingNetworkGenerator` (`generator.py`) — spec -> `(WaterNetworkModel, layout)`; `write()` saves `.inp` (LPS units) + `.layout.json`. The layout carries what EPANET cannot: true 3D positions, **routed orthogonal pipe paths** (along the slab soffit at +2.7 m, then dropping to fixtures at +0.9 m), and semantics — `floor`, `flat`, `room`, `role`, `label` for every asset — plus the sensor list. The `.inp` coordinates are an oblique projection, so 2D tools still show a building.
+- **Asset IDs read as locations and never collide between nodes and links** (unlike Net3's junction `101` / pipe `101`): `F3A-KIT` kitchen point floor 3 flat A (`F0` = ground), `F3A-KIT-BR` its branch pipe, `F3A-IN` flat inlet, `F3A-SUPPLY` flat supply, `F3A-TK`/`F3A-TB` distribution tees, `DTA-3` riser tap-off, `DTA-4-3` riser segment, `OHT`/`SUMP` tanks, `PUMP1`, `CITY` reservoir.
+- Topology is a **tree** (130 links, 131 nodes): every link is a cut edge, so any closure starves everything downstream — hence PDA and `pressure_floor_m`.
+- **Instrumentation** (`layout["sensors"]`, 103): a flow meter on every room branch (70), flat supply (14), the pump, tank outlet and municipal inlet; pressure at every flat inlet (14) and level in both tanks. Room-branch meters are what make room-level diagnosis possible: within a flat, pipes are a few metres long, so a kitchen leak and a bathroom leak differ by millimetres of pressure — below any transducer — but each moves its own branch's flow.
+- Pump controls are EPANET **rules at priority 3**, so a timed outage (priority 6) wins while active and the level switches resume afterwards.
+- Baseline physics (pinned in `tests/building/`): pressure falls 3.0 m per storey (ground ~24 m, top-floor taps >= 5.7 m); the roof tank cycles and the pump runs twice a day; a leak shows on its own room branch and flat supply and nowhere else; a closed riser drains the floors below it.
+
+`configs/building.yaml` defines 38 generated scenarios: 30 room leaks (5 rooms spanning both stacks and floors 0-6 x severities 0.1/0.4/1.0 of a 0.2 L/s burst x 2 start hours), 2 ten-hour pump outages (short outages pass unnoticed — the tank is usually full), and 6 blockages at three scales (riser segment `DTA-5-4`, flat supply `F1B-SUPPLY`, kitchen branch `F4A-KIT-BR`).
+
+**Pipeline A on the building, unchanged code** (building sensors only, noise 0.25 m / 0.002 L/s + 2%, `--threshold 4 --min-assets 2`; measured ad hoc, not yet a script): leaks 30/30 detected, the leaking room's branch **hit@1 53%, hit@3 97%**, 0 pre-fault alarms, clean baseline control. When the room is not top-1, `PUMP1` is — the leak drains the roof tank and restarts the pump early. Pump outages detected 2-5 h late (silent until the tank runs down). The riser blockage is detected but `DTA-5-4` is unmetered, so it never appears as a candidate — flats 0A-4A losing pressure together is the evidence, and inferring their common upstream pipe is Phase 4's job. The single-kitchen blockage is missed (one tap's hourly flow is about the meter's noise). `detect_anomalies.py`/`evaluate_detection.py` still hard-code Net3 paths and noise.
+
+### Configuration (`configs/simulation.yaml`, `configs/building.yaml`)
 
 Two independent ways to define scenarios, both read from the same file:
 
 - `faults:` — an explicit hand-written list, consumed by `run_fault_simulation.py`.
 - `scenario_generation:` — the combinatorial matrix (`enabled`, then a `leak`/`pump_failure`/`blockage` block each with `target_ids`, `severities`, `start_hours`, `duration_hours`), consumed by the `*_generated_*` scripts.
 
-The two do not interact — `run_fault_simulation.py` ignores `scenario_generation`, and the generated-batch scripts ignore `faults`.
+The two do not interact — `run_fault_simulation.py` ignores `scenario_generation`, and the generated-batch scripts ignore `faults`. `run_generated_scenarios.py` takes `--config`, `--output-root` and `--with-baseline`; with no flags it reproduces the Net3 batch into `data/generated/` exactly as before.
 
 ### Data layout
 
-- `data/networks/*.inp` — input EPANET models (committed; e.g. `Net3.inp`).
+- `data/networks/*.inp` — input EPANET models (committed; e.g. `Net3.inp`). `Building_G6.inp` + `Building_G6.layout.json` are generated by `build_building_network.py`.
+- `data/building/` — the building batch: `processed/` (incl. `baseline.csv`), `metadata/`, `scenarios_manifest.csv` (all gitignored), and the viewer build: `building_twin.html` is committed (~2.7 MB, three.js inlined) so the twin opens without a Python setup; its intermediate payload `building_view.json` is gitignored.
 - `data/processed/` — datasets from the baseline/explicit-fault runs (gitignored except `.gitkeep`).
 - `data/metadata/` — per-scenario ground-truth fault labels as `<scenario>.json` (gitignored), written alongside each fault dataset by `run_fault_simulation.py`.
 - `data/generated/processed/`, `data/generated/metadata/` — the generated evaluation batch, same file naming, written by `run_generated_scenarios.py` (gitignored).
@@ -220,9 +252,15 @@ A hand-rolled SVG network map with a time scrubber, colour-by-pressure or colour
 
 It predates Phases 3–5, so it shows no anomalies, no retrieved subgraph and no diagnosis. Treat it as a rendering layer worth reusing rather than a finished dashboard. `server_viewer.py`'s docstring still calls itself `serve_viewer.py` from before the rename.
 
+### Building viewer (`viewer/building_template.html`) — 3D Phase 6 prototype
+
+three.js r147 (UMD build + `OrbitControls`, vendored in `viewer/vendor/` with its MIT licence) inlined by `build_building_viewer.py` into one offline HTML file carrying all 39 runs. Kept deliberately simple for non-specialist viewers: slabs, corner/core columns and room outlines (no walls), pipes along their routed paths, taps, tanks with live water level. Two colour modes: **Problems** (default) classifies every asset against the twin's normal day at the same hour -- normal (muted), *changed* at >= 3x instrument noise, *problem* at >= 8x, *no water* when a normally pressurised point drops below 0.3 m -- and enlarges abnormal assets so they stand out; **Pressure** is a sequential ramp. The side panel summarises sensor-only alerts in plain language ("Flat 3A supply -- flow up 0.200 L/s") and names the most affected flats. **Ground truth is hidden by default**: no injected-fault marker, and scenario names read "Leak test 17" rather than the location, until *More options -> Reveal answer* is ticked -- the colours, not the label, should point to the problem. The payload carries **pressure and flow only, never node `demand`**: EPANET's node demand is everything leaving the pipes there, and a `LeakFault` *is* extra water leaving at the target, so demand at the leaking tap reads ~80x normal (an early build showed "8539% of normal water reaching the tap" and leaked the answer). "Tap can deliver" is instead computed from pressure with EPANET's own PDA rule (`demand_model`, read from the `.inp`: 0 at minimum pressure, 100% at required pressure, square-root between), so it cannot exceed 100%. Picking is screen-space nearest-sample, not raycasting (thin pipes are hard to hit). Deep links: `building_twin.html#scenario=<name>&floor=3&sel=F3A-KIT&t=10&mode=pressure&spread=1&answer=1`. Headless check: Chrome with `--use-angle=swiftshader --enable-unsafe-swiftshader --screenshot` renders it; note headless Chrome on Windows lays out at >= 504 px regardless of `--window-size`.
+
 ### Tests
 
-`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`. **105 tests, all passing.** Only detection pipeline A is covered; pipeline B has no tests.
+`tests/` mirrors the package layout: `tests/simulation/`, `tests/graph/`, `tests/detection/`, `tests/building/`. **123 tests, all passing** (19 of them skip until `data/processed/baseline.csv` exists). Only detection pipeline A is covered; pipeline B has no tests.
+
+- `tests/building/` — composition, ID uniqueness, layout covers every asset, fixtures sit inside their rooms, pipe paths join their endpoints and are orthogonal, the topology is a tree, flat B mirrors flat A, every room branch is metered, `.inp` round-trip keeps rules and PDA; then real EPANET runs (sub-second) for the physics listed under *Building digital twin*. Runs EPANET in a temp cwd so `temp.inp` is not touched.
 
 - `tests/simulation/` — `test_network_loader.py` (Net3 loads; exact component counts — 92 junctions / 2 reservoirs / 3 tanks / 117 pipes / 2 pumps; missing file raises), `test_scenario_generator.py` (generated counts, valid time windows, unique scenario names), `test_scenario_labels.py` (the `normal`/`fault_active`/`recovery` boundaries, using a `SimpleNamespace` stub fault and a hand-built dataframe rather than a real simulation). Tests call the runner's private `_add_*_state_labels` helpers directly to stay fast — keep those names stable or update the tests.
 - `tests/graph/` — `test_builder.py` (composition matches the network, one connected component, reservoir head → `elevation`), `test_snapshot.py` (values attach, flow direction follows sign, link 105 genuinely reverses between hour 4 and hour 16, neighbour ordering, upstream reaches a source), `test_validation.py` (the `GraphValidator` checks). These **run a real EPANET load** and read `data/processed/baseline.csv`, skipping if it is absent.

@@ -1,0 +1,8537 @@
+{
+ "schema": "twinrag.building_layout/1",
+ "building": {
+  "name": "TwinRAG Residency (G+6)",
+  "floors": 7,
+  "flats_per_floor": 2,
+  "floor_height": 3.0,
+  "terrace_level": 21.0,
+  "footprint": [
+   0.0,
+   0.0,
+   26.0,
+   12.0
+  ],
+  "core": [
+   11.0,
+   0.0,
+   15.0,
+   12.0
+  ],
+  "persons_per_flat": 4.5,
+  "litres_per_person_day": 135.0,
+  "supply_scheme": "municipal main -> underground sump -> transfer pump -> roof tank -> gravity down-take per flat stack",
+  "units": {
+   "length": "m",
+   "flowrate": "m3/s",
+   "pressure": "m (head)"
+  },
+  "network_file": "Building_G6.inp"
+ },
+ "floors": [
+  {
+   "index": 0,
+   "label": "Ground floor",
+   "z": 0.0
+  },
+  {
+   "index": 1,
+   "label": "Floor 1",
+   "z": 3.0
+  },
+  {
+   "index": 2,
+   "label": "Floor 2",
+   "z": 6.0
+  },
+  {
+   "index": 3,
+   "label": "Floor 3",
+   "z": 9.0
+  },
+  {
+   "index": 4,
+   "label": "Floor 4",
+   "z": 12.0
+  },
+  {
+   "index": 5,
+   "label": "Floor 5",
+   "z": 15.0
+  },
+  {
+   "index": 6,
+   "label": "Floor 6",
+   "z": 18.0
+  }
+ ],
+ "flats": [
+  {
+   "id": "F0A",
+   "label": "Flat 0A",
+   "floor": 0,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 0.0
+  },
+  {
+   "id": "F0B",
+   "label": "Flat 0B",
+   "floor": 0,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 0.0
+  },
+  {
+   "id": "F1A",
+   "label": "Flat 1A",
+   "floor": 1,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 3.0
+  },
+  {
+   "id": "F1B",
+   "label": "Flat 1B",
+   "floor": 1,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 3.0
+  },
+  {
+   "id": "F2A",
+   "label": "Flat 2A",
+   "floor": 2,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 6.0
+  },
+  {
+   "id": "F2B",
+   "label": "Flat 2B",
+   "floor": 2,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 6.0
+  },
+  {
+   "id": "F3A",
+   "label": "Flat 3A",
+   "floor": 3,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 9.0
+  },
+  {
+   "id": "F3B",
+   "label": "Flat 3B",
+   "floor": 3,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 9.0
+  },
+  {
+   "id": "F4A",
+   "label": "Flat 4A",
+   "floor": 4,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 12.0
+  },
+  {
+   "id": "F4B",
+   "label": "Flat 4B",
+   "floor": 4,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 12.0
+  },
+  {
+   "id": "F5A",
+   "label": "Flat 5A",
+   "floor": 5,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 15.0
+  },
+  {
+   "id": "F5B",
+   "label": "Flat 5B",
+   "floor": 5,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 15.0
+  },
+  {
+   "id": "F6A",
+   "label": "Flat 6A",
+   "floor": 6,
+   "letter": "A",
+   "rect": [
+    0.0,
+    0.0,
+    11.0,
+    12.0
+   ],
+   "z": 18.0
+  },
+  {
+   "id": "F6B",
+   "label": "Flat 6B",
+   "floor": 6,
+   "letter": "B",
+   "rect": [
+    15.0,
+    0.0,
+    26.0,
+    12.0
+   ],
+   "z": 18.0
+  }
+ ],
+ "rooms": [
+  {
+   "id": "F0A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0A-KIT"
+  },
+  {
+   "id": "F0A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0A-UTL"
+  },
+  {
+   "id": "F0A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0A-MBATH"
+  },
+  {
+   "id": "F0A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0A-CBATH"
+  },
+  {
+   "id": "F0A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0A-BATH2"
+  },
+  {
+   "id": "F0A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F0A",
+   "floor": 0,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0B-KIT"
+  },
+  {
+   "id": "F0B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0B-UTL"
+  },
+  {
+   "id": "F0B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0B-MBATH"
+  },
+  {
+   "id": "F0B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0B-CBATH"
+  },
+  {
+   "id": "F0B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F0B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 0.0,
+   "wet": true,
+   "fixture_node": "F0B-BATH2"
+  },
+  {
+   "id": "F0B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F0B",
+   "floor": 0,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 0.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1A-KIT"
+  },
+  {
+   "id": "F1A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1A-UTL"
+  },
+  {
+   "id": "F1A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1A-MBATH"
+  },
+  {
+   "id": "F1A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1A-CBATH"
+  },
+  {
+   "id": "F1A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1A-BATH2"
+  },
+  {
+   "id": "F1A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F1A",
+   "floor": 1,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1B-KIT"
+  },
+  {
+   "id": "F1B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1B-UTL"
+  },
+  {
+   "id": "F1B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1B-MBATH"
+  },
+  {
+   "id": "F1B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1B-CBATH"
+  },
+  {
+   "id": "F1B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F1B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 3.0,
+   "wet": true,
+   "fixture_node": "F1B-BATH2"
+  },
+  {
+   "id": "F1B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F1B",
+   "floor": 1,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 3.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2A-KIT"
+  },
+  {
+   "id": "F2A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2A-UTL"
+  },
+  {
+   "id": "F2A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2A-MBATH"
+  },
+  {
+   "id": "F2A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2A-CBATH"
+  },
+  {
+   "id": "F2A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2A-BATH2"
+  },
+  {
+   "id": "F2A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F2A",
+   "floor": 2,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2B-KIT"
+  },
+  {
+   "id": "F2B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2B-UTL"
+  },
+  {
+   "id": "F2B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2B-MBATH"
+  },
+  {
+   "id": "F2B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2B-CBATH"
+  },
+  {
+   "id": "F2B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F2B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 6.0,
+   "wet": true,
+   "fixture_node": "F2B-BATH2"
+  },
+  {
+   "id": "F2B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F2B",
+   "floor": 2,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 6.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3A-KIT"
+  },
+  {
+   "id": "F3A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3A-UTL"
+  },
+  {
+   "id": "F3A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3A-MBATH"
+  },
+  {
+   "id": "F3A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3A-CBATH"
+  },
+  {
+   "id": "F3A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3A-BATH2"
+  },
+  {
+   "id": "F3A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F3A",
+   "floor": 3,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3B-KIT"
+  },
+  {
+   "id": "F3B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3B-UTL"
+  },
+  {
+   "id": "F3B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3B-MBATH"
+  },
+  {
+   "id": "F3B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3B-CBATH"
+  },
+  {
+   "id": "F3B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F3B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 9.0,
+   "wet": true,
+   "fixture_node": "F3B-BATH2"
+  },
+  {
+   "id": "F3B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F3B",
+   "floor": 3,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 9.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4A-KIT"
+  },
+  {
+   "id": "F4A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4A-UTL"
+  },
+  {
+   "id": "F4A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4A-MBATH"
+  },
+  {
+   "id": "F4A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4A-CBATH"
+  },
+  {
+   "id": "F4A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4A-BATH2"
+  },
+  {
+   "id": "F4A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F4A",
+   "floor": 4,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4B-KIT"
+  },
+  {
+   "id": "F4B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4B-UTL"
+  },
+  {
+   "id": "F4B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4B-MBATH"
+  },
+  {
+   "id": "F4B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4B-CBATH"
+  },
+  {
+   "id": "F4B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F4B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 12.0,
+   "wet": true,
+   "fixture_node": "F4B-BATH2"
+  },
+  {
+   "id": "F4B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F4B",
+   "floor": 4,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 12.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5A-KIT"
+  },
+  {
+   "id": "F5A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5A-UTL"
+  },
+  {
+   "id": "F5A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5A-MBATH"
+  },
+  {
+   "id": "F5A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5A-CBATH"
+  },
+  {
+   "id": "F5A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5A-BATH2"
+  },
+  {
+   "id": "F5A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F5A",
+   "floor": 5,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5B-KIT"
+  },
+  {
+   "id": "F5B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5B-UTL"
+  },
+  {
+   "id": "F5B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5B-MBATH"
+  },
+  {
+   "id": "F5B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5B-CBATH"
+  },
+  {
+   "id": "F5B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F5B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 15.0,
+   "wet": true,
+   "fixture_node": "F5B-BATH2"
+  },
+  {
+   "id": "F5B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F5B",
+   "floor": 5,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 15.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6A-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    0.0,
+    0.0,
+    6.0,
+    6.5
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6A-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    6.0,
+    0.0,
+    11.0,
+    3.8
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6A-KIT"
+  },
+  {
+   "id": "F6A-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    6.0,
+    3.8,
+    8.6,
+    6.5
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6A-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    8.6,
+    3.8,
+    11.0,
+    6.5
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6A-UTL"
+  },
+  {
+   "id": "F6A-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    0.0,
+    6.5,
+    3.8,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6A-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    3.8,
+    9.4,
+    5.8,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6A-MBATH"
+  },
+  {
+   "id": "F6A-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    3.8,
+    6.5,
+    5.8,
+    9.4
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6A-CBATH"
+  },
+  {
+   "id": "F6A-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    5.8,
+    6.5,
+    9.0,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6A-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    9.0,
+    8.6,
+    11.0,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6A-BATH2"
+  },
+  {
+   "id": "F6A-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F6A",
+   "floor": 6,
+   "rect": [
+    9.0,
+    6.5,
+    11.0,
+    8.6
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6B-LIV",
+   "code": "LIV",
+   "name": "Living / dining",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    20.0,
+    0.0,
+    26.0,
+    6.5
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6B-KIT",
+   "code": "KIT",
+   "name": "Kitchen",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    15.0,
+    0.0,
+    20.0,
+    3.8
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6B-KIT"
+  },
+  {
+   "id": "F6B-PAS",
+   "code": "PAS",
+   "name": "Passage",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    17.4,
+    3.8,
+    20.0,
+    6.5
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6B-UTL",
+   "code": "UTL",
+   "name": "Utility / wash area",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    15.0,
+    3.8,
+    17.4,
+    6.5
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6B-UTL"
+  },
+  {
+   "id": "F6B-BED1",
+   "code": "BED1",
+   "name": "Master bedroom",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    22.2,
+    6.5,
+    26.0,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6B-MBATH",
+   "code": "MBATH",
+   "name": "Master bathroom",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    20.2,
+    9.4,
+    22.2,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6B-MBATH"
+  },
+  {
+   "id": "F6B-CBATH",
+   "code": "CBATH",
+   "name": "Common bathroom",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    20.2,
+    6.5,
+    22.2,
+    9.4
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6B-CBATH"
+  },
+  {
+   "id": "F6B-BED2",
+   "code": "BED2",
+   "name": "Bedroom 2",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    17.0,
+    6.5,
+    20.2,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  },
+  {
+   "id": "F6B-BATH2",
+   "code": "BATH2",
+   "name": "Bathroom 2",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    15.0,
+    8.6,
+    17.0,
+    12.0
+   ],
+   "z": 18.0,
+   "wet": true,
+   "fixture_node": "F6B-BATH2"
+  },
+  {
+   "id": "F6B-STR",
+   "code": "STR",
+   "name": "Store",
+   "flat": "F6B",
+   "floor": 6,
+   "rect": [
+    15.0,
+    6.5,
+    17.0,
+    8.6
+   ],
+   "z": 18.0,
+   "wet": false,
+   "fixture_node": null
+  }
+ ],
+ "nodes": {
+  "CITY": {
+   "x": 28.0,
+   "y": -6.0,
+   "z": 0.0,
+   "role": "municipal_supply",
+   "label": "Municipal water main",
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "SUMP": {
+   "x": 18.0,
+   "y": -3.0,
+   "z": -3.0,
+   "role": "sump",
+   "label": "Underground sump",
+   "floor": null,
+   "flat": null,
+   "room": null,
+   "diameter": 3.0,
+   "max_level": 2.5,
+   "min_level": 0.2
+  },
+  "OHT": {
+   "x": 13.0,
+   "y": 10.0,
+   "z": 24.0,
+   "role": "roof_tank",
+   "label": "Overhead (roof) tank",
+   "floor": null,
+   "flat": null,
+   "room": null,
+   "diameter": 2.0,
+   "max_level": 2.0,
+   "min_level": 0.15
+  },
+  "PUMP-DEL": {
+   "x": 16.0,
+   "y": -1.2,
+   "z": 0.3,
+   "role": "pump_delivery",
+   "label": "Pump delivery header",
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "ROOF-MAN": {
+   "x": 13.0,
+   "y": 7.5,
+   "z": 21.4,
+   "role": "roof_manifold",
+   "label": "Roof distribution manifold",
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "F0A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 2.7,
+   "role": "flat_inlet",
+   "label": "Flat 0A inlet (valve + meter)",
+   "floor": 0,
+   "flat": "F0A",
+   "room": null
+  },
+  "F0A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 2.7,
+   "role": "flat_tee",
+   "label": "Flat 0A kitchen-side distribution tee",
+   "floor": 0,
+   "flat": "F0A",
+   "room": null
+  },
+  "F0A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 2.7,
+   "role": "flat_tee",
+   "label": "Flat 0A bathroom-side distribution tee",
+   "floor": 0,
+   "flat": "F0A",
+   "room": null
+  },
+  "F0A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0A kitchen",
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F0A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0A utility / wash area",
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F0A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0A master bathroom",
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F0A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0A common bathroom",
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F0A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0A bathroom 2",
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F0B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 2.7,
+   "role": "flat_inlet",
+   "label": "Flat 0B inlet (valve + meter)",
+   "floor": 0,
+   "flat": "F0B",
+   "room": null
+  },
+  "F0B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 2.7,
+   "role": "flat_tee",
+   "label": "Flat 0B kitchen-side distribution tee",
+   "floor": 0,
+   "flat": "F0B",
+   "room": null
+  },
+  "F0B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 2.7,
+   "role": "flat_tee",
+   "label": "Flat 0B bathroom-side distribution tee",
+   "floor": 0,
+   "flat": "F0B",
+   "room": null
+  },
+  "F0B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0B kitchen",
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F0B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0B utility / wash area",
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F0B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0B master bathroom",
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F0B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0B common bathroom",
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F0B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 0.9,
+   "role": "fixture",
+   "label": "Flat 0B bathroom 2",
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F1A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 5.7,
+   "role": "flat_inlet",
+   "label": "Flat 1A inlet (valve + meter)",
+   "floor": 1,
+   "flat": "F1A",
+   "room": null
+  },
+  "F1A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 5.7,
+   "role": "flat_tee",
+   "label": "Flat 1A kitchen-side distribution tee",
+   "floor": 1,
+   "flat": "F1A",
+   "room": null
+  },
+  "F1A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 5.7,
+   "role": "flat_tee",
+   "label": "Flat 1A bathroom-side distribution tee",
+   "floor": 1,
+   "flat": "F1A",
+   "room": null
+  },
+  "F1A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1A kitchen",
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F1A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1A utility / wash area",
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F1A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1A master bathroom",
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F1A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1A common bathroom",
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F1A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1A bathroom 2",
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F1B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 5.7,
+   "role": "flat_inlet",
+   "label": "Flat 1B inlet (valve + meter)",
+   "floor": 1,
+   "flat": "F1B",
+   "room": null
+  },
+  "F1B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 5.7,
+   "role": "flat_tee",
+   "label": "Flat 1B kitchen-side distribution tee",
+   "floor": 1,
+   "flat": "F1B",
+   "room": null
+  },
+  "F1B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 5.7,
+   "role": "flat_tee",
+   "label": "Flat 1B bathroom-side distribution tee",
+   "floor": 1,
+   "flat": "F1B",
+   "room": null
+  },
+  "F1B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1B kitchen",
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F1B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1B utility / wash area",
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F1B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1B master bathroom",
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F1B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1B common bathroom",
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F1B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 3.9,
+   "role": "fixture",
+   "label": "Flat 1B bathroom 2",
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F2A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 8.7,
+   "role": "flat_inlet",
+   "label": "Flat 2A inlet (valve + meter)",
+   "floor": 2,
+   "flat": "F2A",
+   "room": null
+  },
+  "F2A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 8.7,
+   "role": "flat_tee",
+   "label": "Flat 2A kitchen-side distribution tee",
+   "floor": 2,
+   "flat": "F2A",
+   "room": null
+  },
+  "F2A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 8.7,
+   "role": "flat_tee",
+   "label": "Flat 2A bathroom-side distribution tee",
+   "floor": 2,
+   "flat": "F2A",
+   "room": null
+  },
+  "F2A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2A kitchen",
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F2A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2A utility / wash area",
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F2A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2A master bathroom",
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F2A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2A common bathroom",
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F2A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2A bathroom 2",
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F2B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 8.7,
+   "role": "flat_inlet",
+   "label": "Flat 2B inlet (valve + meter)",
+   "floor": 2,
+   "flat": "F2B",
+   "room": null
+  },
+  "F2B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 8.7,
+   "role": "flat_tee",
+   "label": "Flat 2B kitchen-side distribution tee",
+   "floor": 2,
+   "flat": "F2B",
+   "room": null
+  },
+  "F2B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 8.7,
+   "role": "flat_tee",
+   "label": "Flat 2B bathroom-side distribution tee",
+   "floor": 2,
+   "flat": "F2B",
+   "room": null
+  },
+  "F2B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2B kitchen",
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F2B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2B utility / wash area",
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F2B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2B master bathroom",
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F2B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2B common bathroom",
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F2B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 6.9,
+   "role": "fixture",
+   "label": "Flat 2B bathroom 2",
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F3A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 11.7,
+   "role": "flat_inlet",
+   "label": "Flat 3A inlet (valve + meter)",
+   "floor": 3,
+   "flat": "F3A",
+   "room": null
+  },
+  "F3A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 11.7,
+   "role": "flat_tee",
+   "label": "Flat 3A kitchen-side distribution tee",
+   "floor": 3,
+   "flat": "F3A",
+   "room": null
+  },
+  "F3A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 11.7,
+   "role": "flat_tee",
+   "label": "Flat 3A bathroom-side distribution tee",
+   "floor": 3,
+   "flat": "F3A",
+   "room": null
+  },
+  "F3A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3A kitchen",
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F3A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3A utility / wash area",
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F3A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3A master bathroom",
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F3A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3A common bathroom",
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F3A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3A bathroom 2",
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F3B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 11.7,
+   "role": "flat_inlet",
+   "label": "Flat 3B inlet (valve + meter)",
+   "floor": 3,
+   "flat": "F3B",
+   "room": null
+  },
+  "F3B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 11.7,
+   "role": "flat_tee",
+   "label": "Flat 3B kitchen-side distribution tee",
+   "floor": 3,
+   "flat": "F3B",
+   "room": null
+  },
+  "F3B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 11.7,
+   "role": "flat_tee",
+   "label": "Flat 3B bathroom-side distribution tee",
+   "floor": 3,
+   "flat": "F3B",
+   "room": null
+  },
+  "F3B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3B kitchen",
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F3B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3B utility / wash area",
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F3B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3B master bathroom",
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F3B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3B common bathroom",
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F3B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 9.9,
+   "role": "fixture",
+   "label": "Flat 3B bathroom 2",
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F4A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 14.7,
+   "role": "flat_inlet",
+   "label": "Flat 4A inlet (valve + meter)",
+   "floor": 4,
+   "flat": "F4A",
+   "room": null
+  },
+  "F4A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 14.7,
+   "role": "flat_tee",
+   "label": "Flat 4A kitchen-side distribution tee",
+   "floor": 4,
+   "flat": "F4A",
+   "room": null
+  },
+  "F4A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 14.7,
+   "role": "flat_tee",
+   "label": "Flat 4A bathroom-side distribution tee",
+   "floor": 4,
+   "flat": "F4A",
+   "room": null
+  },
+  "F4A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4A kitchen",
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F4A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4A utility / wash area",
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F4A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4A master bathroom",
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F4A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4A common bathroom",
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F4A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4A bathroom 2",
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F4B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 14.7,
+   "role": "flat_inlet",
+   "label": "Flat 4B inlet (valve + meter)",
+   "floor": 4,
+   "flat": "F4B",
+   "room": null
+  },
+  "F4B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 14.7,
+   "role": "flat_tee",
+   "label": "Flat 4B kitchen-side distribution tee",
+   "floor": 4,
+   "flat": "F4B",
+   "room": null
+  },
+  "F4B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 14.7,
+   "role": "flat_tee",
+   "label": "Flat 4B bathroom-side distribution tee",
+   "floor": 4,
+   "flat": "F4B",
+   "room": null
+  },
+  "F4B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4B kitchen",
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F4B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4B utility / wash area",
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F4B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4B master bathroom",
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F4B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4B common bathroom",
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F4B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 12.9,
+   "role": "fixture",
+   "label": "Flat 4B bathroom 2",
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F5A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 17.7,
+   "role": "flat_inlet",
+   "label": "Flat 5A inlet (valve + meter)",
+   "floor": 5,
+   "flat": "F5A",
+   "room": null
+  },
+  "F5A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 17.7,
+   "role": "flat_tee",
+   "label": "Flat 5A kitchen-side distribution tee",
+   "floor": 5,
+   "flat": "F5A",
+   "room": null
+  },
+  "F5A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 17.7,
+   "role": "flat_tee",
+   "label": "Flat 5A bathroom-side distribution tee",
+   "floor": 5,
+   "flat": "F5A",
+   "room": null
+  },
+  "F5A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5A kitchen",
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F5A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5A utility / wash area",
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F5A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5A master bathroom",
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F5A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5A common bathroom",
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F5A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5A bathroom 2",
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F5B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 17.7,
+   "role": "flat_inlet",
+   "label": "Flat 5B inlet (valve + meter)",
+   "floor": 5,
+   "flat": "F5B",
+   "room": null
+  },
+  "F5B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 17.7,
+   "role": "flat_tee",
+   "label": "Flat 5B kitchen-side distribution tee",
+   "floor": 5,
+   "flat": "F5B",
+   "room": null
+  },
+  "F5B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 17.7,
+   "role": "flat_tee",
+   "label": "Flat 5B bathroom-side distribution tee",
+   "floor": 5,
+   "flat": "F5B",
+   "room": null
+  },
+  "F5B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5B kitchen",
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F5B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5B utility / wash area",
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F5B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5B master bathroom",
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F5B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5B common bathroom",
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F5B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 15.9,
+   "role": "fixture",
+   "label": "Flat 5B bathroom 2",
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F6A-IN": {
+   "x": 10.7,
+   "y": 7.5,
+   "z": 20.7,
+   "role": "flat_inlet",
+   "label": "Flat 6A inlet (valve + meter)",
+   "floor": 6,
+   "flat": "F6A",
+   "room": null
+  },
+  "F6A-TK": {
+   "x": 9.6,
+   "y": 4.2,
+   "z": 20.7,
+   "role": "flat_tee",
+   "label": "Flat 6A kitchen-side distribution tee",
+   "floor": 6,
+   "flat": "F6A",
+   "room": null
+  },
+  "F6A-TB": {
+   "x": 7.4,
+   "y": 8.0,
+   "z": 20.7,
+   "role": "flat_tee",
+   "label": "Flat 6A bathroom-side distribution tee",
+   "floor": 6,
+   "flat": "F6A",
+   "room": null
+  },
+  "F6A-KIT": {
+   "x": 9.6,
+   "y": 1.0,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6A kitchen",
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-KIT",
+   "room_name": "Kitchen"
+  },
+  "F6A-UTL": {
+   "x": 10.3,
+   "y": 5.6,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6A utility / wash area",
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F6A-MBATH": {
+   "x": 4.8,
+   "y": 11.2,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6A master bathroom",
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F6A-CBATH": {
+   "x": 4.8,
+   "y": 7.6,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6A common bathroom",
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F6A-BATH2": {
+   "x": 10.0,
+   "y": 11.0,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6A bathroom 2",
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "F6B-IN": {
+   "x": 15.3,
+   "y": 7.5,
+   "z": 20.7,
+   "role": "flat_inlet",
+   "label": "Flat 6B inlet (valve + meter)",
+   "floor": 6,
+   "flat": "F6B",
+   "room": null
+  },
+  "F6B-TK": {
+   "x": 16.4,
+   "y": 4.2,
+   "z": 20.7,
+   "role": "flat_tee",
+   "label": "Flat 6B kitchen-side distribution tee",
+   "floor": 6,
+   "flat": "F6B",
+   "room": null
+  },
+  "F6B-TB": {
+   "x": 18.6,
+   "y": 8.0,
+   "z": 20.7,
+   "role": "flat_tee",
+   "label": "Flat 6B bathroom-side distribution tee",
+   "floor": 6,
+   "flat": "F6B",
+   "room": null
+  },
+  "F6B-KIT": {
+   "x": 16.4,
+   "y": 1.0,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6B kitchen",
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-KIT",
+   "room_name": "Kitchen"
+  },
+  "F6B-UTL": {
+   "x": 15.7,
+   "y": 5.6,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6B utility / wash area",
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-UTL",
+   "room_name": "Utility / wash area"
+  },
+  "F6B-MBATH": {
+   "x": 21.2,
+   "y": 11.2,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6B master bathroom",
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-MBATH",
+   "room_name": "Master bathroom"
+  },
+  "F6B-CBATH": {
+   "x": 21.2,
+   "y": 7.6,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6B common bathroom",
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-CBATH",
+   "room_name": "Common bathroom"
+  },
+  "F6B-BATH2": {
+   "x": 16.0,
+   "y": 11.0,
+   "z": 18.9,
+   "role": "fixture",
+   "label": "Flat 6B bathroom 2",
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-BATH2",
+   "room_name": "Bathroom 2"
+  },
+  "DTA-6": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 20.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, floor 6 tap-off",
+   "floor": 6,
+   "flat": null,
+   "room": null
+  },
+  "DTA-5": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 17.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, floor 5 tap-off",
+   "floor": 5,
+   "flat": null,
+   "room": null
+  },
+  "DTA-4": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 14.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, floor 4 tap-off",
+   "floor": 4,
+   "flat": null,
+   "room": null
+  },
+  "DTA-3": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 11.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, floor 3 tap-off",
+   "floor": 3,
+   "flat": null,
+   "room": null
+  },
+  "DTA-2": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 8.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, floor 2 tap-off",
+   "floor": 2,
+   "flat": null,
+   "room": null
+  },
+  "DTA-1": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 5.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, floor 1 tap-off",
+   "floor": 1,
+   "flat": null,
+   "room": null
+  },
+  "DTA-0": {
+   "x": 11.4,
+   "y": 7.5,
+   "z": 2.7,
+   "role": "downtake_tap",
+   "label": "Down-take A, ground floor tap-off",
+   "floor": 0,
+   "flat": null,
+   "room": null
+  },
+  "DTB-6": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 20.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, floor 6 tap-off",
+   "floor": 6,
+   "flat": null,
+   "room": null
+  },
+  "DTB-5": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 17.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, floor 5 tap-off",
+   "floor": 5,
+   "flat": null,
+   "room": null
+  },
+  "DTB-4": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 14.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, floor 4 tap-off",
+   "floor": 4,
+   "flat": null,
+   "room": null
+  },
+  "DTB-3": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 11.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, floor 3 tap-off",
+   "floor": 3,
+   "flat": null,
+   "room": null
+  },
+  "DTB-2": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 8.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, floor 2 tap-off",
+   "floor": 2,
+   "flat": null,
+   "room": null
+  },
+  "DTB-1": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 5.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, floor 1 tap-off",
+   "floor": 1,
+   "flat": null,
+   "room": null
+  },
+  "DTB-0": {
+   "x": 14.6,
+   "y": 7.5,
+   "z": 2.7,
+   "role": "downtake_tap",
+   "label": "Down-take B, ground floor tap-off",
+   "floor": 0,
+   "flat": null,
+   "room": null
+  }
+ },
+ "links": {
+  "CITY-INLET": {
+   "start": "CITY",
+   "end": "SUMP",
+   "kind": "pipe",
+   "role": "municipal_inlet",
+   "label": "Municipal inlet to sump",
+   "diameter": 0.02,
+   "length": 13.8,
+   "path": [
+    [
+     28.0,
+     -6.0,
+     0.0
+    ],
+    [
+     28.0,
+     -6.0,
+     -0.8
+    ],
+    [
+     18.0,
+     -6.0,
+     -0.8
+    ],
+    [
+     18.0,
+     -3.0,
+     -0.8
+    ]
+   ],
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "PUMP1": {
+   "start": "SUMP",
+   "end": "PUMP-DEL",
+   "kind": "pump",
+   "role": "pump",
+   "label": "Transfer pump (sump to roof tank)",
+   "diameter": 0.05,
+   "length": null,
+   "path": [
+    [
+     18.0,
+     -3.0,
+     0.3
+    ],
+    [
+     16.0,
+     -1.2,
+     0.3
+    ]
+   ],
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "RISING-MAIN": {
+   "start": "PUMP-DEL",
+   "end": "OHT",
+   "kind": "pipe",
+   "role": "rising_main",
+   "label": "Rising main to roof tank",
+   "diameter": 0.05,
+   "length": 39.5,
+   "path": [
+    [
+     16.0,
+     -1.2,
+     0.3
+    ],
+    [
+     13.6,
+     -1.2,
+     0.3
+    ],
+    [
+     13.6,
+     6.9,
+     0.3
+    ],
+    [
+     13.6,
+     6.9,
+     26.2
+    ],
+    [
+     13.6,
+     10.0,
+     26.2
+    ]
+   ],
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "OHT-OUTLET": {
+   "start": "OHT",
+   "end": "ROOF-MAN",
+   "kind": "pipe",
+   "role": "tank_outlet",
+   "label": "Roof tank outlet",
+   "diameter": 0.05,
+   "length": 5.1,
+   "path": [
+    [
+     13.0,
+     10.0,
+     24.0
+    ],
+    [
+     13.0,
+     7.5,
+     24.0
+    ],
+    [
+     13.0,
+     7.5,
+     21.4
+    ]
+   ],
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "F0A-MAIN-K": {
+   "start": "F0A-IN",
+   "end": "F0A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 0A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     2.7
+    ],
+    [
+     9.6,
+     7.5,
+     2.7
+    ],
+    [
+     9.6,
+     4.2,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": null
+  },
+  "F0A-MAIN-B": {
+   "start": "F0A-IN",
+   "end": "F0A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 0A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     2.7
+    ],
+    [
+     7.4,
+     7.5,
+     2.7
+    ],
+    [
+     7.4,
+     8.0,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": null
+  },
+  "F0A-KIT-BR": {
+   "start": "F0A-TK",
+   "end": "F0A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     2.7
+    ],
+    [
+     9.6,
+     1.0,
+     2.7
+    ],
+    [
+     9.6,
+     1.0,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-KIT"
+  },
+  "F0A-UTL-BR": {
+   "start": "F0A-TK",
+   "end": "F0A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     2.7
+    ],
+    [
+     10.3,
+     4.2,
+     2.7
+    ],
+    [
+     10.3,
+     5.6,
+     2.7
+    ],
+    [
+     10.3,
+     5.6,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-UTL"
+  },
+  "F0A-MBATH-BR": {
+   "start": "F0A-TB",
+   "end": "F0A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     2.7
+    ],
+    [
+     4.8,
+     8.0,
+     2.7
+    ],
+    [
+     4.8,
+     11.2,
+     2.7
+    ],
+    [
+     4.8,
+     11.2,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-MBATH"
+  },
+  "F0A-CBATH-BR": {
+   "start": "F0A-TB",
+   "end": "F0A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     2.7
+    ],
+    [
+     4.8,
+     8.0,
+     2.7
+    ],
+    [
+     4.8,
+     7.6,
+     2.7
+    ],
+    [
+     4.8,
+     7.6,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-CBATH"
+  },
+  "F0A-BATH2-BR": {
+   "start": "F0A-TB",
+   "end": "F0A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     2.7
+    ],
+    [
+     10.0,
+     8.0,
+     2.7
+    ],
+    [
+     10.0,
+     11.0,
+     2.7
+    ],
+    [
+     10.0,
+     11.0,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": "F0A-BATH2"
+  },
+  "F0B-MAIN-K": {
+   "start": "F0B-IN",
+   "end": "F0B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 0B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     2.7
+    ],
+    [
+     16.4,
+     7.5,
+     2.7
+    ],
+    [
+     16.4,
+     4.2,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": null
+  },
+  "F0B-MAIN-B": {
+   "start": "F0B-IN",
+   "end": "F0B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 0B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     2.7
+    ],
+    [
+     18.6,
+     7.5,
+     2.7
+    ],
+    [
+     18.6,
+     8.0,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": null
+  },
+  "F0B-KIT-BR": {
+   "start": "F0B-TK",
+   "end": "F0B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     2.7
+    ],
+    [
+     16.4,
+     1.0,
+     2.7
+    ],
+    [
+     16.4,
+     1.0,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-KIT"
+  },
+  "F0B-UTL-BR": {
+   "start": "F0B-TK",
+   "end": "F0B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     2.7
+    ],
+    [
+     15.7,
+     4.2,
+     2.7
+    ],
+    [
+     15.7,
+     5.6,
+     2.7
+    ],
+    [
+     15.7,
+     5.6,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-UTL"
+  },
+  "F0B-MBATH-BR": {
+   "start": "F0B-TB",
+   "end": "F0B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     2.7
+    ],
+    [
+     21.2,
+     8.0,
+     2.7
+    ],
+    [
+     21.2,
+     11.2,
+     2.7
+    ],
+    [
+     21.2,
+     11.2,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-MBATH"
+  },
+  "F0B-CBATH-BR": {
+   "start": "F0B-TB",
+   "end": "F0B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     2.7
+    ],
+    [
+     21.2,
+     8.0,
+     2.7
+    ],
+    [
+     21.2,
+     7.6,
+     2.7
+    ],
+    [
+     21.2,
+     7.6,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-CBATH"
+  },
+  "F0B-BATH2-BR": {
+   "start": "F0B-TB",
+   "end": "F0B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 0B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     2.7
+    ],
+    [
+     16.0,
+     8.0,
+     2.7
+    ],
+    [
+     16.0,
+     11.0,
+     2.7
+    ],
+    [
+     16.0,
+     11.0,
+     0.9
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": "F0B-BATH2"
+  },
+  "F1A-MAIN-K": {
+   "start": "F1A-IN",
+   "end": "F1A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 1A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     5.7
+    ],
+    [
+     9.6,
+     7.5,
+     5.7
+    ],
+    [
+     9.6,
+     4.2,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": null
+  },
+  "F1A-MAIN-B": {
+   "start": "F1A-IN",
+   "end": "F1A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 1A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     5.7
+    ],
+    [
+     7.4,
+     7.5,
+     5.7
+    ],
+    [
+     7.4,
+     8.0,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": null
+  },
+  "F1A-KIT-BR": {
+   "start": "F1A-TK",
+   "end": "F1A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     5.7
+    ],
+    [
+     9.6,
+     1.0,
+     5.7
+    ],
+    [
+     9.6,
+     1.0,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-KIT"
+  },
+  "F1A-UTL-BR": {
+   "start": "F1A-TK",
+   "end": "F1A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     5.7
+    ],
+    [
+     10.3,
+     4.2,
+     5.7
+    ],
+    [
+     10.3,
+     5.6,
+     5.7
+    ],
+    [
+     10.3,
+     5.6,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-UTL"
+  },
+  "F1A-MBATH-BR": {
+   "start": "F1A-TB",
+   "end": "F1A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     5.7
+    ],
+    [
+     4.8,
+     8.0,
+     5.7
+    ],
+    [
+     4.8,
+     11.2,
+     5.7
+    ],
+    [
+     4.8,
+     11.2,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-MBATH"
+  },
+  "F1A-CBATH-BR": {
+   "start": "F1A-TB",
+   "end": "F1A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     5.7
+    ],
+    [
+     4.8,
+     8.0,
+     5.7
+    ],
+    [
+     4.8,
+     7.6,
+     5.7
+    ],
+    [
+     4.8,
+     7.6,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-CBATH"
+  },
+  "F1A-BATH2-BR": {
+   "start": "F1A-TB",
+   "end": "F1A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     5.7
+    ],
+    [
+     10.0,
+     8.0,
+     5.7
+    ],
+    [
+     10.0,
+     11.0,
+     5.7
+    ],
+    [
+     10.0,
+     11.0,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": "F1A-BATH2"
+  },
+  "F1B-MAIN-K": {
+   "start": "F1B-IN",
+   "end": "F1B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 1B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     5.7
+    ],
+    [
+     16.4,
+     7.5,
+     5.7
+    ],
+    [
+     16.4,
+     4.2,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": null
+  },
+  "F1B-MAIN-B": {
+   "start": "F1B-IN",
+   "end": "F1B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 1B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     5.7
+    ],
+    [
+     18.6,
+     7.5,
+     5.7
+    ],
+    [
+     18.6,
+     8.0,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": null
+  },
+  "F1B-KIT-BR": {
+   "start": "F1B-TK",
+   "end": "F1B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     5.7
+    ],
+    [
+     16.4,
+     1.0,
+     5.7
+    ],
+    [
+     16.4,
+     1.0,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-KIT"
+  },
+  "F1B-UTL-BR": {
+   "start": "F1B-TK",
+   "end": "F1B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     5.7
+    ],
+    [
+     15.7,
+     4.2,
+     5.7
+    ],
+    [
+     15.7,
+     5.6,
+     5.7
+    ],
+    [
+     15.7,
+     5.6,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-UTL"
+  },
+  "F1B-MBATH-BR": {
+   "start": "F1B-TB",
+   "end": "F1B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     5.7
+    ],
+    [
+     21.2,
+     8.0,
+     5.7
+    ],
+    [
+     21.2,
+     11.2,
+     5.7
+    ],
+    [
+     21.2,
+     11.2,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-MBATH"
+  },
+  "F1B-CBATH-BR": {
+   "start": "F1B-TB",
+   "end": "F1B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     5.7
+    ],
+    [
+     21.2,
+     8.0,
+     5.7
+    ],
+    [
+     21.2,
+     7.6,
+     5.7
+    ],
+    [
+     21.2,
+     7.6,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-CBATH"
+  },
+  "F1B-BATH2-BR": {
+   "start": "F1B-TB",
+   "end": "F1B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 1B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     5.7
+    ],
+    [
+     16.0,
+     8.0,
+     5.7
+    ],
+    [
+     16.0,
+     11.0,
+     5.7
+    ],
+    [
+     16.0,
+     11.0,
+     3.9
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": "F1B-BATH2"
+  },
+  "F2A-MAIN-K": {
+   "start": "F2A-IN",
+   "end": "F2A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 2A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     8.7
+    ],
+    [
+     9.6,
+     7.5,
+     8.7
+    ],
+    [
+     9.6,
+     4.2,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": null
+  },
+  "F2A-MAIN-B": {
+   "start": "F2A-IN",
+   "end": "F2A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 2A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     8.7
+    ],
+    [
+     7.4,
+     7.5,
+     8.7
+    ],
+    [
+     7.4,
+     8.0,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": null
+  },
+  "F2A-KIT-BR": {
+   "start": "F2A-TK",
+   "end": "F2A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     8.7
+    ],
+    [
+     9.6,
+     1.0,
+     8.7
+    ],
+    [
+     9.6,
+     1.0,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-KIT"
+  },
+  "F2A-UTL-BR": {
+   "start": "F2A-TK",
+   "end": "F2A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     8.7
+    ],
+    [
+     10.3,
+     4.2,
+     8.7
+    ],
+    [
+     10.3,
+     5.6,
+     8.7
+    ],
+    [
+     10.3,
+     5.6,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-UTL"
+  },
+  "F2A-MBATH-BR": {
+   "start": "F2A-TB",
+   "end": "F2A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     8.7
+    ],
+    [
+     4.8,
+     8.0,
+     8.7
+    ],
+    [
+     4.8,
+     11.2,
+     8.7
+    ],
+    [
+     4.8,
+     11.2,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-MBATH"
+  },
+  "F2A-CBATH-BR": {
+   "start": "F2A-TB",
+   "end": "F2A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     8.7
+    ],
+    [
+     4.8,
+     8.0,
+     8.7
+    ],
+    [
+     4.8,
+     7.6,
+     8.7
+    ],
+    [
+     4.8,
+     7.6,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-CBATH"
+  },
+  "F2A-BATH2-BR": {
+   "start": "F2A-TB",
+   "end": "F2A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     8.7
+    ],
+    [
+     10.0,
+     8.0,
+     8.7
+    ],
+    [
+     10.0,
+     11.0,
+     8.7
+    ],
+    [
+     10.0,
+     11.0,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": "F2A-BATH2"
+  },
+  "F2B-MAIN-K": {
+   "start": "F2B-IN",
+   "end": "F2B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 2B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     8.7
+    ],
+    [
+     16.4,
+     7.5,
+     8.7
+    ],
+    [
+     16.4,
+     4.2,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": null
+  },
+  "F2B-MAIN-B": {
+   "start": "F2B-IN",
+   "end": "F2B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 2B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     8.7
+    ],
+    [
+     18.6,
+     7.5,
+     8.7
+    ],
+    [
+     18.6,
+     8.0,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": null
+  },
+  "F2B-KIT-BR": {
+   "start": "F2B-TK",
+   "end": "F2B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     8.7
+    ],
+    [
+     16.4,
+     1.0,
+     8.7
+    ],
+    [
+     16.4,
+     1.0,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-KIT"
+  },
+  "F2B-UTL-BR": {
+   "start": "F2B-TK",
+   "end": "F2B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     8.7
+    ],
+    [
+     15.7,
+     4.2,
+     8.7
+    ],
+    [
+     15.7,
+     5.6,
+     8.7
+    ],
+    [
+     15.7,
+     5.6,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-UTL"
+  },
+  "F2B-MBATH-BR": {
+   "start": "F2B-TB",
+   "end": "F2B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     8.7
+    ],
+    [
+     21.2,
+     8.0,
+     8.7
+    ],
+    [
+     21.2,
+     11.2,
+     8.7
+    ],
+    [
+     21.2,
+     11.2,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-MBATH"
+  },
+  "F2B-CBATH-BR": {
+   "start": "F2B-TB",
+   "end": "F2B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     8.7
+    ],
+    [
+     21.2,
+     8.0,
+     8.7
+    ],
+    [
+     21.2,
+     7.6,
+     8.7
+    ],
+    [
+     21.2,
+     7.6,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-CBATH"
+  },
+  "F2B-BATH2-BR": {
+   "start": "F2B-TB",
+   "end": "F2B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 2B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     8.7
+    ],
+    [
+     16.0,
+     8.0,
+     8.7
+    ],
+    [
+     16.0,
+     11.0,
+     8.7
+    ],
+    [
+     16.0,
+     11.0,
+     6.9
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": "F2B-BATH2"
+  },
+  "F3A-MAIN-K": {
+   "start": "F3A-IN",
+   "end": "F3A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 3A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     11.7
+    ],
+    [
+     9.6,
+     7.5,
+     11.7
+    ],
+    [
+     9.6,
+     4.2,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": null
+  },
+  "F3A-MAIN-B": {
+   "start": "F3A-IN",
+   "end": "F3A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 3A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     11.7
+    ],
+    [
+     7.4,
+     7.5,
+     11.7
+    ],
+    [
+     7.4,
+     8.0,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": null
+  },
+  "F3A-KIT-BR": {
+   "start": "F3A-TK",
+   "end": "F3A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     11.7
+    ],
+    [
+     9.6,
+     1.0,
+     11.7
+    ],
+    [
+     9.6,
+     1.0,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-KIT"
+  },
+  "F3A-UTL-BR": {
+   "start": "F3A-TK",
+   "end": "F3A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     11.7
+    ],
+    [
+     10.3,
+     4.2,
+     11.7
+    ],
+    [
+     10.3,
+     5.6,
+     11.7
+    ],
+    [
+     10.3,
+     5.6,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-UTL"
+  },
+  "F3A-MBATH-BR": {
+   "start": "F3A-TB",
+   "end": "F3A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     11.7
+    ],
+    [
+     4.8,
+     8.0,
+     11.7
+    ],
+    [
+     4.8,
+     11.2,
+     11.7
+    ],
+    [
+     4.8,
+     11.2,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-MBATH"
+  },
+  "F3A-CBATH-BR": {
+   "start": "F3A-TB",
+   "end": "F3A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     11.7
+    ],
+    [
+     4.8,
+     8.0,
+     11.7
+    ],
+    [
+     4.8,
+     7.6,
+     11.7
+    ],
+    [
+     4.8,
+     7.6,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-CBATH"
+  },
+  "F3A-BATH2-BR": {
+   "start": "F3A-TB",
+   "end": "F3A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     11.7
+    ],
+    [
+     10.0,
+     8.0,
+     11.7
+    ],
+    [
+     10.0,
+     11.0,
+     11.7
+    ],
+    [
+     10.0,
+     11.0,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": "F3A-BATH2"
+  },
+  "F3B-MAIN-K": {
+   "start": "F3B-IN",
+   "end": "F3B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 3B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     11.7
+    ],
+    [
+     16.4,
+     7.5,
+     11.7
+    ],
+    [
+     16.4,
+     4.2,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": null
+  },
+  "F3B-MAIN-B": {
+   "start": "F3B-IN",
+   "end": "F3B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 3B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     11.7
+    ],
+    [
+     18.6,
+     7.5,
+     11.7
+    ],
+    [
+     18.6,
+     8.0,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": null
+  },
+  "F3B-KIT-BR": {
+   "start": "F3B-TK",
+   "end": "F3B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     11.7
+    ],
+    [
+     16.4,
+     1.0,
+     11.7
+    ],
+    [
+     16.4,
+     1.0,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-KIT"
+  },
+  "F3B-UTL-BR": {
+   "start": "F3B-TK",
+   "end": "F3B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     11.7
+    ],
+    [
+     15.7,
+     4.2,
+     11.7
+    ],
+    [
+     15.7,
+     5.6,
+     11.7
+    ],
+    [
+     15.7,
+     5.6,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-UTL"
+  },
+  "F3B-MBATH-BR": {
+   "start": "F3B-TB",
+   "end": "F3B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     11.7
+    ],
+    [
+     21.2,
+     8.0,
+     11.7
+    ],
+    [
+     21.2,
+     11.2,
+     11.7
+    ],
+    [
+     21.2,
+     11.2,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-MBATH"
+  },
+  "F3B-CBATH-BR": {
+   "start": "F3B-TB",
+   "end": "F3B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     11.7
+    ],
+    [
+     21.2,
+     8.0,
+     11.7
+    ],
+    [
+     21.2,
+     7.6,
+     11.7
+    ],
+    [
+     21.2,
+     7.6,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-CBATH"
+  },
+  "F3B-BATH2-BR": {
+   "start": "F3B-TB",
+   "end": "F3B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 3B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     11.7
+    ],
+    [
+     16.0,
+     8.0,
+     11.7
+    ],
+    [
+     16.0,
+     11.0,
+     11.7
+    ],
+    [
+     16.0,
+     11.0,
+     9.9
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": "F3B-BATH2"
+  },
+  "F4A-MAIN-K": {
+   "start": "F4A-IN",
+   "end": "F4A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 4A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     14.7
+    ],
+    [
+     9.6,
+     7.5,
+     14.7
+    ],
+    [
+     9.6,
+     4.2,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": null
+  },
+  "F4A-MAIN-B": {
+   "start": "F4A-IN",
+   "end": "F4A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 4A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     14.7
+    ],
+    [
+     7.4,
+     7.5,
+     14.7
+    ],
+    [
+     7.4,
+     8.0,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": null
+  },
+  "F4A-KIT-BR": {
+   "start": "F4A-TK",
+   "end": "F4A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     14.7
+    ],
+    [
+     9.6,
+     1.0,
+     14.7
+    ],
+    [
+     9.6,
+     1.0,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-KIT"
+  },
+  "F4A-UTL-BR": {
+   "start": "F4A-TK",
+   "end": "F4A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     14.7
+    ],
+    [
+     10.3,
+     4.2,
+     14.7
+    ],
+    [
+     10.3,
+     5.6,
+     14.7
+    ],
+    [
+     10.3,
+     5.6,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-UTL"
+  },
+  "F4A-MBATH-BR": {
+   "start": "F4A-TB",
+   "end": "F4A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     14.7
+    ],
+    [
+     4.8,
+     8.0,
+     14.7
+    ],
+    [
+     4.8,
+     11.2,
+     14.7
+    ],
+    [
+     4.8,
+     11.2,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-MBATH"
+  },
+  "F4A-CBATH-BR": {
+   "start": "F4A-TB",
+   "end": "F4A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     14.7
+    ],
+    [
+     4.8,
+     8.0,
+     14.7
+    ],
+    [
+     4.8,
+     7.6,
+     14.7
+    ],
+    [
+     4.8,
+     7.6,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-CBATH"
+  },
+  "F4A-BATH2-BR": {
+   "start": "F4A-TB",
+   "end": "F4A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     14.7
+    ],
+    [
+     10.0,
+     8.0,
+     14.7
+    ],
+    [
+     10.0,
+     11.0,
+     14.7
+    ],
+    [
+     10.0,
+     11.0,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": "F4A-BATH2"
+  },
+  "F4B-MAIN-K": {
+   "start": "F4B-IN",
+   "end": "F4B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 4B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     14.7
+    ],
+    [
+     16.4,
+     7.5,
+     14.7
+    ],
+    [
+     16.4,
+     4.2,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": null
+  },
+  "F4B-MAIN-B": {
+   "start": "F4B-IN",
+   "end": "F4B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 4B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     14.7
+    ],
+    [
+     18.6,
+     7.5,
+     14.7
+    ],
+    [
+     18.6,
+     8.0,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": null
+  },
+  "F4B-KIT-BR": {
+   "start": "F4B-TK",
+   "end": "F4B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     14.7
+    ],
+    [
+     16.4,
+     1.0,
+     14.7
+    ],
+    [
+     16.4,
+     1.0,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-KIT"
+  },
+  "F4B-UTL-BR": {
+   "start": "F4B-TK",
+   "end": "F4B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     14.7
+    ],
+    [
+     15.7,
+     4.2,
+     14.7
+    ],
+    [
+     15.7,
+     5.6,
+     14.7
+    ],
+    [
+     15.7,
+     5.6,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-UTL"
+  },
+  "F4B-MBATH-BR": {
+   "start": "F4B-TB",
+   "end": "F4B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     14.7
+    ],
+    [
+     21.2,
+     8.0,
+     14.7
+    ],
+    [
+     21.2,
+     11.2,
+     14.7
+    ],
+    [
+     21.2,
+     11.2,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-MBATH"
+  },
+  "F4B-CBATH-BR": {
+   "start": "F4B-TB",
+   "end": "F4B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     14.7
+    ],
+    [
+     21.2,
+     8.0,
+     14.7
+    ],
+    [
+     21.2,
+     7.6,
+     14.7
+    ],
+    [
+     21.2,
+     7.6,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-CBATH"
+  },
+  "F4B-BATH2-BR": {
+   "start": "F4B-TB",
+   "end": "F4B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 4B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     14.7
+    ],
+    [
+     16.0,
+     8.0,
+     14.7
+    ],
+    [
+     16.0,
+     11.0,
+     14.7
+    ],
+    [
+     16.0,
+     11.0,
+     12.9
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": "F4B-BATH2"
+  },
+  "F5A-MAIN-K": {
+   "start": "F5A-IN",
+   "end": "F5A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 5A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     17.7
+    ],
+    [
+     9.6,
+     7.5,
+     17.7
+    ],
+    [
+     9.6,
+     4.2,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": null
+  },
+  "F5A-MAIN-B": {
+   "start": "F5A-IN",
+   "end": "F5A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 5A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     17.7
+    ],
+    [
+     7.4,
+     7.5,
+     17.7
+    ],
+    [
+     7.4,
+     8.0,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": null
+  },
+  "F5A-KIT-BR": {
+   "start": "F5A-TK",
+   "end": "F5A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     17.7
+    ],
+    [
+     9.6,
+     1.0,
+     17.7
+    ],
+    [
+     9.6,
+     1.0,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-KIT"
+  },
+  "F5A-UTL-BR": {
+   "start": "F5A-TK",
+   "end": "F5A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     17.7
+    ],
+    [
+     10.3,
+     4.2,
+     17.7
+    ],
+    [
+     10.3,
+     5.6,
+     17.7
+    ],
+    [
+     10.3,
+     5.6,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-UTL"
+  },
+  "F5A-MBATH-BR": {
+   "start": "F5A-TB",
+   "end": "F5A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     17.7
+    ],
+    [
+     4.8,
+     8.0,
+     17.7
+    ],
+    [
+     4.8,
+     11.2,
+     17.7
+    ],
+    [
+     4.8,
+     11.2,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-MBATH"
+  },
+  "F5A-CBATH-BR": {
+   "start": "F5A-TB",
+   "end": "F5A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     17.7
+    ],
+    [
+     4.8,
+     8.0,
+     17.7
+    ],
+    [
+     4.8,
+     7.6,
+     17.7
+    ],
+    [
+     4.8,
+     7.6,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-CBATH"
+  },
+  "F5A-BATH2-BR": {
+   "start": "F5A-TB",
+   "end": "F5A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     17.7
+    ],
+    [
+     10.0,
+     8.0,
+     17.7
+    ],
+    [
+     10.0,
+     11.0,
+     17.7
+    ],
+    [
+     10.0,
+     11.0,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": "F5A-BATH2"
+  },
+  "F5B-MAIN-K": {
+   "start": "F5B-IN",
+   "end": "F5B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 5B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     17.7
+    ],
+    [
+     16.4,
+     7.5,
+     17.7
+    ],
+    [
+     16.4,
+     4.2,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": null
+  },
+  "F5B-MAIN-B": {
+   "start": "F5B-IN",
+   "end": "F5B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 5B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     17.7
+    ],
+    [
+     18.6,
+     7.5,
+     17.7
+    ],
+    [
+     18.6,
+     8.0,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": null
+  },
+  "F5B-KIT-BR": {
+   "start": "F5B-TK",
+   "end": "F5B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     17.7
+    ],
+    [
+     16.4,
+     1.0,
+     17.7
+    ],
+    [
+     16.4,
+     1.0,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-KIT"
+  },
+  "F5B-UTL-BR": {
+   "start": "F5B-TK",
+   "end": "F5B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     17.7
+    ],
+    [
+     15.7,
+     4.2,
+     17.7
+    ],
+    [
+     15.7,
+     5.6,
+     17.7
+    ],
+    [
+     15.7,
+     5.6,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-UTL"
+  },
+  "F5B-MBATH-BR": {
+   "start": "F5B-TB",
+   "end": "F5B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     17.7
+    ],
+    [
+     21.2,
+     8.0,
+     17.7
+    ],
+    [
+     21.2,
+     11.2,
+     17.7
+    ],
+    [
+     21.2,
+     11.2,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-MBATH"
+  },
+  "F5B-CBATH-BR": {
+   "start": "F5B-TB",
+   "end": "F5B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     17.7
+    ],
+    [
+     21.2,
+     8.0,
+     17.7
+    ],
+    [
+     21.2,
+     7.6,
+     17.7
+    ],
+    [
+     21.2,
+     7.6,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-CBATH"
+  },
+  "F5B-BATH2-BR": {
+   "start": "F5B-TB",
+   "end": "F5B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 5B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     17.7
+    ],
+    [
+     16.0,
+     8.0,
+     17.7
+    ],
+    [
+     16.0,
+     11.0,
+     17.7
+    ],
+    [
+     16.0,
+     11.0,
+     15.9
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": "F5B-BATH2"
+  },
+  "F6A-MAIN-K": {
+   "start": "F6A-IN",
+   "end": "F6A-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 6A kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     10.7,
+     7.5,
+     20.7
+    ],
+    [
+     9.6,
+     7.5,
+     20.7
+    ],
+    [
+     9.6,
+     4.2,
+     20.7
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": null
+  },
+  "F6A-MAIN-B": {
+   "start": "F6A-IN",
+   "end": "F6A-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 6A bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     10.7,
+     7.5,
+     20.7
+    ],
+    [
+     7.4,
+     7.5,
+     20.7
+    ],
+    [
+     7.4,
+     8.0,
+     20.7
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": null
+  },
+  "F6A-KIT-BR": {
+   "start": "F6A-TK",
+   "end": "F6A-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6A kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     9.6,
+     4.2,
+     20.7
+    ],
+    [
+     9.6,
+     1.0,
+     20.7
+    ],
+    [
+     9.6,
+     1.0,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-KIT"
+  },
+  "F6A-UTL-BR": {
+   "start": "F6A-TK",
+   "end": "F6A-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6A utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     9.6,
+     4.2,
+     20.7
+    ],
+    [
+     10.3,
+     4.2,
+     20.7
+    ],
+    [
+     10.3,
+     5.6,
+     20.7
+    ],
+    [
+     10.3,
+     5.6,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-UTL"
+  },
+  "F6A-MBATH-BR": {
+   "start": "F6A-TB",
+   "end": "F6A-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6A master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     7.4,
+     8.0,
+     20.7
+    ],
+    [
+     4.8,
+     8.0,
+     20.7
+    ],
+    [
+     4.8,
+     11.2,
+     20.7
+    ],
+    [
+     4.8,
+     11.2,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-MBATH"
+  },
+  "F6A-CBATH-BR": {
+   "start": "F6A-TB",
+   "end": "F6A-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6A common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     7.4,
+     8.0,
+     20.7
+    ],
+    [
+     4.8,
+     8.0,
+     20.7
+    ],
+    [
+     4.8,
+     7.6,
+     20.7
+    ],
+    [
+     4.8,
+     7.6,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-CBATH"
+  },
+  "F6A-BATH2-BR": {
+   "start": "F6A-TB",
+   "end": "F6A-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6A bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     7.4,
+     8.0,
+     20.7
+    ],
+    [
+     10.0,
+     8.0,
+     20.7
+    ],
+    [
+     10.0,
+     11.0,
+     20.7
+    ],
+    [
+     10.0,
+     11.0,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": "F6A-BATH2"
+  },
+  "F6B-MAIN-K": {
+   "start": "F6B-IN",
+   "end": "F6B-TK",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 6B kitchen-side distribution tee main",
+   "diameter": 0.02,
+   "length": 4.4,
+   "path": [
+    [
+     15.3,
+     7.5,
+     20.7
+    ],
+    [
+     16.4,
+     7.5,
+     20.7
+    ],
+    [
+     16.4,
+     4.2,
+     20.7
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": null
+  },
+  "F6B-MAIN-B": {
+   "start": "F6B-IN",
+   "end": "F6B-TB",
+   "kind": "pipe",
+   "role": "flat_main",
+   "label": "Flat 6B bathroom-side distribution tee main",
+   "diameter": 0.02,
+   "length": 3.8,
+   "path": [
+    [
+     15.3,
+     7.5,
+     20.7
+    ],
+    [
+     18.6,
+     7.5,
+     20.7
+    ],
+    [
+     18.6,
+     8.0,
+     20.7
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": null
+  },
+  "F6B-KIT-BR": {
+   "start": "F6B-TK",
+   "end": "F6B-KIT",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6B kitchen branch",
+   "diameter": 0.015,
+   "length": 5.0,
+   "path": [
+    [
+     16.4,
+     4.2,
+     20.7
+    ],
+    [
+     16.4,
+     1.0,
+     20.7
+    ],
+    [
+     16.4,
+     1.0,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-KIT"
+  },
+  "F6B-UTL-BR": {
+   "start": "F6B-TK",
+   "end": "F6B-UTL",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6B utility / wash area branch",
+   "diameter": 0.015,
+   "length": 3.9,
+   "path": [
+    [
+     16.4,
+     4.2,
+     20.7
+    ],
+    [
+     15.7,
+     4.2,
+     20.7
+    ],
+    [
+     15.7,
+     5.6,
+     20.7
+    ],
+    [
+     15.7,
+     5.6,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-UTL"
+  },
+  "F6B-MBATH-BR": {
+   "start": "F6B-TB",
+   "end": "F6B-MBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6B master bathroom branch",
+   "diameter": 0.015,
+   "length": 7.6,
+   "path": [
+    [
+     18.6,
+     8.0,
+     20.7
+    ],
+    [
+     21.2,
+     8.0,
+     20.7
+    ],
+    [
+     21.2,
+     11.2,
+     20.7
+    ],
+    [
+     21.2,
+     11.2,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-MBATH"
+  },
+  "F6B-CBATH-BR": {
+   "start": "F6B-TB",
+   "end": "F6B-CBATH",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6B common bathroom branch",
+   "diameter": 0.015,
+   "length": 4.8,
+   "path": [
+    [
+     18.6,
+     8.0,
+     20.7
+    ],
+    [
+     21.2,
+     8.0,
+     20.7
+    ],
+    [
+     21.2,
+     7.6,
+     20.7
+    ],
+    [
+     21.2,
+     7.6,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-CBATH"
+  },
+  "F6B-BATH2-BR": {
+   "start": "F6B-TB",
+   "end": "F6B-BATH2",
+   "kind": "pipe",
+   "role": "room_branch",
+   "label": "Flat 6B bathroom 2 branch",
+   "diameter": 0.015,
+   "length": 7.4,
+   "path": [
+    [
+     18.6,
+     8.0,
+     20.7
+    ],
+    [
+     16.0,
+     8.0,
+     20.7
+    ],
+    [
+     16.0,
+     11.0,
+     20.7
+    ],
+    [
+     16.0,
+     11.0,
+     18.9
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": "F6B-BATH2"
+  },
+  "ROOF-A": {
+   "start": "ROOF-MAN",
+   "end": "DTA-6",
+   "kind": "pipe",
+   "role": "roof_main",
+   "label": "Roof main to down-take A",
+   "diameter": 0.04,
+   "length": 2.3,
+   "path": [
+    [
+     13.0,
+     7.5,
+     21.4
+    ],
+    [
+     11.4,
+     7.5,
+     21.4
+    ],
+    [
+     11.4,
+     7.5,
+     20.7
+    ]
+   ],
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "F6A-SUPPLY": {
+   "start": "DTA-6",
+   "end": "F6A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 6A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     20.7
+    ],
+    [
+     10.7,
+     7.5,
+     20.7
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6A",
+   "room": null
+  },
+  "DTA-6-5": {
+   "start": "DTA-6",
+   "end": "DTA-5",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take A riser, floor 6 to 5",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     11.4,
+     7.5,
+     20.7
+    ],
+    [
+     11.4,
+     7.5,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": null,
+   "room": null
+  },
+  "F5A-SUPPLY": {
+   "start": "DTA-5",
+   "end": "F5A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 5A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     17.7
+    ],
+    [
+     10.7,
+     7.5,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5A",
+   "room": null
+  },
+  "DTA-5-4": {
+   "start": "DTA-5",
+   "end": "DTA-4",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take A riser, floor 5 to 4",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     11.4,
+     7.5,
+     17.7
+    ],
+    [
+     11.4,
+     7.5,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": null,
+   "room": null
+  },
+  "F4A-SUPPLY": {
+   "start": "DTA-4",
+   "end": "F4A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 4A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     14.7
+    ],
+    [
+     10.7,
+     7.5,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4A",
+   "room": null
+  },
+  "DTA-4-3": {
+   "start": "DTA-4",
+   "end": "DTA-3",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take A riser, floor 4 to 3",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     11.4,
+     7.5,
+     14.7
+    ],
+    [
+     11.4,
+     7.5,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": null,
+   "room": null
+  },
+  "F3A-SUPPLY": {
+   "start": "DTA-3",
+   "end": "F3A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 3A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     11.7
+    ],
+    [
+     10.7,
+     7.5,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3A",
+   "room": null
+  },
+  "DTA-3-2": {
+   "start": "DTA-3",
+   "end": "DTA-2",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take A riser, floor 3 to 2",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     11.4,
+     7.5,
+     11.7
+    ],
+    [
+     11.4,
+     7.5,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": null,
+   "room": null
+  },
+  "F2A-SUPPLY": {
+   "start": "DTA-2",
+   "end": "F2A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 2A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     8.7
+    ],
+    [
+     10.7,
+     7.5,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2A",
+   "room": null
+  },
+  "DTA-2-1": {
+   "start": "DTA-2",
+   "end": "DTA-1",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take A riser, floor 2 to 1",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     11.4,
+     7.5,
+     8.7
+    ],
+    [
+     11.4,
+     7.5,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": null,
+   "room": null
+  },
+  "F1A-SUPPLY": {
+   "start": "DTA-1",
+   "end": "F1A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 1A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     5.7
+    ],
+    [
+     10.7,
+     7.5,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1A",
+   "room": null
+  },
+  "DTA-1-0": {
+   "start": "DTA-1",
+   "end": "DTA-0",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take A riser, floor 1 to 0",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     11.4,
+     7.5,
+     5.7
+    ],
+    [
+     11.4,
+     7.5,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": null,
+   "room": null
+  },
+  "F0A-SUPPLY": {
+   "start": "DTA-0",
+   "end": "F0A-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 0A supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     11.4,
+     7.5,
+     2.7
+    ],
+    [
+     10.7,
+     7.5,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0A",
+   "room": null
+  },
+  "ROOF-B": {
+   "start": "ROOF-MAN",
+   "end": "DTB-6",
+   "kind": "pipe",
+   "role": "roof_main",
+   "label": "Roof main to down-take B",
+   "diameter": 0.04,
+   "length": 2.3,
+   "path": [
+    [
+     13.0,
+     7.5,
+     21.4
+    ],
+    [
+     14.6,
+     7.5,
+     21.4
+    ],
+    [
+     14.6,
+     7.5,
+     20.7
+    ]
+   ],
+   "floor": null,
+   "flat": null,
+   "room": null
+  },
+  "F6B-SUPPLY": {
+   "start": "DTB-6",
+   "end": "F6B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 6B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     20.7
+    ],
+    [
+     15.3,
+     7.5,
+     20.7
+    ]
+   ],
+   "floor": 6,
+   "flat": "F6B",
+   "room": null
+  },
+  "DTB-6-5": {
+   "start": "DTB-6",
+   "end": "DTB-5",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take B riser, floor 6 to 5",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     14.6,
+     7.5,
+     20.7
+    ],
+    [
+     14.6,
+     7.5,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": null,
+   "room": null
+  },
+  "F5B-SUPPLY": {
+   "start": "DTB-5",
+   "end": "F5B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 5B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     17.7
+    ],
+    [
+     15.3,
+     7.5,
+     17.7
+    ]
+   ],
+   "floor": 5,
+   "flat": "F5B",
+   "room": null
+  },
+  "DTB-5-4": {
+   "start": "DTB-5",
+   "end": "DTB-4",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take B riser, floor 5 to 4",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     14.6,
+     7.5,
+     17.7
+    ],
+    [
+     14.6,
+     7.5,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": null,
+   "room": null
+  },
+  "F4B-SUPPLY": {
+   "start": "DTB-4",
+   "end": "F4B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 4B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     14.7
+    ],
+    [
+     15.3,
+     7.5,
+     14.7
+    ]
+   ],
+   "floor": 4,
+   "flat": "F4B",
+   "room": null
+  },
+  "DTB-4-3": {
+   "start": "DTB-4",
+   "end": "DTB-3",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take B riser, floor 4 to 3",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     14.6,
+     7.5,
+     14.7
+    ],
+    [
+     14.6,
+     7.5,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": null,
+   "room": null
+  },
+  "F3B-SUPPLY": {
+   "start": "DTB-3",
+   "end": "F3B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 3B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     11.7
+    ],
+    [
+     15.3,
+     7.5,
+     11.7
+    ]
+   ],
+   "floor": 3,
+   "flat": "F3B",
+   "room": null
+  },
+  "DTB-3-2": {
+   "start": "DTB-3",
+   "end": "DTB-2",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take B riser, floor 3 to 2",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     14.6,
+     7.5,
+     11.7
+    ],
+    [
+     14.6,
+     7.5,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": null,
+   "room": null
+  },
+  "F2B-SUPPLY": {
+   "start": "DTB-2",
+   "end": "F2B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 2B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     8.7
+    ],
+    [
+     15.3,
+     7.5,
+     8.7
+    ]
+   ],
+   "floor": 2,
+   "flat": "F2B",
+   "room": null
+  },
+  "DTB-2-1": {
+   "start": "DTB-2",
+   "end": "DTB-1",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take B riser, floor 2 to 1",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     14.6,
+     7.5,
+     8.7
+    ],
+    [
+     14.6,
+     7.5,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": null,
+   "room": null
+  },
+  "F1B-SUPPLY": {
+   "start": "DTB-1",
+   "end": "F1B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 1B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     5.7
+    ],
+    [
+     15.3,
+     7.5,
+     5.7
+    ]
+   ],
+   "floor": 1,
+   "flat": "F1B",
+   "room": null
+  },
+  "DTB-1-0": {
+   "start": "DTB-1",
+   "end": "DTB-0",
+   "kind": "pipe",
+   "role": "downtake",
+   "label": "Down-take B riser, floor 1 to 0",
+   "diameter": 0.04,
+   "length": 3.0,
+   "path": [
+    [
+     14.6,
+     7.5,
+     5.7
+    ],
+    [
+     14.6,
+     7.5,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": null,
+   "room": null
+  },
+  "F0B-SUPPLY": {
+   "start": "DTB-0",
+   "end": "F0B-IN",
+   "kind": "pipe",
+   "role": "flat_supply",
+   "label": "Flat 0B supply",
+   "diameter": 0.025,
+   "length": 0.7,
+   "path": [
+    [
+     14.6,
+     7.5,
+     2.7
+    ],
+    [
+     15.3,
+     7.5,
+     2.7
+    ]
+   ],
+   "floor": 0,
+   "flat": "F0B",
+   "room": null
+  }
+ },
+ "sensors": [
+  {
+   "id": "FM-CITY-INLET",
+   "asset_id": "CITY-INLET",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Municipal inlet to sump"
+  },
+  {
+   "id": "FM-PUMP1",
+   "asset_id": "PUMP1",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Transfer pump (sump to roof tank)"
+  },
+  {
+   "id": "FM-OHT-OUTLET",
+   "asset_id": "OHT-OUTLET",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Roof tank outlet"
+  },
+  {
+   "id": "FM-F0A-KIT-BR",
+   "asset_id": "F0A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0A kitchen branch"
+  },
+  {
+   "id": "FM-F0A-UTL-BR",
+   "asset_id": "F0A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0A utility / wash area branch"
+  },
+  {
+   "id": "FM-F0A-MBATH-BR",
+   "asset_id": "F0A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0A master bathroom branch"
+  },
+  {
+   "id": "FM-F0A-CBATH-BR",
+   "asset_id": "F0A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0A common bathroom branch"
+  },
+  {
+   "id": "FM-F0A-BATH2-BR",
+   "asset_id": "F0A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F0B-KIT-BR",
+   "asset_id": "F0B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0B kitchen branch"
+  },
+  {
+   "id": "FM-F0B-UTL-BR",
+   "asset_id": "F0B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0B utility / wash area branch"
+  },
+  {
+   "id": "FM-F0B-MBATH-BR",
+   "asset_id": "F0B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0B master bathroom branch"
+  },
+  {
+   "id": "FM-F0B-CBATH-BR",
+   "asset_id": "F0B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0B common bathroom branch"
+  },
+  {
+   "id": "FM-F0B-BATH2-BR",
+   "asset_id": "F0B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F1A-KIT-BR",
+   "asset_id": "F1A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1A kitchen branch"
+  },
+  {
+   "id": "FM-F1A-UTL-BR",
+   "asset_id": "F1A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1A utility / wash area branch"
+  },
+  {
+   "id": "FM-F1A-MBATH-BR",
+   "asset_id": "F1A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1A master bathroom branch"
+  },
+  {
+   "id": "FM-F1A-CBATH-BR",
+   "asset_id": "F1A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1A common bathroom branch"
+  },
+  {
+   "id": "FM-F1A-BATH2-BR",
+   "asset_id": "F1A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F1B-KIT-BR",
+   "asset_id": "F1B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1B kitchen branch"
+  },
+  {
+   "id": "FM-F1B-UTL-BR",
+   "asset_id": "F1B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1B utility / wash area branch"
+  },
+  {
+   "id": "FM-F1B-MBATH-BR",
+   "asset_id": "F1B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1B master bathroom branch"
+  },
+  {
+   "id": "FM-F1B-CBATH-BR",
+   "asset_id": "F1B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1B common bathroom branch"
+  },
+  {
+   "id": "FM-F1B-BATH2-BR",
+   "asset_id": "F1B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F2A-KIT-BR",
+   "asset_id": "F2A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2A kitchen branch"
+  },
+  {
+   "id": "FM-F2A-UTL-BR",
+   "asset_id": "F2A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2A utility / wash area branch"
+  },
+  {
+   "id": "FM-F2A-MBATH-BR",
+   "asset_id": "F2A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2A master bathroom branch"
+  },
+  {
+   "id": "FM-F2A-CBATH-BR",
+   "asset_id": "F2A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2A common bathroom branch"
+  },
+  {
+   "id": "FM-F2A-BATH2-BR",
+   "asset_id": "F2A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F2B-KIT-BR",
+   "asset_id": "F2B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2B kitchen branch"
+  },
+  {
+   "id": "FM-F2B-UTL-BR",
+   "asset_id": "F2B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2B utility / wash area branch"
+  },
+  {
+   "id": "FM-F2B-MBATH-BR",
+   "asset_id": "F2B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2B master bathroom branch"
+  },
+  {
+   "id": "FM-F2B-CBATH-BR",
+   "asset_id": "F2B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2B common bathroom branch"
+  },
+  {
+   "id": "FM-F2B-BATH2-BR",
+   "asset_id": "F2B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F3A-KIT-BR",
+   "asset_id": "F3A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3A kitchen branch"
+  },
+  {
+   "id": "FM-F3A-UTL-BR",
+   "asset_id": "F3A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3A utility / wash area branch"
+  },
+  {
+   "id": "FM-F3A-MBATH-BR",
+   "asset_id": "F3A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3A master bathroom branch"
+  },
+  {
+   "id": "FM-F3A-CBATH-BR",
+   "asset_id": "F3A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3A common bathroom branch"
+  },
+  {
+   "id": "FM-F3A-BATH2-BR",
+   "asset_id": "F3A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F3B-KIT-BR",
+   "asset_id": "F3B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3B kitchen branch"
+  },
+  {
+   "id": "FM-F3B-UTL-BR",
+   "asset_id": "F3B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3B utility / wash area branch"
+  },
+  {
+   "id": "FM-F3B-MBATH-BR",
+   "asset_id": "F3B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3B master bathroom branch"
+  },
+  {
+   "id": "FM-F3B-CBATH-BR",
+   "asset_id": "F3B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3B common bathroom branch"
+  },
+  {
+   "id": "FM-F3B-BATH2-BR",
+   "asset_id": "F3B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F4A-KIT-BR",
+   "asset_id": "F4A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4A kitchen branch"
+  },
+  {
+   "id": "FM-F4A-UTL-BR",
+   "asset_id": "F4A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4A utility / wash area branch"
+  },
+  {
+   "id": "FM-F4A-MBATH-BR",
+   "asset_id": "F4A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4A master bathroom branch"
+  },
+  {
+   "id": "FM-F4A-CBATH-BR",
+   "asset_id": "F4A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4A common bathroom branch"
+  },
+  {
+   "id": "FM-F4A-BATH2-BR",
+   "asset_id": "F4A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F4B-KIT-BR",
+   "asset_id": "F4B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4B kitchen branch"
+  },
+  {
+   "id": "FM-F4B-UTL-BR",
+   "asset_id": "F4B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4B utility / wash area branch"
+  },
+  {
+   "id": "FM-F4B-MBATH-BR",
+   "asset_id": "F4B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4B master bathroom branch"
+  },
+  {
+   "id": "FM-F4B-CBATH-BR",
+   "asset_id": "F4B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4B common bathroom branch"
+  },
+  {
+   "id": "FM-F4B-BATH2-BR",
+   "asset_id": "F4B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F5A-KIT-BR",
+   "asset_id": "F5A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5A kitchen branch"
+  },
+  {
+   "id": "FM-F5A-UTL-BR",
+   "asset_id": "F5A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5A utility / wash area branch"
+  },
+  {
+   "id": "FM-F5A-MBATH-BR",
+   "asset_id": "F5A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5A master bathroom branch"
+  },
+  {
+   "id": "FM-F5A-CBATH-BR",
+   "asset_id": "F5A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5A common bathroom branch"
+  },
+  {
+   "id": "FM-F5A-BATH2-BR",
+   "asset_id": "F5A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F5B-KIT-BR",
+   "asset_id": "F5B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5B kitchen branch"
+  },
+  {
+   "id": "FM-F5B-UTL-BR",
+   "asset_id": "F5B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5B utility / wash area branch"
+  },
+  {
+   "id": "FM-F5B-MBATH-BR",
+   "asset_id": "F5B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5B master bathroom branch"
+  },
+  {
+   "id": "FM-F5B-CBATH-BR",
+   "asset_id": "F5B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5B common bathroom branch"
+  },
+  {
+   "id": "FM-F5B-BATH2-BR",
+   "asset_id": "F5B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F6A-KIT-BR",
+   "asset_id": "F6A-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6A kitchen branch"
+  },
+  {
+   "id": "FM-F6A-UTL-BR",
+   "asset_id": "F6A-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6A utility / wash area branch"
+  },
+  {
+   "id": "FM-F6A-MBATH-BR",
+   "asset_id": "F6A-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6A master bathroom branch"
+  },
+  {
+   "id": "FM-F6A-CBATH-BR",
+   "asset_id": "F6A-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6A common bathroom branch"
+  },
+  {
+   "id": "FM-F6A-BATH2-BR",
+   "asset_id": "F6A-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6A bathroom 2 branch"
+  },
+  {
+   "id": "FM-F6B-KIT-BR",
+   "asset_id": "F6B-KIT-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6B kitchen branch"
+  },
+  {
+   "id": "FM-F6B-UTL-BR",
+   "asset_id": "F6B-UTL-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6B utility / wash area branch"
+  },
+  {
+   "id": "FM-F6B-MBATH-BR",
+   "asset_id": "F6B-MBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6B master bathroom branch"
+  },
+  {
+   "id": "FM-F6B-CBATH-BR",
+   "asset_id": "F6B-CBATH-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6B common bathroom branch"
+  },
+  {
+   "id": "FM-F6B-BATH2-BR",
+   "asset_id": "F6B-BATH2-BR",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6B bathroom 2 branch"
+  },
+  {
+   "id": "FM-F6A-SUPPLY",
+   "asset_id": "F6A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6A supply"
+  },
+  {
+   "id": "FM-F5A-SUPPLY",
+   "asset_id": "F5A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5A supply"
+  },
+  {
+   "id": "FM-F4A-SUPPLY",
+   "asset_id": "F4A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4A supply"
+  },
+  {
+   "id": "FM-F3A-SUPPLY",
+   "asset_id": "F3A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3A supply"
+  },
+  {
+   "id": "FM-F2A-SUPPLY",
+   "asset_id": "F2A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2A supply"
+  },
+  {
+   "id": "FM-F1A-SUPPLY",
+   "asset_id": "F1A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1A supply"
+  },
+  {
+   "id": "FM-F0A-SUPPLY",
+   "asset_id": "F0A-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0A supply"
+  },
+  {
+   "id": "FM-F6B-SUPPLY",
+   "asset_id": "F6B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 6B supply"
+  },
+  {
+   "id": "FM-F5B-SUPPLY",
+   "asset_id": "F5B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 5B supply"
+  },
+  {
+   "id": "FM-F4B-SUPPLY",
+   "asset_id": "F4B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 4B supply"
+  },
+  {
+   "id": "FM-F3B-SUPPLY",
+   "asset_id": "F3B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 3B supply"
+  },
+  {
+   "id": "FM-F2B-SUPPLY",
+   "asset_id": "F2B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 2B supply"
+  },
+  {
+   "id": "FM-F1B-SUPPLY",
+   "asset_id": "F1B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 1B supply"
+  },
+  {
+   "id": "FM-F0B-SUPPLY",
+   "asset_id": "F0B-SUPPLY",
+   "asset_type": "link",
+   "parameter": "flowrate",
+   "label": "Flow meter: Flat 0B supply"
+  },
+  {
+   "id": "PT-SUMP",
+   "asset_id": "SUMP",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Level sensor: Underground sump"
+  },
+  {
+   "id": "PT-OHT",
+   "asset_id": "OHT",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Level sensor: Overhead (roof) tank"
+  },
+  {
+   "id": "PT-F0A-IN",
+   "asset_id": "F0A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 0A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F0B-IN",
+   "asset_id": "F0B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 0B inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F1A-IN",
+   "asset_id": "F1A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 1A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F1B-IN",
+   "asset_id": "F1B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 1B inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F2A-IN",
+   "asset_id": "F2A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 2A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F2B-IN",
+   "asset_id": "F2B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 2B inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F3A-IN",
+   "asset_id": "F3A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 3A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F3B-IN",
+   "asset_id": "F3B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 3B inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F4A-IN",
+   "asset_id": "F4A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 4A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F4B-IN",
+   "asset_id": "F4B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 4B inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F5A-IN",
+   "asset_id": "F5A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 5A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F5B-IN",
+   "asset_id": "F5B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 5B inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F6A-IN",
+   "asset_id": "F6A-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 6A inlet (valve + meter)"
+  },
+  {
+   "id": "PT-F6B-IN",
+   "asset_id": "F6B-IN",
+   "asset_type": "node",
+   "parameter": "pressure",
+   "label": "Pressure sensor: Flat 6B inlet (valve + meter)"
+  }
+ ]
+}

@@ -60,6 +60,7 @@ def generate_fault_scenarios(
                     severity=severity,
                     start_hour=start_hour,
                     end_hour=end_hour,
+                    params=dict(block.params),
                 )
             )
 

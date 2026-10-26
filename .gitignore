@@ -57,3 +57,6 @@ data/building/diagnosis/
 data/building_holdout/
 data/building_holdout2/
 data/building_holdout3/
+
+# Paper result runs (scripts/paper_results.py)
+data/paper/

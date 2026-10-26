@@ -1,3 +1,4 @@
+import argparse
 import sys
 from pathlib import Path
 
@@ -13,9 +14,20 @@ from twinrag.simulation.scenario_generator import generate_fault_scenarios
 
 
 def main():
-    config_path = PROJECT_ROOT / "configs" / "simulation.yaml"
+    parser = argparse.ArgumentParser(
+        description="Check every generated target exists in the network with the right asset kind."
+    )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=PROJECT_ROOT / "configs" / "simulation.yaml",
+    )
+    config_path = parser.parse_args().config.resolve()
 
     config = load_config(config_path)
+
+    print(f"\nConfig : {config_path.relative_to(PROJECT_ROOT)}")
+    print(f"Network: {config.network_file}")
 
     network_path = PROJECT_ROOT / config.network_file
 
@@ -96,6 +108,16 @@ def main():
         print(
             "All generated scenario targets are valid."
         )
+
+    for fault_type, expected in (
+        ("leak", "junction"),
+        ("pump_failure", "pump"),
+        ("blockage", "link"),
+    ):
+        targets = sorted({s.target_id for s in scenarios if s.type == fault_type})
+
+        if targets:
+            print(f"  {fault_type:<13} -> {expected:<8} {len(targets)} targets: {', '.join(targets)}")
 
 
 if __name__ == "__main__":
